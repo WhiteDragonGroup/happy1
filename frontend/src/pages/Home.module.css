@@ -1,0 +1,233 @@
+.container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 24px;
+}
+
+.navBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.navBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.monthTitle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.weekDay {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.weekDay.sunday {
+  color: var(--neon-pink);
+}
+
+.weekDay.saturday {
+  color: var(--neon-blue);
+}
+
+.calendar {
+  overflow: hidden;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.emptyCell {
+  aspect-ratio: 1;
+  min-height: 80px;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  min-height: 80px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.dayCell:hover {
+  border-color: var(--border-glow);
+  background: var(--bg-elevated);
+}
+
+.dayCell.today {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--neon-pink-glow);
+}
+
+.dayCell.sunday .dayNumber {
+  color: var(--neon-pink);
+}
+
+.dayCell.saturday .dayNumber {
+  color: var(--neon-blue);
+}
+
+.dayNumber {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.scheduleList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.scheduleItem {
+  background: var(--neon-purple-glow);
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.625rem;
+  color: var(--neon-purple);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.scheduleItem:hover {
+  background: var(--neon-purple);
+  color: white;
+}
+
+.scheduleTitle {
+  font-weight: 500;
+}
+
+.moreCount {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  padding: 2px 0;
+}
+
+.favoriteIndicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.625rem;
+  color: var(--neon-pink);
+}
+
+.favoriteTeams {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.teamChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.teamChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--neon-pink-glow);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--neon-pink);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 24px;
+  }
+
+  .dayCell {
+    min-height: 100px;
+    padding: 8px;
+  }
+
+  .dayNumber {
+    font-size: 1rem;
+  }
+
+  .scheduleItem {
+    font-size: 0.6875rem;
+    padding: 3px 6px;
+  }
+
+  .monthTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .dayCell {
+    min-height: 120px;
+    padding: 10px;
+  }
+
+  .scheduleItem {
+    font-size: 0.75rem;
+  }
+}

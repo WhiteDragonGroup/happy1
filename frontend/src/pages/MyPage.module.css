@@ -1,0 +1,268 @@
+.container {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loginPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.logoWrap {
+  margin-bottom: 16px;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loginPrompt h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.loginPrompt p {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 280px;
+}
+
+.authButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+.profileImage {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profileImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.profileName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.roleBadge {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.roleBadge.member {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.roleBadge.manager {
+  background: var(--neon-blue-glow);
+  color: var(--neon-blue);
+}
+
+.roleBadge.admin {
+  background: var(--neon-pink-glow);
+  color: var(--neon-pink);
+}
+
+.profileEmail {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.menuItem:last-child {
+  border-bottom: none;
+}
+
+.menuItem:hover {
+  background: var(--bg-elevated);
+}
+
+.menuIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.menuContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.menuLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.menuBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--neon-pink);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.menuDesc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.menuArrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
+}
+
+.withdrawBtn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.withdrawBtn:hover {
+  color: var(--neon-pink);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 24px;
+  }
+
+  .profileCard {
+    padding: 24px;
+  }
+
+  .profileImage {
+    width: 72px;
+    height: 72px;
+  }
+}
