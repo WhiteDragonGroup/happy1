@@ -1,27 +1,27 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Compass, Heart, Home, Calendar, User } from 'lucide-react';
+import { Compass, Heart, Home, Calendar, User, LogIn } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './BottomNav.module.css';
 
-const navItems = [
-  { path: '/explore', icon: Compass, label: '스케줄' },
-  { path: '/favorites', icon: Heart, label: '아티스트', requireAuth: true },
-  { path: '/', icon: Home, label: '홈' },
-  { path: '/my-schedule', icon: Calendar, label: '내일정' },
-  { path: '/mypage', icon: User, label: '마이' },
-];
-
 export default function BottomNav() {
   const { isLoggedIn } = useApp();
-  const navigate = useNavigate();
 
-  const handleClick = (e: React.MouseEvent, item: typeof navItems[0]) => {
-    if (item.requireAuth && !isLoggedIn) {
-      e.preventDefault();
-      navigate('/login');
-    }
-  };
+  // 로그인 전: 홈, 스케줄, 로그인
+  // 로그인 후: 스케줄, 아티스트, 홈, 내일정, 마이
+  const navItems = isLoggedIn
+    ? [
+        { path: '/explore', icon: Compass, label: '스케줄' },
+        { path: '/favorites', icon: Heart, label: '아티스트' },
+        { path: '/', icon: Home, label: '홈' },
+        { path: '/my-schedule', icon: Calendar, label: '내일정' },
+        { path: '/mypage', icon: User, label: '마이' },
+      ]
+    : [
+        { path: '/', icon: Home, label: '홈' },
+        { path: '/explore', icon: Compass, label: '스케줄' },
+        { path: '/login', icon: LogIn, label: '로그인' },
+      ];
 
   return (
     <nav className={styles.nav}>
@@ -33,7 +33,6 @@ export default function BottomNav() {
             className={({ isActive }) =>
               `${styles.item} ${isActive ? styles.active : ''}`
             }
-            onClick={(e) => handleClick(e, item)}
           >
             {({ isActive }) => (
               <>

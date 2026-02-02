@@ -36,7 +36,7 @@ export default function MyPage() {
         </header>
         <div className={styles.loginPrompt}>
           <div className={styles.logoWrap}>
-            <span className={styles.logo}>UNDERPASS</span>
+            <span className={styles.logo}>STAGE</span>
           </div>
           <h2>로그인하고 시작하세요</h2>
           <p>아티스트 찜, 스케줄 알림 등 다양한 서비스를 이용해보세요</p>

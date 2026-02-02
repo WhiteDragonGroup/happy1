@@ -73,7 +73,7 @@ export default function Home() {
   return (
     <div className="page">
       <header className={`page-header ${styles.header}`}>
-        <h1 className={styles.logo}>UNDERPASS</h1>
+        <h1 className={styles.logo}>STAGE</h1>
       </header>
 
       <div className={styles.container}>

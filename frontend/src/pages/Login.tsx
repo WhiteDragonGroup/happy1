@@ -40,7 +40,7 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className={styles.logoSection}>
-          <h1 className={styles.logo}>UNDERPASS</h1>
+          <h1 className={styles.logo}>STAGE</h1>
           <p className={styles.subtitle}>지하에서 시작되는 무대</p>
         </div>
 
