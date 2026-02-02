@@ -30,6 +30,17 @@ public class Schedule {
     @JsonIgnore
     private User manager;
 
+    // 응답용 필드
+    @Transient
+    private Long managerId;
+
+    @PostLoad
+    private void loadManagerId() {
+        if (manager != null) {
+            this.managerId = manager.getId();
+        }
+    }
+
     // === 필수 컬럼 ===
     @Column(nullable = false)
     private String title;

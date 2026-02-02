@@ -168,8 +168,8 @@ export default function AdminRequests() {
 
                 <p className={styles.cardMeta}>신청일: {req.createdAt}</p>
 
-                {req.status === 'PENDING' && (
-                  <div className={styles.cardActions}>
+                <div className={styles.cardActions}>
+                  {req.status !== 'APPROVED' && (
                     <button
                       className="btn btn-primary btn-sm"
                       onClick={() => handleApprove(req.id)}
@@ -177,6 +177,8 @@ export default function AdminRequests() {
                       <Check size={14} />
                       승인
                     </button>
+                  )}
+                  {req.status !== 'REJECTED' && (
                     <button
                       className="btn btn-secondary btn-sm"
                       style={{ color: 'var(--neon-pink)' }}
@@ -185,8 +187,8 @@ export default function AdminRequests() {
                       <X size={14} />
                       거절
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>

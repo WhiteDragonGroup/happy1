@@ -113,7 +113,14 @@ public class ManagerRequestController {
                     request.setStatus(ManagerRequest.Status.REJECTED);
                     request.setRejectReason(body.get("reason"));
                     request.setProcessedAt(LocalDateTime.now());
-                    return ResponseEntity.ok(managerRequestRepository.save(request));
+                    managerRequestRepository.save(request);
+
+                    // 유저 권한을 USER로 변경
+                    User user = request.getUser();
+                    user.setRole(User.Role.USER);
+                    userRepository.save(user);
+
+                    return ResponseEntity.ok(request);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

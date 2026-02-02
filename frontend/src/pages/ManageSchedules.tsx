@@ -36,7 +36,7 @@ export default function ManageSchedules() {
   // 내 일정만 필터 (ADMIN은 전체)
   const mySchedules = user?.role === 'ADMIN'
     ? schedules.filter(s => !s.isDeleted)
-    : schedules.filter(s => !s.isDeleted && s.manager?.id === user?.id);
+    : schedules.filter(s => !s.isDeleted && s.managerId === user?.id);
 
   const handleDelete = async (id: number) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
