@@ -39,7 +39,9 @@ export interface Schedule {
   teamId?: number;
   imageUrl?: string;
   date: string;
-  publicDate?: string;
+  publicDateTime?: string;  // 일정 공개일시
+  ticketOpenDateTime?: string;  // 티켓 판매 오픈일시
+  ticketTypes?: string;  // 티켓 권종 (콤마 구분)
   timeSlots?: TimeSlot[];
   advancePrice?: number;
   doorPrice?: number;

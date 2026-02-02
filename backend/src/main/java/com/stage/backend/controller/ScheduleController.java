@@ -84,7 +84,9 @@ public class ScheduleController {
                     schedule.setTitle(scheduleData.getTitle());
                     schedule.setOrganizer(scheduleData.getOrganizer());
                     schedule.setDate(scheduleData.getDate());
-                    schedule.setPublicDate(scheduleData.getPublicDate());
+                    schedule.setPublicDateTime(scheduleData.getPublicDateTime());
+                    schedule.setTicketOpenDateTime(scheduleData.getTicketOpenDateTime());
+                    schedule.setTicketTypes(scheduleData.getTicketTypes());
                     schedule.setCapacity(scheduleData.getCapacity());
                     schedule.setAdvancePrice(scheduleData.getAdvancePrice());
                     schedule.setDoorPrice(scheduleData.getDoorPrice());

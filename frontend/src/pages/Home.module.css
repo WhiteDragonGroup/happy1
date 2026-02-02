@@ -299,13 +299,14 @@
   border-radius: 2px;
   border-left: 2px solid var(--neon-pink);
   padding: 2px 4px;
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
   transition: all var(--transition-fast);
+  max-width: 100%;
 }
 
 .scheduleItem:hover {

@@ -275,7 +275,7 @@ export default function Home() {
                             }}
                           >
                             <span className={styles.scheduleTitle}>
-                              {schedule.title.length > 6 ? schedule.title.slice(0, 6) + '..' : schedule.title}
+                              {schedule.title}
                             </span>
                           </div>
                         ))}

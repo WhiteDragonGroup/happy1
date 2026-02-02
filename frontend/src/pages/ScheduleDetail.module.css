@@ -203,6 +203,15 @@
   font-weight: 600;
   color: var(--neon-cyan);
   flex: 1;
+  transition: all var(--transition-fast);
+  padding: 2px 8px;
+  margin: -2px -8px;
+  border-radius: var(--radius-sm);
+}
+
+.slotTeam:hover {
+  background: rgba(0, 240, 255, 0.15);
+  transform: scale(1.02);
 }
 
 .slotDesc {

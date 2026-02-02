@@ -99,7 +99,7 @@ const generateSchedules = (): Schedule[] => {
       team,
       imageUrl: `https://picsum.photos/seed/poster${idx + 1}/400/600`,
       date: date.toISOString(),
-      publicDate: publicDate.toISOString(),
+      publicDateTime: publicDate.toISOString(),
       timeSlots: [
         { id: idx * 2 + 1, startTime: '18:00', endTime: '19:30', teamName: team.name },
         { id: idx * 2 + 2, startTime: '20:00', endTime: '21:30', teamName: team.name },

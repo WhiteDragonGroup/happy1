@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, MapPin, Clock, Heart, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import ArtistPopup from '../components/ArtistPopup';
 import styles from './common.module.css';
 
 export default function DaySchedules() {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
-  const { schedules, isFavorite, getFavoriteTeams } = useApp();
+  const { schedules, isFavorite, getFavoriteTeams, teams } = useApp();
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamNames = new Set(favoriteTeams.map(t => t.name.toLowerCase()));
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
 
   if (!date) {
     return (
@@ -168,6 +171,10 @@ export default function DaySchedules() {
                               return slot.teamName ? (
                                 <span
                                   key={i}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedArtist(slot.teamName || null);
+                                  }}
                                   style={{
                                     fontSize: '0.75rem',
                                     padding: '2px 8px',
@@ -177,7 +184,15 @@ export default function DaySchedules() {
                                     border: isFav ? '1px solid var(--neon-pink)' : '1px solid transparent',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: 4
+                                    gap: 4,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    (e.target as HTMLElement).style.transform = 'scale(1.05)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    (e.target as HTMLElement).style.transform = 'scale(1)';
                                   }}
                                 >
                                   {isFav && <Heart size={10} fill="var(--neon-pink)" />}
@@ -211,6 +226,15 @@ export default function DaySchedules() {
           </div>
         )}
       </motion.div>
+
+      {/* 아티스트 팝업 */}
+      {selectedArtist && (
+        <ArtistPopup
+          artist={teams.find(t => t.name.toLowerCase() === selectedArtist.toLowerCase()) || null}
+          artistName={selectedArtist}
+          onClose={() => setSelectedArtist(null)}
+        />
+      )}
     </div>
   );
 }

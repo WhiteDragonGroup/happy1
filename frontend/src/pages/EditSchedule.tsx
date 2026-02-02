@@ -8,14 +8,8 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { scheduleAPI, teamAPI } from '../api';
+import { scheduleAPI } from '../api';
 import styles from './CreateSchedule.module.css';
-
-interface Artist {
-  id: number;
-  name: string;
-  genre?: string;
-}
 
 interface TimeSlotInput {
   startTime: string;
@@ -30,7 +24,9 @@ interface FormState {
   posterImage: File | null;
   posterPreview: string;
   date: string;
-  publicDate: string;
+  publicDateTime: string;
+  ticketOpenDateTime: string;
+  ticketTypes: string[];
   timeSlots: TimeSlotInput[];
   advancePrice: string;
   doorPrice: string;
@@ -50,7 +46,6 @@ export default function EditSchedule() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user, refreshData } = useApp();
-  const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState<FormState>({
@@ -59,7 +54,9 @@ export default function EditSchedule() {
     posterImage: null,
     posterPreview: '',
     date: '',
-    publicDate: '',
+    publicDateTime: '',
+    ticketOpenDateTime: '',
+    ticketTypes: [],
     timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
     advancePrice: '',
     doorPrice: '',
@@ -83,13 +80,7 @@ export default function EditSchedule() {
 
   const loadData = async () => {
     try {
-      const [scheduleRes, artistsRes] = await Promise.all([
-        scheduleAPI.getById(Number(id)),
-        teamAPI.getAll()
-      ]);
-
-      setArtists(artistsRes.data);
-
+      const scheduleRes = await scheduleAPI.getById(Number(id));
       const schedule = scheduleRes.data;
 
       // 권한 체크
@@ -106,7 +97,9 @@ export default function EditSchedule() {
         posterImage: null,
         posterPreview: schedule.imageUrl || '',
         date: schedule.date?.split('T')[0] || '',
-        publicDate: schedule.publicDate?.split('T')[0] || '',
+        publicDateTime: schedule.publicDateTime?.slice(0, 16) || '',
+        ticketOpenDateTime: schedule.ticketOpenDateTime?.slice(0, 16) || '',
+        ticketTypes: schedule.ticketTypes ? schedule.ticketTypes.split(',') : [],
         timeSlots: schedule.timeSlots?.length > 0
           ? schedule.timeSlots.map((slot: any) => ({
               startTime: slot.startTime?.substring(0, 5) || '',
@@ -197,11 +190,22 @@ export default function EditSchedule() {
     setIsSubmitting(true);
 
     try {
+      // 티켓 판매일이 일정 공개일보다 앞서면 안됨
+      if (form.ticketOpenDateTime && form.publicDateTime) {
+        if (new Date(form.ticketOpenDateTime) < new Date(form.publicDateTime)) {
+          alert('티켓 판매 오픈일은 일정 공개일 이후여야 합니다.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const scheduleData = {
         title: form.title,
         organizer: form.organizer || null,
         date: form.date,
-        publicDate: form.publicDate || form.date,
+        publicDateTime: form.publicDateTime || null,
+        ticketOpenDateTime: form.ticketOpenDateTime || null,
+        ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
         capacity: Number(form.capacity),
         advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
@@ -324,7 +328,7 @@ export default function EditSchedule() {
             name="title"
             value={form.title}
             onChange={handleInputChange}
-            placeholder="예: LIVE in SETi Vol.73"
+            placeholder="공연 제목을 입력하세요"
             required
           />
         </div>
@@ -357,20 +361,57 @@ export default function EditSchedule() {
           />
         </div>
 
-        {/* 공개일 */}
+        {/* 일정 공개일시 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            일정 공개일
+            일정 공개일시
           </label>
           <input
-            type="date"
-            name="publicDate"
-            value={form.publicDate}
+            type="datetime-local"
+            name="publicDateTime"
+            value={form.publicDateTime}
             onChange={handleInputChange}
-            min="2020-01-01"
-            max="2099-12-31"
           />
           <p className={styles.hint}>비워두면 즉시 공개됩니다</p>
+        </div>
+
+        {/* 티켓 판매 오픈일시 */}
+        <div className={styles.section}>
+          <label className={styles.label}>
+            티켓 판매 오픈일시
+          </label>
+          <input
+            type="datetime-local"
+            name="ticketOpenDateTime"
+            value={form.ticketOpenDateTime}
+            onChange={handleInputChange}
+          />
+          <p className={styles.hint}>일정 공개일 이후로 설정해주세요</p>
+        </div>
+
+        {/* 티켓 권종 */}
+        <div className={styles.section}>
+          <label className={styles.label}>
+            티켓 권종
+          </label>
+          <div className={styles.ticketTypes}>
+            {['A석', 'S석', 'R석', '스탠딩', '무료'].map(type => (
+              <label key={type} className={styles.ticketTypeLabel}>
+                <input
+                  type="checkbox"
+                  checked={form.ticketTypes.includes(type)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setForm(prev => ({ ...prev, ticketTypes: [...prev.ticketTypes, type] }));
+                    } else {
+                      setForm(prev => ({ ...prev, ticketTypes: prev.ticketTypes.filter(t => t !== type) }));
+                    }
+                  }}
+                />
+                <span>{type}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* 타임테이블 */}
@@ -415,34 +456,14 @@ export default function EditSchedule() {
                   </div>
                 </div>
                 <div className={styles.artistSelect}>
-                  <select
-                    value={artists.some(a => a.name === slot.teamName) ? slot.teamName : '__custom__'}
-                    onChange={(e) => {
-                      if (e.target.value === '__custom__') {
-                        handleTimeSlotChange(index, 'teamName', '');
-                      } else {
-                        handleTimeSlotChange(index, 'teamName', e.target.value);
-                      }
-                    }}
-                    className={styles.artistDropdown}
-                  >
-                    <option value="">아티스트 선택</option>
-                    {artists.map(artist => (
-                      <option key={artist.id} value={artist.name}>
-                        {artist.name} {artist.genre && `(${artist.genre})`}
-                      </option>
-                    ))}
-                    <option value="__custom__">직접 입력</option>
-                  </select>
-                  {(!artists.some(a => a.name === slot.teamName) || slot.teamName === '') && (
-                    <input
-                      type="text"
-                      value={slot.teamName}
-                      onChange={(e) => handleTimeSlotChange(index, 'teamName', e.target.value)}
-                      placeholder="아티스트 이름 입력"
-                      className={styles.teamNameInput}
-                    />
-                  )}
+                  <input
+                    type="text"
+                    value={slot.teamName}
+                    onChange={(e) => handleTimeSlotChange(index, 'teamName', e.target.value)}
+                    placeholder="아티스트/팀 이름 입력"
+                    className={styles.teamNameInput}
+                    required
+                  />
                 </div>
                 <input
                   type="text"

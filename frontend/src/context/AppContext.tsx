@@ -167,16 +167,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     const existing = favorites.find(f => String(f.team?.id) === teamId || String(f.teamId) === teamId);
-    try {
-      if (existing) {
+
+    // Optimistic update - UI responds immediately
+    if (existing) {
+      // Optimistically remove
+      const previousFavorites = [...favorites];
+      setFavorites(favorites.filter(f => f.id !== existing.id));
+
+      try {
         await favoriteAPI.remove(Number(teamId));
-        setFavorites(favorites.filter(f => f.id !== existing.id));
-      } else {
-        const res = await favoriteAPI.add(Number(teamId));
-        setFavorites([...favorites, res.data]);
+      } catch (error) {
+        // Rollback on error
+        console.error('Failed to remove favorite:', error);
+        setFavorites(previousFavorites);
       }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+    } else {
+      // Optimistically add with temporary data
+      const tempFavorite: Favorite = {
+        id: Date.now(), // temporary ID
+        teamId: Number(teamId),
+        userId: user.id,
+        createdAt: new Date().toISOString(),
+      };
+      const previousFavorites = [...favorites];
+      setFavorites([...favorites, tempFavorite]);
+
+      try {
+        const res = await favoriteAPI.add(Number(teamId));
+        // Replace temp favorite with real data
+        setFavorites(prev => prev.map(f => f.id === tempFavorite.id ? res.data : f));
+      } catch (error) {
+        // Rollback on error
+        console.error('Failed to add favorite:', error);
+        setFavorites(previousFavorites);
+      }
     }
   };
 

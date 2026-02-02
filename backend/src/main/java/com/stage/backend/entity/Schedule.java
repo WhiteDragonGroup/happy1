@@ -73,7 +73,11 @@ public class Schedule {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private LocalDate publicDate;
+    private LocalDateTime publicDateTime;  // 일정 공개일시
+
+    private LocalDateTime ticketOpenDateTime;  // 티켓 판매 오픈일시
+
+    private String ticketTypes;  // 티켓 권종 (콤마 구분: A,S,FREE 등)
 
     @Builder.Default
     private Integer version = 1;

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,6 +11,7 @@ import {
   Ticket
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import ArtistPopup from '../components/ArtistPopup';
 import styles from './ScheduleDetail.module.css';
 
 export default function ScheduleDetail() {
@@ -18,9 +20,11 @@ export default function ScheduleDetail() {
   const {
     isLoggedIn,
     schedules,
+    teams,
     toggleFavorite,
     isFavorite
   } = useApp();
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
 
   const schedule = schedules.find(s => String(s.id) === id);
 
@@ -166,7 +170,13 @@ export default function ScheduleDetail() {
                       {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
                     </span>
                     {slot.teamName && (
-                      <span className={styles.slotTeam}>{slot.teamName}</span>
+                      <span
+                        className={styles.slotTeam}
+                        onClick={() => setSelectedArtist(slot.teamName || null)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {slot.teamName}
+                      </span>
                     )}
                     {slot.description && (
                       <span className={styles.slotDesc}>{slot.description}</span>
@@ -186,6 +196,15 @@ export default function ScheduleDetail() {
           )}
         </div>
       </motion.div>
+
+      {/* 아티스트 팝업 */}
+      {selectedArtist && (
+        <ArtistPopup
+          artist={teams.find(t => t.name.toLowerCase() === selectedArtist.toLowerCase()) || null}
+          artistName={selectedArtist}
+          onClose={() => setSelectedArtist(null)}
+        />
+      )}
     </div>
   );
 }

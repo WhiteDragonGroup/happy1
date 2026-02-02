@@ -297,6 +297,44 @@
   text-align: center;
 }
 
+/* 티켓 권종 */
+.ticketTypes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ticketTypeLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ticketTypeLabel:has(input:checked) {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.ticketTypeLabel input {
+  width: auto;
+  accent-color: var(--neon-cyan);
+}
+
+.ticketTypeLabel span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.ticketTypeLabel:has(input:checked) span {
+  color: var(--neon-cyan);
+}
+
 /* 제출 버튼 */
 .submitSection {
   padding: 24px 0;
