@@ -184,21 +184,30 @@
 
 .timeSlots {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .timeSlot {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 14px 16px;
   background: var(--bg-card);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
-  min-width: 100px;
+}
+
+.slotTeam {
+  font-weight: 600;
+  color: var(--neon-cyan);
+  flex: 1;
+}
+
+.slotDesc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
 }
 
 .timeSlot:hover:not(:disabled) {
@@ -237,14 +246,37 @@
 }
 
 .priceSection {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 20px;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   margin-bottom: 28px;
+}
+
+.priceList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.priceItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.priceItem svg {
+  color: var(--neon-pink);
+}
+
+.priceValue {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .priceLabel {

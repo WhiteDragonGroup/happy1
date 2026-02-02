@@ -26,8 +26,7 @@ export interface TimeSlot {
   id: number;
   startTime: string;
   endTime: string;
-  capacity: number;
-  reservedCount: number;
+  teamName?: string;
   description?: string;
 }
 
@@ -35,13 +34,15 @@ export interface TimeSlot {
 export interface Schedule {
   id: number;
   title: string;
+  organizer?: string;
   team?: Team;
   teamId?: number;
   imageUrl?: string;
   date: string;
   publicDate?: string;
   timeSlots?: TimeSlot[];
-  price?: number;
+  advancePrice?: number;
+  doorPrice?: number;
   capacity: number;
   description?: string;
   venue?: string;

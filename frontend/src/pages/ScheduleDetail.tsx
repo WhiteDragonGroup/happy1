@@ -6,7 +6,9 @@ import {
   Clock,
   MapPin,
   Heart,
-  Share2
+  Share2,
+  User,
+  Ticket
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './ScheduleDetail.module.css';
@@ -104,7 +106,9 @@ export default function ScheduleDetail() {
 
         {/* 정보 */}
         <div className={styles.infoSection}>
-          <div className={styles.teamBadge}>{schedule.team?.name}</div>
+          {schedule.organizer && (
+            <div className={styles.teamBadge}>{schedule.organizer}</div>
+          )}
           <h2 className={styles.title}>{schedule.title}</h2>
 
           <div className={styles.metaList}>
@@ -127,18 +131,44 @@ export default function ScheduleDetail() {
             )}
           </div>
 
+          {/* 가격 정보 */}
+          {(schedule.advancePrice || schedule.doorPrice) && (
+            <div className={styles.priceSection}>
+              <h3 className={styles.sectionLabel}>입장료</h3>
+              <div className={styles.priceList}>
+                {schedule.advancePrice && (
+                  <div className={styles.priceItem}>
+                    <Ticket size={16} />
+                    <span>예약 발권</span>
+                    <span className={styles.priceValue}>{Number(schedule.advancePrice).toLocaleString()}원</span>
+                  </div>
+                )}
+                {schedule.doorPrice && (
+                  <div className={styles.priceItem}>
+                    <Ticket size={16} />
+                    <span>현장 발권</span>
+                    <span className={styles.priceValue}>{Number(schedule.doorPrice).toLocaleString()}원</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 타임테이블 */}
           {schedule.timeSlots && schedule.timeSlots.length > 0 && (
             <div className={styles.timeSlotsSection}>
-              <h3 className={styles.sectionLabel}>공연 시간</h3>
+              <h3 className={styles.sectionLabel}>타임테이블</h3>
               <div className={styles.timeSlots}>
-                {schedule.timeSlots.map((slot) => (
-                  <div key={slot.id} className={styles.timeSlot}>
+                {schedule.timeSlots.map((slot, idx) => (
+                  <div key={slot.id || idx} className={styles.timeSlot}>
                     <Clock size={16} />
                     <span className={styles.slotTime}>
                       {slot.startTime?.slice(0, 5)}
                       {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
                     </span>
+                    {slot.teamName && (
+                      <span className={styles.slotTeam}>{slot.teamName}</span>
+                    )}
                     {slot.description && (
                       <span className={styles.slotDesc}>{slot.description}</span>
                     )}
