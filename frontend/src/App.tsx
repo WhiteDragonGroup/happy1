@@ -11,7 +11,6 @@ import MySchedule from './pages/MySchedule';
 import MyPage from './pages/MyPage';
 import ScheduleDetail from './pages/ScheduleDetail';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import CreateSchedule from './pages/CreateSchedule';
 import KakaoCallback from './pages/KakaoCallback';
 import Profile from './pages/Profile';
@@ -29,7 +28,7 @@ import './index.css';
 
 function AppRoutes() {
   const location = useLocation();
-  const hideNav = ['/login', '/register'].includes(location.pathname);
+  const hideNav = location.pathname === '/login';
 
   return (
     <>
@@ -53,7 +52,6 @@ function AppRoutes() {
           <Route path="/team/:id" element={<TeamDetail />} />
           <Route path="/day/:date" element={<DaySchedules />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
         </Routes>
       </AnimatePresence>

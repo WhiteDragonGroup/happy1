@@ -40,20 +40,12 @@ export default function MyPage() {
           </div>
           <h2>로그인하고 시작하세요</h2>
           <p>아티스트 찜, 스케줄 알림 등 다양한 서비스를 이용해보세요</p>
-          <div className={styles.authButtons}>
-            <button
-              className="btn btn-primary btn-full"
-              onClick={() => navigate('/login')}
-            >
-              로그인
-            </button>
-            <button
-              className="btn btn-secondary btn-full"
-              onClick={() => navigate('/register')}
-            >
-              회원가입
-            </button>
-          </div>
+          <button
+            className="btn btn-primary btn-full"
+            onClick={() => navigate('/login')}
+          >
+            카카오로 시작하기
+          </button>
         </div>
       </div>
     );

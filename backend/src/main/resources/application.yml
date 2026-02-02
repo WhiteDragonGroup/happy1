@@ -28,7 +28,7 @@ jwt:
 
 kakao:
   rest-api-key: fa35ab7422c93c4782ad86452321dd2c
-  redirect-uri: http://ticketstage.co.kr/oauth/kakao/callback
+  redirect-uri: https://ticketstage.co.kr/oauth/kakao/callback
 
 logging:
   level:
