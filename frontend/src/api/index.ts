@@ -79,6 +79,12 @@ export const reservationAPI = {
   enterByQr: (qrCode: string) => api.post(`/reservations/qr/${qrCode}`),
 };
 
+// User API (Admin)
+export const userAPI = {
+  getAll: () => api.get('/users'),
+  updateRole: (id: number, role: string) => api.patch(`/users/${id}/role`, { role }),
+};
+
 // Favorite API
 export const favoriteAPI = {
   getAll: () => api.get('/favorites'),

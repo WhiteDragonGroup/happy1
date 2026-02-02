@@ -26,26 +26,12 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 기존 사용자의 username 설정 (마이그레이션)
-        userRepository.findByEmail("admin@stage.com").ifPresent(user -> {
-            if (user.getUsername() == null) {
-                user.setUsername("admin");
+        // 특정 전화번호 유저를 ADMIN으로 설정
+        userRepository.findByPhone("01089514449").ifPresent(user -> {
+            if (user.getRole() != User.Role.ADMIN) {
+                user.setRole(User.Role.ADMIN);
                 userRepository.save(user);
-                log.info("admin 계정 username 설정 완료");
-            }
-        });
-        userRepository.findByEmail("manager@stage.com").ifPresent(user -> {
-            if (user.getUsername() == null) {
-                user.setUsername("manager");
-                userRepository.save(user);
-                log.info("manager 계정 username 설정 완료");
-            }
-        });
-        userRepository.findByEmail("user@stage.com").ifPresent(user -> {
-            if (user.getUsername() == null) {
-                user.setUsername("user");
-                userRepository.save(user);
-                log.info("user 계정 username 설정 완료");
+                log.info("01089514449 유저를 ADMIN으로 설정 완료");
             }
         });
 
