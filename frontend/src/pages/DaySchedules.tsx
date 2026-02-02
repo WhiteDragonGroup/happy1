@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, MapPin, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, Heart, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './common.module.css';
 
 export default function DaySchedules() {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
-  const { schedules, isFavorite } = useApp();
+  const { schedules, isFavorite, getFavoriteTeams } = useApp();
+  const favoriteTeams = getFavoriteTeams();
+  const favoriteTeamNames = new Set(favoriteTeams.map(t => t.name.toLowerCase()));
 
   if (!date) {
     return (
@@ -150,13 +152,42 @@ export default function DaySchedules() {
                     </h3>
 
                     {schedule.timeSlots && schedule.timeSlots.length > 0 && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <Clock size={14} color="var(--text-muted)" />
-                        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                          {schedule.timeSlots[0].startTime?.slice(0, 5)}
-                          {schedule.timeSlots.length > 1 && ` 외 ${schedule.timeSlots.length - 1}회`}
-                        </span>
-                      </div>
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <Clock size={14} color="var(--text-muted)" />
+                          <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                            {schedule.timeSlots[0].startTime?.slice(0, 5)}
+                            {schedule.timeSlots.length > 1 && ` ~ ${schedule.timeSlots[schedule.timeSlots.length - 1].endTime?.slice(0, 5)}`}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
+                          <Users size={14} color="var(--text-muted)" style={{ marginTop: 2, flexShrink: 0 }} />
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                            {schedule.timeSlots.map((slot, i) => {
+                              const isFav = slot.teamName && favoriteTeamNames.has(slot.teamName.toLowerCase());
+                              return slot.teamName ? (
+                                <span
+                                  key={i}
+                                  style={{
+                                    fontSize: '0.75rem',
+                                    padding: '2px 8px',
+                                    borderRadius: 'var(--radius-sm)',
+                                    background: isFav ? 'rgba(255, 26, 92, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                                    color: isFav ? 'var(--neon-pink)' : 'var(--text-secondary)',
+                                    border: isFav ? '1px solid var(--neon-pink)' : '1px solid transparent',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  {isFav && <Heart size={10} fill="var(--neon-pink)" />}
+                                  {slot.teamName}
+                                </span>
+                              ) : null;
+                            })}
+                          </div>
+                        </div>
+                      </>
                     )}
 
                     {schedule.venue && (

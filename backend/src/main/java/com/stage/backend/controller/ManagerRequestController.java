@@ -29,7 +29,7 @@ public class ManagerRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ManagerRequest>> getAllRequests(@AuthenticationPrincipal User user) {
-        if (user.getRole() != User.Role.ADMIN && user.getRole() != User.Role.MANAGER) {
+        if (user.getRole() != User.Role.ADMIN) {
             return ResponseEntity.status(403).build();
         }
         List<ManagerRequest> requests = managerRequestRepository.findAllByOrderByCreatedAtDesc();
@@ -45,7 +45,7 @@ public class ManagerRequestController {
 
     @GetMapping("/pending")
     public ResponseEntity<List<ManagerRequest>> getPendingRequests(@AuthenticationPrincipal User user) {
-        if (user.getRole() != User.Role.ADMIN && user.getRole() != User.Role.MANAGER) {
+        if (user.getRole() != User.Role.ADMIN) {
             return ResponseEntity.status(403).build();
         }
         List<ManagerRequest> requests = managerRequestRepository.findByStatusOrderByCreatedAtDesc(ManagerRequest.Status.PENDING);
@@ -80,7 +80,7 @@ public class ManagerRequestController {
     @PostMapping("/{id}/approve")
     public ResponseEntity<ManagerRequest> approve(@PathVariable Long id,
                                                   @AuthenticationPrincipal User adminUser) {
-        if (adminUser.getRole() != User.Role.ADMIN && adminUser.getRole() != User.Role.MANAGER) {
+        if (adminUser.getRole() != User.Role.ADMIN) {
             return ResponseEntity.status(403).build();
         }
 
@@ -104,7 +104,7 @@ public class ManagerRequestController {
     public ResponseEntity<ManagerRequest> reject(@PathVariable Long id,
                                                  @RequestBody Map<String, String> body,
                                                  @AuthenticationPrincipal User adminUser) {
-        if (adminUser.getRole() != User.Role.ADMIN && adminUser.getRole() != User.Role.MANAGER) {
+        if (adminUser.getRole() != User.Role.ADMIN) {
             return ResponseEntity.status(403).build();
         }
 

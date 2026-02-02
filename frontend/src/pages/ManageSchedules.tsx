@@ -102,7 +102,7 @@ export default function ManageSchedules() {
                 <div className={styles.cardActions}>
                   <button
                     className="btn btn-secondary btn-sm"
-                    onClick={() => navigate(`/schedule/${schedule.id}`)}
+                    onClick={() => navigate(`/mypage/edit-schedule/${schedule.id}`)}
                   >
                     <Edit2 size={14} />
                     수정

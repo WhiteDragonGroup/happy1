@@ -39,14 +39,14 @@ export default function AdminRequests() {
     setLoading(false);
   };
 
-  if (user?.role !== 'ADMIN' && user?.role !== 'MANAGER') {
+  if (user?.role !== 'ADMIN') {
     return (
       <div className={styles.page}>
         <header className={styles.header}>
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <ArrowLeft size={24} />
           </button>
-          <h1 className="page-title">요청 관리</h1>
+          <h1 className="page-title">주최자 등록신청 관리</h1>
           <div className={styles.placeholder} />
         </header>
         <div className={styles.unauthorized}>
@@ -94,7 +94,7 @@ export default function AdminRequests() {
         <button className={styles.backBtn} onClick={() => navigate(-1)}>
           <ArrowLeft size={24} />
         </button>
-        <h1 className="page-title">아티스트 요청 관리</h1>
+        <h1 className="page-title">주최자 등록신청 관리</h1>
         <div className={styles.placeholder} />
       </header>
 

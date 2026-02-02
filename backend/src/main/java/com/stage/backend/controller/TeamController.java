@@ -31,10 +31,9 @@ public class TeamController {
 
     @GetMapping("/search")
     public ResponseEntity<List<Team>> search(@RequestParam String q) {
+        // 팀/아티스트 이름으로만 검색 (장르 검색 제외)
         List<Team> byName = teamRepository.findByNameContainingIgnoreCase(q);
-        List<Team> byGenre = teamRepository.findByGenreContainingIgnoreCase(q);
-        byName.addAll(byGenre);
-        return ResponseEntity.ok(byName.stream().distinct().toList());
+        return ResponseEntity.ok(byName);
     }
 
     @PostMapping

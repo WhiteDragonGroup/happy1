@@ -73,6 +73,40 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleRepository.save(schedule));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Schedule> update(@PathVariable Long id,
+                                           @RequestBody Schedule scheduleData,
+                                           @AuthenticationPrincipal User user) {
+        return scheduleRepository.findById(id)
+                .filter(s -> s.getManager().getId().equals(user.getId()) ||
+                        user.getRole() == User.Role.ADMIN)
+                .map(schedule -> {
+                    schedule.setTitle(scheduleData.getTitle());
+                    schedule.setOrganizer(scheduleData.getOrganizer());
+                    schedule.setDate(scheduleData.getDate());
+                    schedule.setPublicDate(scheduleData.getPublicDate());
+                    schedule.setCapacity(scheduleData.getCapacity());
+                    schedule.setAdvancePrice(scheduleData.getAdvancePrice());
+                    schedule.setDoorPrice(scheduleData.getDoorPrice());
+                    schedule.setVenue(scheduleData.getVenue());
+                    schedule.setDescription(scheduleData.getDescription());
+                    schedule.setImageUrl(scheduleData.getImageUrl());
+                    schedule.setIsPublished(scheduleData.getIsPublished());
+
+                    // 타임슬롯 업데이트
+                    schedule.getTimeSlots().clear();
+                    if (scheduleData.getTimeSlots() != null) {
+                        for (var slot : scheduleData.getTimeSlots()) {
+                            slot.setSchedule(schedule);
+                            schedule.getTimeSlots().add(slot);
+                        }
+                    }
+
+                    return ResponseEntity.ok(scheduleRepository.save(schedule));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal User user) {

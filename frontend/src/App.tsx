@@ -12,6 +12,7 @@ import MyPage from './pages/MyPage';
 import ScheduleDetail from './pages/ScheduleDetail';
 import Login from './pages/Login';
 import CreateSchedule from './pages/CreateSchedule';
+import EditSchedule from './pages/EditSchedule';
 import KakaoCallback from './pages/KakaoCallback';
 import Profile from './pages/Profile';
 import Inquiries from './pages/Inquiries';
@@ -44,6 +45,7 @@ function AppRoutes() {
           <Route path="/mypage/inquiries" element={<Inquiries />} />
           <Route path="/mypage/manager-request" element={<ManagerRequest />} />
           <Route path="/mypage/create-schedule" element={<CreateSchedule />} />
+          <Route path="/mypage/edit-schedule/:id" element={<EditSchedule />} />
           <Route path="/mypage/manage-schedules" element={<ManageSchedules />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/schedules" element={<AdminSchedules />} />

@@ -56,14 +56,13 @@ export default function MyPage() {
   const memberMenus: MenuItem[] = [
     { icon: User, label: '개인정보 변경', path: '/mypage/profile', description: '프로필 및 연락처 수정' },
     { icon: MessageSquare, label: '문의 내역', path: '/mypage/inquiries', description: '1:1 문의 내역' },
-    { icon: UserCheck, label: '아티스트 등록 요청', path: '/mypage/manager-request', description: '아티스트 페이지 관리 권한 요청' },
+    { icon: UserCheck, label: '주최자 등록신청', path: '/mypage/manager-request', description: '일정 등록 권한 요청' },
   ];
 
   // 일정관리자 추가 메뉴
   const managerMenus: MenuItem[] = [
     { icon: CalendarPlus, label: '일정 등록', path: '/mypage/create-schedule', description: '새 공연 일정 등록' },
     { icon: Settings, label: '일정 관리', path: '/mypage/manage-schedules', description: '등록한 일정 관리' },
-    { icon: Shield, label: '아티스트 요청 관리', path: '/admin/requests', description: '아티스트 등록 요청 처리' },
   ];
 
   // 어드민 추가 메뉴
@@ -71,7 +70,7 @@ export default function MyPage() {
     { icon: Users, label: '전체 회원 관리', path: '/admin/users', description: '모든 회원 조회 및 관리' },
     { icon: Music, label: '아티스트 관리', path: '/admin/artists', description: '아티스트 목록 추가/수정' },
     { icon: List, label: '전체 일정 관리', path: '/admin/schedules', description: '모든 일정 조회 및 관리' },
-    { icon: Shield, label: '아티스트 요청 관리', path: '/admin/requests', description: '아티스트 등록 요청 처리' },
+    { icon: Shield, label: '주최자 등록신청 관리', path: '/admin/requests', description: '주최자 등록 요청 처리' },
     { icon: Trash2, label: '삭제된 일정', path: '/admin/deleted', description: '삭제된 일정 복구' },
   ];
 

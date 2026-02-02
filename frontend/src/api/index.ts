@@ -68,6 +68,7 @@ export const scheduleAPI = {
     api.get(`/schedules/month?year=${year}&month=${month}`),
   getMy: () => api.get('/schedules/my'),
   create: (data: any) => api.post('/schedules', data),
+  update: (id: number, data: any) => api.put(`/schedules/${id}`, data),
   delete: (id: number) => api.delete(`/schedules/${id}`),
 };
 

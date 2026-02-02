@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Search, Calendar, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './Home.module.css';
 
@@ -9,6 +9,9 @@ export default function Home() {
   const navigate = useNavigate();
   const { schedules, getFavoriteTeams, selectedMonth, setSelectedMonth } = useApp();
   const [currentDate, setCurrentDate] = useState(selectedMonth);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -68,15 +71,134 @@ export default function Home() {
     setSelectedMonth(newDate);
   };
 
+  const goToDate = (targetYear: number, targetMonth: number) => {
+    const newDate = new Date(targetYear, targetMonth - 1, 1);
+    setCurrentDate(newDate);
+    setSelectedMonth(newDate);
+    setShowDatePicker(false);
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(today);
+    setSelectedMonth(today);
+    setShowDatePicker(false);
+  };
+
+  // 검색 결과
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return schedules.filter(s => {
+      if (s.isDeleted) return false;
+      // 제목 검색
+      if (s.title?.toLowerCase().includes(query)) return true;
+      // 팀명 검색
+      if (s.team?.name?.toLowerCase().includes(query)) return true;
+      // 타임슬롯 팀명 검색
+      if (s.timeSlots?.some(ts => ts.teamName?.toLowerCase().includes(query))) return true;
+      return false;
+    }).slice(0, 10);
+  }, [searchQuery, schedules]);
+
   const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
     <div className="page">
       <header className={`page-header ${styles.header}`}>
         <h1 className={styles.logo}>STAGE</h1>
+        <div className={styles.headerActions}>
+          <button onClick={() => setShowSearch(!showSearch)} className={styles.iconBtn}>
+            <Search size={20} />
+          </button>
+          <button onClick={() => setShowDatePicker(!showDatePicker)} className={styles.iconBtn}>
+            <Calendar size={20} />
+          </button>
+        </div>
       </header>
 
       <div className={styles.container}>
+        {/* 검색바 */}
+        {showSearch && (
+          <motion.div
+            className={styles.searchContainer}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className={styles.searchBar}>
+              <Search size={18} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="팀명, 아티스트명으로 검색"
+                autoFocus
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className={styles.clearBtn}>
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            {searchResults.length > 0 && (
+              <div className={styles.searchResults}>
+                {searchResults.map(schedule => (
+                  <div
+                    key={schedule.id}
+                    className={styles.searchResultItem}
+                    onClick={() => {
+                      navigate(`/schedule/${schedule.id}`);
+                      setShowSearch(false);
+                      setSearchQuery('');
+                    }}
+                  >
+                    <div className={styles.searchResultTitle}>{schedule.title}</div>
+                    <div className={styles.searchResultMeta}>
+                      {new Date(schedule.date).toLocaleDateString('ko-KR')}
+                      {schedule.team?.name && ` · ${schedule.team.name}`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {searchQuery && searchResults.length === 0 && (
+              <div className={styles.noResults}>검색 결과가 없습니다</div>
+            )}
+          </motion.div>
+        )}
+
+        {/* 날짜 워프 */}
+        {showDatePicker && (
+          <motion.div
+            className={styles.datePicker}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className={styles.datePickerRow}>
+              <select
+                value={year}
+                onChange={(e) => goToDate(Number(e.target.value), month + 1)}
+                className={styles.dateSelect}
+              >
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
+                  <option key={y} value={y}>{y}년</option>
+                ))}
+              </select>
+              <select
+                value={month + 1}
+                onChange={(e) => goToDate(year, Number(e.target.value))}
+                className={styles.dateSelect}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                  <option key={m} value={m}>{m}월</option>
+                ))}
+              </select>
+              <button onClick={goToToday} className={styles.todayBtn}>오늘</button>
+            </div>
+          </motion.div>
+        )}
+
         {/* 월 네비게이션 */}
         <div className={styles.monthNav}>
           <button onClick={prevMonth} className={styles.navBtn}>

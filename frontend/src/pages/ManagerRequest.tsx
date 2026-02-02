@@ -65,7 +65,7 @@ export default function ManagerRequest() {
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <ArrowLeft size={24} />
           </button>
-          <h1 className="page-title">아티스트 등록</h1>
+          <h1 className="page-title">주최자 등록</h1>
           <div className={styles.placeholder} />
         </header>
         <div className={styles.unauthorized}>
@@ -111,7 +111,7 @@ export default function ManagerRequest() {
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <ArrowLeft size={24} />
           </button>
-          <h1 className="page-title">아티스트 등록 요청</h1>
+          <h1 className="page-title">주최자 등록신청</h1>
           <div className={styles.placeholder} />
         </header>
         <div className={styles.empty}>
@@ -127,7 +127,7 @@ export default function ManagerRequest() {
         <button className={styles.backBtn} onClick={() => navigate(-1)}>
           <ArrowLeft size={24} />
         </button>
-        <h1 className="page-title">아티스트 등록 요청</h1>
+        <h1 className="page-title">주최자 등록신청</h1>
         <div className={styles.placeholder} />
       </header>
 
@@ -192,7 +192,7 @@ export default function ManagerRequest() {
             <div style={{ padding: 16, background: 'rgba(255, 193, 7, 0.1)', borderRadius: 'var(--radius-md)', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
               <AlertCircle size={20} color="#ffc107" style={{ flexShrink: 0, marginTop: 2 }} />
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                아티스트 등록이 승인되면 일정 등록 및 관리 권한이 부여됩니다.
+                주최자 등록이 승인되면 일정 등록 및 관리 권한이 부여됩니다.
                 허위 정보로 신청 시 계정이 정지될 수 있습니다.
               </p>
             </div>
