@@ -92,9 +92,6 @@ const generateSchedules = (): Schedule[] => {
     const date = new Date(year, month, data.day);
     const publicDate = new Date(year, month, data.day - 7); // 일주일 전 공개
 
-    const remainingSeats1 = Math.floor(Math.random() * 50) + 10;
-    const remainingSeats2 = Math.floor(Math.random() * 50) + 10;
-
     schedules.push({
       id: idx + 1,
       title: data.title,
@@ -104,10 +101,11 @@ const generateSchedules = (): Schedule[] => {
       date: date.toISOString(),
       publicDate: publicDate.toISOString(),
       timeSlots: [
-        { id: idx * 2 + 1, startTime: '18:00', endTime: '19:30', capacity: 100, reservedCount: 100 - remainingSeats1 },
-        { id: idx * 2 + 2, startTime: '20:00', endTime: '21:30', capacity: 100, reservedCount: 100 - remainingSeats2 },
+        { id: idx * 2 + 1, startTime: '18:00', endTime: '19:30', teamName: team.name },
+        { id: idx * 2 + 2, startTime: '20:00', endTime: '21:30', teamName: team.name },
       ],
-      price: [0, 15000, 25000, 35000, 45000][Math.floor(Math.random() * 5)],
+      advancePrice: [0, 15000, 25000, 35000, 45000][Math.floor(Math.random() * 5)],
+      doorPrice: [0, 20000, 30000, 40000, 50000][Math.floor(Math.random() * 5)],
       capacity: 100,
       description: '공연 시작 30분 전까지 입장해 주세요.\n음식물 반입은 금지됩니다.\n공연 중 사진 촬영은 자유롭게 가능합니다.',
       venue: ['홍대 클럽 FF', '이태원 블루스', '합정 롤링홀', '강남 뮤직홀'][Math.floor(Math.random() * 4)],

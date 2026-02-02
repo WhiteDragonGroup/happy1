@@ -218,7 +218,7 @@ export default function MySchedule() {
                     )}
                     <div className={styles.cardFooter}>
                       <span className={styles.price}>
-                        {(schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0) ? '무료' : `${Number(schedule.price).toLocaleString()}원`}
+                        {(!schedule.advancePrice && !schedule.doorPrice) ? '무료' : (schedule.advancePrice ? `${Number(schedule.advancePrice).toLocaleString()}원` : `${Number(schedule.doorPrice).toLocaleString()}원`)}
                       </span>
                     </div>
                   </div>

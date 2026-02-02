@@ -7,7 +7,6 @@ import {
   MapPin,
   Heart,
   Share2,
-  User,
   Ticket
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
