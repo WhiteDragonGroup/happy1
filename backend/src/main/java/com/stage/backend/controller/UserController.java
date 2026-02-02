@@ -74,9 +74,7 @@ public class UserController {
         if (request.containsKey("phone")) {
             currentUser.setPhone(request.get("phone"));
         }
-        if (request.containsKey("email")) {
-            currentUser.setEmail(request.get("email"));
-        }
+        // 이메일은 변경 불가
 
         userRepository.save(currentUser);
         return ResponseEntity.ok(userService.toResponse(currentUser));

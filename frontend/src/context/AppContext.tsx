@@ -27,6 +27,7 @@ interface AppContextType extends AppState {
   makeReservation: (scheduleId: string, timeSlotId: string, paymentMethod: 'card' | 'bank') => Promise<boolean>;
   cancelReservation: (reservationId: string) => Promise<boolean>;
   refreshData: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   setAuthResponse: (token: string, user: User) => Promise<void>;
   setUser: (user: User) => void;
 }
@@ -93,6 +94,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await loadPublicData();
     if (isLoggedIn) {
       await loadUserData();
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await authAPI.me();
+      setUser(res.data);
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
     }
   };
 
@@ -245,6 +255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         makeReservation,
         cancelReservation,
         refreshData,
+        refreshUser,
         setAuthResponse,
         setUser,
       }}

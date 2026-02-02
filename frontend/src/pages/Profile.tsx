@@ -102,15 +102,16 @@ export default function Profile() {
           />
         </div>
 
-        {/* 이메일 */}
+        {/* 이메일 (변경 불가) */}
         <div className={styles.section}>
           <label className={styles.label}>이메일</label>
           <input
             type="email"
             value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="이메일을 입력하세요"
+            disabled
+            style={{ opacity: 0.6, cursor: 'not-allowed' }}
           />
+          <p className={styles.hint}>이메일은 변경할 수 없습니다</p>
         </div>
 
         {/* 연락처 */}

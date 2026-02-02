@@ -17,7 +17,7 @@ interface RequestHistory {
 
 export default function ManagerRequest() {
   const navigate = useNavigate();
-  const { user, isLoggedIn } = useApp();
+  const { user, isLoggedIn, refreshUser } = useApp();
   const [form, setForm] = useState({
     teamName: '',
     description: '',
@@ -41,6 +41,10 @@ export default function ManagerRequest() {
     try {
       const res = await managerRequestAPI.getAll();
       setRequests(res.data);
+      // 승인된 요청이 있으면 사용자 정보 새로고침
+      if (res.data.some((r: RequestHistory) => r.status === 'APPROVED')) {
+        await refreshUser();
+      }
     } catch (error) {
       console.error('Failed to load requests:', error);
     }
