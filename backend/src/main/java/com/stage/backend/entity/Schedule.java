@@ -26,10 +26,6 @@ public class Schedule {
 
     // === 필수 컬럼 (FK) ===
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
     @JsonIgnore
     private User manager;
@@ -37,6 +33,9 @@ public class Schedule {
     // === 필수 컬럼 ===
     @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
+    private String organizer;  // 주최자
 
     @Column(nullable = false)
     private LocalDate date;
@@ -57,7 +56,9 @@ public class Schedule {
 
     private String venue;
 
-    private BigDecimal price;
+    private BigDecimal advancePrice;  // 예약 발권 가격
+
+    private BigDecimal doorPrice;     // 현장 발권 가격
 
     @Column(columnDefinition = "TEXT")
     private String description;

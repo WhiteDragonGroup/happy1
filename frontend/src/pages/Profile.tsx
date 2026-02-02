@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, Camera } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { userAPI } from '../api';
 import styles from './common.module.css';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, isLoggedIn } = useApp();
+  const { user, isLoggedIn, setUser } = useApp();
   const [form, setForm] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -23,11 +24,17 @@ export default function Profile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // TODO: API 연동
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      const res = await userAPI.updateMe(form);
+      setUser(res.data);
       alert('저장되었습니다');
-    }, 500);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert('저장에 실패했습니다');
+    }
+
+    setIsSubmitting(false);
   };
 
   return (

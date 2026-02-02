@@ -28,6 +28,7 @@ interface AppContextType extends AppState {
   cancelReservation: (reservationId: string) => Promise<boolean>;
   refreshData: () => Promise<void>;
   setAuthResponse: (token: string, user: User) => Promise<void>;
+  setUser: (user: User) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -245,6 +246,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         cancelReservation,
         refreshData,
         setAuthResponse,
+        setUser,
       }}
     >
       {children}

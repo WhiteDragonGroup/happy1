@@ -11,7 +11,8 @@ import {
   Users,
   Shield,
   List,
-  Trash2
+  Trash2,
+  Music
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './MyPage.module.css';
@@ -67,6 +68,7 @@ export default function MyPage() {
   // 어드민 추가 메뉴
   const adminMenus: MenuItem[] = [
     { icon: Users, label: '전체 회원 관리', path: '/admin/users', description: '모든 회원 조회 및 관리' },
+    { icon: Music, label: '아티스트 관리', path: '/admin/artists', description: '아티스트 목록 추가/수정' },
     { icon: List, label: '전체 일정 관리', path: '/admin/schedules', description: '모든 일정 조회 및 관리' },
     { icon: Shield, label: '아티스트 요청 관리', path: '/admin/requests', description: '아티스트 등록 요청 처리' },
     { icon: Trash2, label: '삭제된 일정', path: '/admin/deleted', description: '삭제된 일정 복구' },

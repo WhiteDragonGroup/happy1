@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -8,53 +8,80 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { scheduleAPI, teamAPI } from '../api';
 import styles from './CreateSchedule.module.css';
 
+interface Artist {
+  id: number;
+  name: string;
+  genre?: string;
+}
+
 interface TimeSlotInput {
-  time: string;
+  startTime: string;
+  endTime: string;
+  teamName: string;
   description: string;
 }
 
 interface FormState {
   title: string;
-  teamId: string;
+  organizer: string;
   posterImage: File | null;
   posterPreview: string;
   date: string;
   publicDate: string;
   timeSlots: TimeSlotInput[];
-  price: string;
+  advancePrice: string;
+  doorPrice: string;
   capacity: string;
   notice: string;
   location: string;
 }
 
 interface SwitchState {
-  price: boolean;
+  advancePrice: boolean;
+  doorPrice: boolean;
   notice: boolean;
   location: boolean;
 }
 
 export default function CreateSchedule() {
   const navigate = useNavigate();
-  const { teams, user } = useApp();
+  const { user } = useApp();
+  const [artists, setArtists] = useState<Artist[]>([]);
+
+  useEffect(() => {
+    loadArtists();
+  }, []);
+
+  const loadArtists = async () => {
+    try {
+      const res = await teamAPI.getAll();
+      setArtists(res.data);
+    } catch (error) {
+      console.error('Failed to load artists:', error);
+    }
+  };
 
   const [form, setForm] = useState<FormState>({
     title: '',
-    teamId: '',
+    organizer: '',
     posterImage: null,
     posterPreview: '',
     date: '',
     publicDate: '',
-    timeSlots: [{ time: '', description: '' }],
-    price: '',
+    timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+    advancePrice: '',
+    doorPrice: '',
     capacity: '',
     notice: '',
     location: '',
   });
 
   const [switches, setSwitches] = useState<SwitchState>({
-    price: true,
+    advancePrice: true,
+    doorPrice: true,
     notice: true,
     location: true,
   });
@@ -89,9 +116,17 @@ export default function CreateSchedule() {
   };
 
   const addTimeSlot = () => {
+    const lastSlot = form.timeSlots[form.timeSlots.length - 1];
+    const newStartTime = lastSlot?.endTime || '';
+
     setForm(prev => ({
       ...prev,
-      timeSlots: [...prev.timeSlots, { time: '', description: '' }],
+      timeSlots: [...prev.timeSlots, {
+        startTime: newStartTime,
+        endTime: '',
+        teamName: '',
+        description: ''
+      }],
     }));
   };
 
@@ -112,18 +147,37 @@ export default function CreateSchedule() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // TODO: 실제 API 호출
-    console.log('등록할 일정:', {
-      ...form,
-      price: switches.price ? Number(form.price) : undefined,
-      notice: switches.notice ? form.notice : undefined,
-      location: switches.location ? form.location : undefined,
-    });
+    try {
+      const scheduleData = {
+        title: form.title,
+        organizer: form.organizer,
+        date: form.date,
+        publicDate: form.publicDate || form.date,
+        capacity: Number(form.capacity),
+        advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
+        doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
+        venue: switches.location ? form.location : null,
+        description: switches.notice ? form.notice : null,
+        isPublished: true,
+        timeSlots: form.timeSlots
+          .filter(slot => slot.startTime && slot.endTime && slot.teamName)
+          .map(slot => ({
+            startTime: slot.startTime + ':00',
+            endTime: slot.endTime + ':00',
+            teamName: slot.teamName,
+            description: slot.description || null,
+          })),
+      };
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      await scheduleAPI.create(scheduleData);
+      alert('일정이 등록되었습니다!');
       navigate('/mypage/manage-schedules');
-    }, 1000);
+    } catch (error) {
+      console.error('일정 등록 실패:', error);
+      alert('일정 등록에 실패했습니다.');
+    }
+
+    setIsSubmitting(false);
   };
 
   if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN') {
@@ -166,7 +220,7 @@ export default function CreateSchedule() {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <label className={styles.label}>
-              포스터 이미지 <span className={styles.required}>*</span>
+              포스터 이미지
             </label>
           </div>
           <div
@@ -202,27 +256,24 @@ export default function CreateSchedule() {
             name="title"
             value={form.title}
             onChange={handleInputChange}
-            placeholder="공연 제목을 입력하세요"
+            placeholder="예: LIVE in SETi Vol.73"
             required
           />
         </div>
 
-        {/* 팀 선택 */}
+        {/* 주최자 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            팀 선택 <span className={styles.required}>*</span>
+            주최 <span className={styles.required}>*</span>
           </label>
-          <select
-            name="teamId"
-            value={form.teamId}
+          <input
+            type="text"
+            name="organizer"
+            value={form.organizer}
             onChange={handleInputChange}
+            placeholder="주최자를 입력하세요"
             required
-          >
-            <option value="">팀을 선택하세요</option>
-            {teams.map(team => (
-              <option key={team.id} value={team.id}>{team.name}</option>
-            ))}
-          </select>
+          />
         </div>
 
         {/* 공연 날짜 */}
@@ -235,6 +286,8 @@ export default function CreateSchedule() {
             name="date"
             value={form.date}
             onChange={handleInputChange}
+            min="2020-01-01"
+            max="2099-12-31"
             required
           />
         </div>
@@ -242,16 +295,17 @@ export default function CreateSchedule() {
         {/* 공개일 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            일정 공개일 <span className={styles.required}>*</span>
+            일정 공개일
           </label>
           <input
             type="date"
             name="publicDate"
             value={form.publicDate}
             onChange={handleInputChange}
-            required
+            min="2020-01-01"
+            max="2099-12-31"
           />
-          <p className={styles.hint}>이 날짜부터 회원들에게 일정이 표시됩니다</p>
+          <p className={styles.hint}>비워두면 즉시 공개됩니다</p>
         </div>
 
         {/* 타임테이블 */}
@@ -261,15 +315,70 @@ export default function CreateSchedule() {
           </label>
           <div className={styles.timeSlots}>
             {form.timeSlots.map((slot, index) => (
-              <div key={index} className={styles.timeSlotRow}>
-                <input
-                  type="time"
-                  value={slot.time}
-                  onChange={(e) => handleTimeSlotChange(index, 'time', e.target.value)}
-                  placeholder="시간"
-                  required
-                  className={styles.timeInput}
-                />
+              <div key={index} className={styles.timeSlotCard}>
+                <div className={styles.timeSlotHeader}>
+                  <span className={styles.slotNumber}>#{index + 1}</span>
+                  {form.timeSlots.length > 1 && (
+                    <button
+                      type="button"
+                      className={styles.removeBtn}
+                      onClick={() => removeTimeSlot(index)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+                <div className={styles.timeRow}>
+                  <div className={styles.timeField}>
+                    <label>시작</label>
+                    <input
+                      type="time"
+                      value={slot.startTime}
+                      onChange={(e) => handleTimeSlotChange(index, 'startTime', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <span className={styles.timeSeparator}>~</span>
+                  <div className={styles.timeField}>
+                    <label>종료</label>
+                    <input
+                      type="time"
+                      value={slot.endTime}
+                      onChange={(e) => handleTimeSlotChange(index, 'endTime', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className={styles.artistSelect}>
+                  <select
+                    value={artists.some(a => a.name === slot.teamName) ? slot.teamName : '__custom__'}
+                    onChange={(e) => {
+                      if (e.target.value === '__custom__') {
+                        handleTimeSlotChange(index, 'teamName', '');
+                      } else {
+                        handleTimeSlotChange(index, 'teamName', e.target.value);
+                      }
+                    }}
+                    className={styles.artistDropdown}
+                  >
+                    <option value="">아티스트 선택</option>
+                    {artists.map(artist => (
+                      <option key={artist.id} value={artist.name}>
+                        {artist.name} {artist.genre && `(${artist.genre})`}
+                      </option>
+                    ))}
+                    <option value="__custom__">직접 입력</option>
+                  </select>
+                  {(!artists.some(a => a.name === slot.teamName) || slot.teamName === '') && (
+                    <input
+                      type="text"
+                      value={slot.teamName}
+                      onChange={(e) => handleTimeSlotChange(index, 'teamName', e.target.value)}
+                      placeholder="아티스트 이름 입력"
+                      className={styles.teamNameInput}
+                    />
+                  )}
+                </div>
                 <input
                   type="text"
                   value={slot.description}
@@ -277,15 +386,6 @@ export default function CreateSchedule() {
                   placeholder="설명 (선택)"
                   className={styles.descInput}
                 />
-                {form.timeSlots.length > 1 && (
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    onClick={() => removeTimeSlot(index)}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
               </div>
             ))}
             <button
@@ -294,8 +394,9 @@ export default function CreateSchedule() {
               onClick={addTimeSlot}
             >
               <Plus size={18} />
-              시간 추가
+              팀 추가
             </button>
+            <p className={styles.hint}>팀 추가 시 이전 팀 종료 시간이 자동으로 시작 시간에 입력됩니다</p>
           </div>
         </div>
 
@@ -315,25 +416,25 @@ export default function CreateSchedule() {
           />
         </div>
 
-        {/* 가격 */}
+        {/* 예약 발권 가격 */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <label className={styles.label}>가격</label>
+            <label className={styles.label}>예약 발권 가격</label>
             <label className="switch">
               <input
                 type="checkbox"
-                checked={switches.price}
-                onChange={() => toggleSwitch('price')}
+                checked={switches.advancePrice}
+                onChange={() => toggleSwitch('advancePrice')}
               />
               <span className="switch-slider"></span>
             </label>
           </div>
-          {switches.price ? (
+          {switches.advancePrice ? (
             <div className={styles.priceInput}>
               <input
                 type="number"
-                name="price"
-                value={form.price}
+                name="advancePrice"
+                value={form.advancePrice}
                 onChange={handleInputChange}
                 placeholder="0"
                 min="0"
@@ -341,7 +442,37 @@ export default function CreateSchedule() {
               <span className={styles.priceUnit}>원</span>
             </div>
           ) : (
-            <div className={styles.freeLabel}>무료 공연으로 표시됩니다</div>
+            <div className={styles.freeLabel}>예약 발권 없음</div>
+          )}
+        </div>
+
+        {/* 현장 발권 가격 */}
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <label className={styles.label}>현장 발권 가격</label>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={switches.doorPrice}
+                onChange={() => toggleSwitch('doorPrice')}
+              />
+              <span className="switch-slider"></span>
+            </label>
+          </div>
+          {switches.doorPrice ? (
+            <div className={styles.priceInput}>
+              <input
+                type="number"
+                name="doorPrice"
+                value={form.doorPrice}
+                onChange={handleInputChange}
+                placeholder="0"
+                min="0"
+              />
+              <span className={styles.priceUnit}>원</span>
+            </div>
+          ) : (
+            <div className={styles.freeLabel}>현장 발권 없음</div>
           )}
         </div>
 

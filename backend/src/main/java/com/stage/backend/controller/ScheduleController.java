@@ -68,9 +68,6 @@ public class ScheduleController {
         if (schedule.getTimeSlots() != null) {
             for (var slot : schedule.getTimeSlots()) {
                 slot.setSchedule(schedule);
-                if (slot.getCapacity() == null) {
-                    slot.setCapacity(schedule.getCapacity());
-                }
             }
         }
         return ResponseEntity.ok(scheduleRepository.save(schedule));

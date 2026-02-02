@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, UserCheck, Shield, Check, X, ExternalLink } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { managerRequestAPI } from '../api';
 import styles from './common.module.css';
 
 interface ManagerRequest {
   id: number;
-  userId: number;
   userName: string;
   userEmail: string;
   teamName: string;
   description: string;
-  sns?: string;
+  snsLink?: string;
   reason: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt: string;
 }
 
@@ -22,40 +22,22 @@ export default function AdminRequests() {
   const navigate = useNavigate();
   const { user } = useApp();
   const [requests, setRequests] = useState<ManagerRequest[]>([]);
-  const [filter, setFilter] = useState<string>('pending');
+  const [filter, setFilter] = useState<string>('PENDING');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: API 연동
-    setTimeout(() => {
-      setRequests([
-        {
-          id: 1,
-          userId: 5,
-          userName: '김아이돌',
-          userEmail: 'idol@test.com',
-          teamName: '드림캐쳐',
-          description: '인디씬에서 활동하는 5인조 밴드입니다',
-          sns: 'https://instagram.com/dreamcatcher',
-          reason: '정기 공연 일정을 등록하고 싶습니다',
-          status: 'pending',
-          createdAt: '2025-01-20'
-        },
-        {
-          id: 2,
-          userId: 6,
-          userName: '박솔로',
-          userEmail: 'solo@test.com',
-          teamName: '박솔로',
-          description: '어쿠스틱 싱어송라이터',
-          reason: '버스킹 및 소규모 공연 일정 공유',
-          status: 'approved',
-          createdAt: '2025-01-15'
-        }
-      ]);
-      setLoading(false);
-    }, 300);
+    loadRequests();
   }, []);
+
+  const loadRequests = async () => {
+    try {
+      const res = await managerRequestAPI.getAllAdmin();
+      setRequests(res.data);
+    } catch (error) {
+      console.error('Failed to load requests:', error);
+    }
+    setLoading(false);
+  };
 
   if (user?.role !== 'ADMIN') {
     return (
@@ -79,20 +61,31 @@ export default function AdminRequests() {
     filter === 'all' || r.status === filter
   );
 
-  const handleApprove = (id: number) => {
+  const handleApprove = async (id: number) => {
     if (!confirm('승인하시겠습니까?')) return;
-    setRequests(requests.map(r =>
-      r.id === id ? { ...r, status: 'approved' as const } : r
-    ));
-    // TODO: API 호출
+    try {
+      await managerRequestAPI.approve(id);
+      setRequests(requests.map(r =>
+        r.id === id ? { ...r, status: 'APPROVED' as const } : r
+      ));
+    } catch (error) {
+      console.error('Failed to approve:', error);
+      alert('승인 처리에 실패했습니다');
+    }
   };
 
-  const handleReject = (id: number) => {
-    if (!confirm('거절하시겠습니까?')) return;
-    setRequests(requests.map(r =>
-      r.id === id ? { ...r, status: 'rejected' as const } : r
-    ));
-    // TODO: API 호출
+  const handleReject = async (id: number) => {
+    const reason = prompt('거절 사유를 입력하세요:');
+    if (!reason) return;
+    try {
+      await managerRequestAPI.reject(id, reason);
+      setRequests(requests.map(r =>
+        r.id === id ? { ...r, status: 'REJECTED' as const } : r
+      ));
+    } catch (error) {
+      console.error('Failed to reject:', error);
+      alert('거절 처리에 실패했습니다');
+    }
   };
 
   return (
@@ -113,9 +106,9 @@ export default function AdminRequests() {
         {/* 필터 */}
         <div className={styles.filterBar}>
           {[
-            { key: 'pending', label: '대기중' },
-            { key: 'approved', label: '승인됨' },
-            { key: 'rejected', label: '거절됨' },
+            { key: 'PENDING', label: '대기중' },
+            { key: 'APPROVED', label: '승인됨' },
+            { key: 'REJECTED', label: '거절됨' },
             { key: 'all', label: '전체' }
           ].map(f => (
             <button
@@ -155,18 +148,18 @@ export default function AdminRequests() {
                     </p>
                   </div>
                   <span className={`${styles.badge} ${
-                    req.status === 'approved' ? styles.badgeApproved :
-                    req.status === 'rejected' ? styles.badgeRejected : styles.badgePending
+                    req.status === 'APPROVED' ? styles.badgeApproved :
+                    req.status === 'REJECTED' ? styles.badgeRejected : styles.badgePending
                   }`}>
-                    {req.status === 'approved' ? '승인됨' : req.status === 'rejected' ? '거절됨' : '대기중'}
+                    {req.status === 'APPROVED' ? '승인됨' : req.status === 'REJECTED' ? '거절됨' : '대기중'}
                   </span>
                 </div>
 
                 <div className={styles.cardContent}>
                   <p style={{ marginBottom: 8 }}><strong>소개:</strong> {req.description}</p>
                   <p style={{ marginBottom: 8 }}><strong>신청사유:</strong> {req.reason}</p>
-                  {req.sns && (
-                    <a href={req.sns} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--neon-cyan)', fontSize: '0.875rem' }}>
+                  {req.snsLink && (
+                    <a href={req.snsLink} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--neon-cyan)', fontSize: '0.875rem' }}>
                       <ExternalLink size={14} />
                       SNS 링크
                     </a>
@@ -175,7 +168,7 @@ export default function AdminRequests() {
 
                 <p className={styles.cardMeta}>신청일: {req.createdAt}</p>
 
-                {req.status === 'pending' && (
+                {req.status === 'PENDING' && (
                   <div className={styles.cardActions}>
                     <button
                       className="btn btn-primary btn-sm"

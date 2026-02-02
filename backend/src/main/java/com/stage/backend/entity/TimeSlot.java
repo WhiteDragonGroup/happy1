@@ -32,11 +32,8 @@ public class TimeSlot {
     private LocalTime endTime;
 
     @Column(nullable = false)
-    private Integer capacity;
+    private String teamName;  // 출연 팀/아티스트 이름
 
     // === 일반 컬럼 ===
     private String description;
-
-    @Builder.Default
-    private Integer reservedCount = 0;
 }

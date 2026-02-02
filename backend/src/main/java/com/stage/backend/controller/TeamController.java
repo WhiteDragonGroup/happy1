@@ -43,4 +43,40 @@ public class TeamController {
         team.setOwner(user);
         return ResponseEntity.ok(teamRepository.save(team));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Team> update(@PathVariable Long id,
+                                       @RequestBody Team teamData,
+                                       @AuthenticationPrincipal User user) {
+        if (user.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return teamRepository.findById(id)
+                .map(team -> {
+                    team.setName(teamData.getName());
+                    team.setDescription(teamData.getDescription());
+                    team.setGenre(teamData.getGenre());
+                    if (teamData.getImageUrl() != null) {
+                        team.setImageUrl(teamData.getImageUrl());
+                    }
+                    return ResponseEntity.ok(teamRepository.save(team));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                       @AuthenticationPrincipal User user) {
+        if (user.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).build();
+        }
+
+        if (!teamRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        teamRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 }

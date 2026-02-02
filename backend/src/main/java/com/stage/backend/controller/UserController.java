@@ -57,4 +57,28 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(userService.toResponse(currentUser));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateMe(
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal User currentUser) {
+
+        if (request.containsKey("name")) {
+            currentUser.setName(request.get("name"));
+        }
+        if (request.containsKey("phone")) {
+            currentUser.setPhone(request.get("phone"));
+        }
+        if (request.containsKey("email")) {
+            currentUser.setEmail(request.get("email"));
+        }
+
+        userRepository.save(currentUser);
+        return ResponseEntity.ok(userService.toResponse(currentUser));
+    }
 }

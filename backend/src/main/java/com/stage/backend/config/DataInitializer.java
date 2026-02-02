@@ -20,7 +20,6 @@ public class DataInitializer implements CommandLineRunner {
 
     private final TeamRepository teamRepository;
     private final ScheduleRepository scheduleRepository;
-    private final TimeSlotRepository timeSlotRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -73,111 +72,94 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
         userRepository.save(normalUser);
 
-        // 팀 생성
+        // 팀 생성 (아티스트 목록)
         List<Team> teams = List.of(
                 Team.builder()
-                        .name("블랙핑크")
-                        .description("세계적인 K-POP 걸그룹")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/blackpink/400/600")
+                        .name("나이트멜로")
+                        .description("감성 인디 밴드")
+                        .genre("인디")
+                        .imageUrl("https://picsum.photos/seed/nightmelo/400/600")
                         .owner(managerUser)
                         .build(),
                 Team.builder()
-                        .name("BTS")
-                        .description("글로벌 아이콘 방탄소년단")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/bts/400/600")
-                        .owner(managerUser)
-                        .build(),
-                Team.builder()
-                        .name("아이유")
-                        .description("국민 솔로 가수")
+                        .name("미루하")
+                        .description("신예 여성 솔로")
                         .genre("발라드")
-                        .imageUrl("https://picsum.photos/seed/iu/400/600")
+                        .imageUrl("https://picsum.photos/seed/miruha/400/600")
                         .owner(managerUser)
                         .build(),
                 Team.builder()
-                        .name("뉴진스")
-                        .description("새로운 세대의 아이콘")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/newjeans/400/600")
+                        .name("사이버네틱스")
+                        .description("일렉트로닉 유닛")
+                        .genre("일렉트로닉")
+                        .imageUrl("https://picsum.photos/seed/cybernetics/400/600")
                         .owner(managerUser)
                         .build(),
                 Team.builder()
-                        .name("세븐틴")
-                        .description("자체 제작 아이돌")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/seventeen/400/600")
+                        .name("17Hz.")
+                        .description("지하아이돌 그룹")
+                        .genre("아이돌")
+                        .imageUrl("https://picsum.photos/seed/17hz/400/600")
                         .owner(managerUser)
                         .build(),
                 Team.builder()
-                        .name("에스파")
-                        .description("메타버스 걸그룹")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/aespa/400/600")
-                        .owner(managerUser)
-                        .build(),
-                Team.builder()
-                        .name("스트레이키즈")
-                        .description("자체 프로듀싱 그룹")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/straykids/400/600")
-                        .owner(managerUser)
-                        .build(),
-                Team.builder()
-                        .name("트와이스")
-                        .description("아시아 원톱 걸그룹")
-                        .genre("K-POP")
-                        .imageUrl("https://picsum.photos/seed/twice/400/600")
+                        .name("하늘빛소녀")
+                        .description("청순 아이돌")
+                        .genre("아이돌")
+                        .imageUrl("https://picsum.photos/seed/skyblue/400/600")
                         .owner(managerUser)
                         .build()
         );
         teamRepository.saveAll(teams);
 
-        // 1월 일정 생성
-        LocalDate baseDate = LocalDate.of(2025, 1, 1);
+        // 샘플 일정 생성
+        Schedule schedule1 = Schedule.builder()
+                .manager(managerUser)
+                .title("LIVE in SETi Vol.73")
+                .organizer("SETi")
+                .date(LocalDate.now().plusDays(7))
+                .venue("홍대 클럽 FF")
+                .advancePrice(BigDecimal.valueOf(15000))
+                .doorPrice(BigDecimal.valueOf(20000))
+                .capacity(100)
+                .description("지하아이돌 합동 공연!\n\n주의사항:\n- 음식물 반입 금지\n- 공연 중 촬영 금지")
+                .isPublished(true)
+                .build();
 
-        for (int day = 1; day <= 31; day++) {
-            LocalDate scheduleDate = baseDate.plusDays(day - 1);
+        // 타임슬롯 추가
+        schedule1.getTimeSlots().add(TimeSlot.builder()
+                .schedule(schedule1)
+                .startTime(LocalTime.of(18, 50))
+                .endTime(LocalTime.of(19, 10))
+                .teamName("나이트멜로")
+                .build());
+        schedule1.getTimeSlots().add(TimeSlot.builder()
+                .schedule(schedule1)
+                .startTime(LocalTime.of(19, 10))
+                .endTime(LocalTime.of(19, 30))
+                .teamName("미루하")
+                .build());
+        schedule1.getTimeSlots().add(TimeSlot.builder()
+                .schedule(schedule1)
+                .startTime(LocalTime.of(19, 30))
+                .endTime(LocalTime.of(19, 50))
+                .teamName("사이버네틱스")
+                .build());
+        schedule1.getTimeSlots().add(TimeSlot.builder()
+                .schedule(schedule1)
+                .startTime(LocalTime.of(19, 50))
+                .endTime(LocalTime.of(20, 10))
+                .teamName("17Hz.")
+                .description("특전권 구매 가능")
+                .build());
+        schedule1.getTimeSlots().add(TimeSlot.builder()
+                .schedule(schedule1)
+                .startTime(LocalTime.of(20, 10))
+                .endTime(LocalTime.of(20, 30))
+                .teamName("하늘빛소녀")
+                .build());
 
-            // 각 날짜마다 1~3개의 랜덤 일정
-            int scheduleCount = (day % 3) + 1;
-
-            for (int i = 0; i < scheduleCount && i < teams.size(); i++) {
-                Team team = teams.get((day + i) % teams.size());
-
-                Schedule schedule = Schedule.builder()
-                        .team(team)
-                        .manager(managerUser)
-                        .title(team.getName() + " 콘서트")
-                        .date(scheduleDate)
-                        .venue("올림픽공원 체조경기장")
-                        .price(BigDecimal.valueOf(88000 + (day * 1000)))
-                        .capacity(100)
-                        .description("특별한 무대를 선사합니다.\n\n주의사항:\n- 음식물 반입 금지\n- 공연 중 촬영 금지")
-                        .imageUrl("https://picsum.photos/seed/" + team.getName() + day + "/400/600")
-                        .isPublished(true)
-                        .build();
-                scheduleRepository.save(schedule);
-
-                // 타임슬롯 생성
-                TimeSlot slot1 = TimeSlot.builder()
-                        .schedule(schedule)
-                        .startTime(LocalTime.of(14, 0))
-                        .endTime(LocalTime.of(16, 0))
-                        .capacity(50)
-                        .build();
-                timeSlotRepository.save(slot1);
-
-                TimeSlot slot2 = TimeSlot.builder()
-                        .schedule(schedule)
-                        .startTime(LocalTime.of(19, 0))
-                        .endTime(LocalTime.of(21, 0))
-                        .capacity(50)
-                        .build();
-                timeSlotRepository.save(slot2);
-            }
-        }
+        scheduleRepository.save(schedule1);
 
         log.info("테스트 데이터 초기화 완료!");
         log.info("생성된 팀 수: {}", teams.size());

@@ -21,6 +21,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminSchedules from './pages/AdminSchedules';
 import AdminRequests from './pages/AdminRequests';
 import AdminDeleted from './pages/AdminDeleted';
+import AdminArtists from './pages/AdminArtists';
 import TeamDetail from './pages/TeamDetail';
 import DaySchedules from './pages/DaySchedules';
 
@@ -48,6 +49,7 @@ function AppRoutes() {
           <Route path="/admin/schedules" element={<AdminSchedules />} />
           <Route path="/admin/requests" element={<AdminRequests />} />
           <Route path="/admin/deleted" element={<AdminDeleted />} />
+          <Route path="/admin/artists" element={<AdminArtists />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
           <Route path="/team/:id" element={<TeamDetail />} />
           <Route path="/day/:date" element={<DaySchedules />} />

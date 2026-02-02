@@ -54,6 +54,9 @@ export const teamAPI = {
   search: (query: string) => api.get(`/teams/search?q=${query}`),
   create: (data: { name: string; description?: string; genre?: string }) =>
     api.post('/teams', data),
+  update: (id: number, data: { name: string; description?: string; genre?: string }) =>
+    api.put(`/teams/${id}`, data),
+  delete: (id: number) => api.delete(`/teams/${id}`),
 };
 
 // Schedule API
@@ -79,10 +82,32 @@ export const reservationAPI = {
   enterByQr: (qrCode: string) => api.post(`/reservations/qr/${qrCode}`),
 };
 
-// User API (Admin)
+// User API
 export const userAPI = {
   getAll: () => api.get('/users'),
   updateRole: (id: number, role: string) => api.patch(`/users/${id}/role`, { role }),
+  getMe: () => api.get('/users/me'),
+  updateMe: (data: { name?: string; phone?: string; email?: string }) =>
+    api.patch('/users/me', data),
+};
+
+// Inquiry API
+export const inquiryAPI = {
+  getAll: () => api.get('/inquiries'),
+  getAllAdmin: () => api.get('/inquiries/all'),
+  create: (data: { title: string; content: string }) => api.post('/inquiries', data),
+  answer: (id: number, answer: string) => api.post(`/inquiries/${id}/answer`, { answer }),
+};
+
+// Manager Request API
+export const managerRequestAPI = {
+  getAll: () => api.get('/manager-requests'),
+  getAllAdmin: () => api.get('/manager-requests/all'),
+  getPending: () => api.get('/manager-requests/pending'),
+  create: (data: { teamName: string; description: string; snsLink?: string; reason: string }) =>
+    api.post('/manager-requests', data),
+  approve: (id: number) => api.post(`/manager-requests/${id}/approve`),
+  reject: (id: number, reason: string) => api.post(`/manager-requests/${id}/reject`, { reason }),
 };
 
 // Favorite API
