@@ -8,7 +8,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { scheduleAPI, teamAPI, fileAPI } from '../api';
+import { scheduleAPI, teamAPI } from '../api';
 import styles from './CreateSchedule.module.css';
 
 interface Artist {
@@ -148,13 +148,6 @@ export default function CreateSchedule() {
     setIsSubmitting(true);
 
     try {
-      // 이미지 업로드
-      let imageUrl = null;
-      if (form.posterImage) {
-        const uploadRes = await fileAPI.upload(form.posterImage);
-        imageUrl = uploadRes.data.url;
-      }
-
       const scheduleData = {
         title: form.title,
         organizer: form.organizer,
@@ -165,7 +158,7 @@ export default function CreateSchedule() {
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
         venue: switches.location ? form.location : null,
         description: switches.notice ? form.notice : null,
-        imageUrl: imageUrl,
+        imageUrl: null,
         isPublished: true,
         timeSlots: form.timeSlots
           .filter(slot => slot.startTime && slot.endTime && slot.teamName)
@@ -240,8 +233,8 @@ export default function CreateSchedule() {
             ) : (
               <div className={styles.uploadPlaceholder}>
                 <ImageIcon size={32} />
-                <span>이미지 업로드</span>
-                <span className={styles.uploadHint}>권장: 3:4 비율</span>
+                <span>이미지 업로드 (준비 중)</span>
+                <span className={styles.uploadHint}>스토리지 준비 후 지원 예정</span>
               </div>
             )}
             <input

@@ -118,15 +118,4 @@ export const favoriteAPI = {
   check: (teamId: number) => api.get(`/favorites/check/${teamId}`),
 };
 
-// File API
-export const fileAPI = {
-  upload: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return api.post('/files/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-  },
-};
-
 export default api;
