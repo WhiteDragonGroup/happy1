@@ -23,6 +23,7 @@ import AdminSchedules from './pages/AdminSchedules';
 import AdminRequests from './pages/AdminRequests';
 import AdminDeleted from './pages/AdminDeleted';
 import TeamDetail from './pages/TeamDetail';
+import DaySchedules from './pages/DaySchedules';
 
 import './index.css';
 
@@ -50,6 +51,7 @@ function AppRoutes() {
           <Route path="/admin/deleted" element={<AdminDeleted />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
           <Route path="/team/:id" element={<TeamDetail />} />
+          <Route path="/day/:date" element={<DaySchedules />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
