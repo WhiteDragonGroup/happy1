@@ -63,6 +63,7 @@ export default function MyPage() {
   const managerMenus: MenuItem[] = [
     { icon: CalendarPlus, label: '일정 등록', path: '/mypage/create-schedule', description: '새 공연 일정 등록' },
     { icon: Settings, label: '일정 관리', path: '/mypage/manage-schedules', description: '등록한 일정 관리' },
+    { icon: Shield, label: '아티스트 요청 관리', path: '/admin/requests', description: '아티스트 등록 요청 처리' },
   ];
 
   // 어드민 추가 메뉴

@@ -45,7 +45,6 @@ public class Schedule {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
     private String organizer;  // 주최자
 
     @Column(nullable = false)

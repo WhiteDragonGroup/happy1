@@ -271,16 +271,13 @@ export default function CreateSchedule() {
 
         {/* 주최자 */}
         <div className={styles.section}>
-          <label className={styles.label}>
-            주최 <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>주최</label>
           <input
             type="text"
             name="organizer"
             value={form.organizer}
             onChange={handleInputChange}
             placeholder="주최자를 입력하세요"
-            required
           />
         </div>
 

@@ -39,7 +39,7 @@ export default function AdminRequests() {
     setLoading(false);
   };
 
-  if (user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN' && user?.role !== 'MANAGER') {
     return (
       <div className={styles.page}>
         <header className={styles.header}>
