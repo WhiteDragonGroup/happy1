@@ -14,6 +14,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CreateSchedule from './pages/CreateSchedule';
 import KakaoCallback from './pages/KakaoCallback';
+import Profile from './pages/Profile';
+import Inquiries from './pages/Inquiries';
+import ManagerRequest from './pages/ManagerRequest';
+import ManageSchedules from './pages/ManageSchedules';
+import AdminUsers from './pages/AdminUsers';
+import AdminSchedules from './pages/AdminSchedules';
+import AdminRequests from './pages/AdminRequests';
+import AdminDeleted from './pages/AdminDeleted';
+import TeamDetail from './pages/TeamDetail';
 
 import './index.css';
 
@@ -30,8 +39,17 @@ function AppRoutes() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/my-schedule" element={<MySchedule />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/mypage/profile" element={<Profile />} />
+          <Route path="/mypage/inquiries" element={<Inquiries />} />
+          <Route path="/mypage/manager-request" element={<ManagerRequest />} />
           <Route path="/mypage/create-schedule" element={<CreateSchedule />} />
+          <Route path="/mypage/manage-schedules" element={<ManageSchedules />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/schedules" element={<AdminSchedules />} />
+          <Route path="/admin/requests" element={<AdminRequests />} />
+          <Route path="/admin/deleted" element={<AdminDeleted />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
+          <Route path="/team/:id" element={<TeamDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />

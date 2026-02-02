@@ -20,6 +20,9 @@ public class User {
     private Long id;
 
     // === 필수 컬럼 ===
+    @Column(unique = true)
+    private String username;
+
     @Column(nullable = false, unique = true)
     private String email;
 

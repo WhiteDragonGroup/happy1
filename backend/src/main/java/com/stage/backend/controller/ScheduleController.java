@@ -64,6 +64,15 @@ public class ScheduleController {
     public ResponseEntity<Schedule> create(@RequestBody Schedule schedule,
                                            @AuthenticationPrincipal User user) {
         schedule.setManager(user);
+        // 타임슬롯에 스케줄 참조 설정
+        if (schedule.getTimeSlots() != null) {
+            for (var slot : schedule.getTimeSlots()) {
+                slot.setSchedule(schedule);
+                if (slot.getCapacity() == null) {
+                    slot.setCapacity(schedule.getCapacity());
+                }
+            }
+        }
         return ResponseEntity.ok(scheduleRepository.save(schedule));
     }
 
@@ -79,5 +88,16 @@ public class ScheduleController {
                     return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/all")
+    public ResponseEntity<Void> deleteAll(@AuthenticationPrincipal User user) {
+        if (user.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).build();
+        }
+        List<Schedule> all = scheduleRepository.findAll();
+        all.forEach(s -> s.setIsDeleted(true));
+        scheduleRepository.saveAll(all);
+        return ResponseEntity.ok().build();
     }
 }

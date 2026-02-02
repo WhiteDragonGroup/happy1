@@ -14,7 +14,7 @@ interface AppState {
 }
 
 interface AppContextType extends AppState {
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   kakaoLogin: () => Promise<boolean>;
   logout: () => void;
   register: (email: string, password: string, name: string, phone: string) => Promise<boolean>;
@@ -101,9 +101,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await loadUserData();
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const res = await authAPI.login(email, password);
+      const res = await authAPI.login(username, password);
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user);
       await loadUserData();

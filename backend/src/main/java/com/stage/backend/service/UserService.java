@@ -37,7 +37,7 @@ public class UserService {
     }
 
     public User authenticate(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {

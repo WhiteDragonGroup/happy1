@@ -130,23 +130,13 @@ export default function Explore() {
                         <Heart size={12} fill="var(--neon-pink)" />
                       </div>
                     )}
-                    {schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0 ? (
-                      <div className={styles.freeBadge}>FREE</div>
-                    ) : null}
                   </div>
                   <div className={styles.cardContent}>
                     <h4 className={styles.scheduleTitle}>{schedule.title}</h4>
                     <p className={styles.teamName}>{schedule.team?.name}</p>
-                    <div className={styles.cardMeta}>
-                      <span className={styles.time}>
-                        {schedule.timeSlots?.[0]?.startTime?.slice(0, 5) || ''}
-                      </span>
-                      {schedule.price !== undefined && schedule.price !== null && Number(schedule.price) > 0 && (
-                        <span className={styles.price}>
-                          {Number(schedule.price).toLocaleString()}원
-                        </span>
-                      )}
-                    </div>
+                    <span className={styles.time}>
+                      {schedule.timeSlots?.[0]?.startTime?.slice(0, 5) || ''}
+                    </span>
                   </div>
                 </motion.div>
               ))}

@@ -1,0 +1,5 @@
+server:
+  port: 9000
+
+kakao:
+  redirect-uri: http://localhost:5173/oauth/kakao/callback

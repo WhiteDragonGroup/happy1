@@ -26,6 +26,29 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // 기존 사용자의 username 설정 (마이그레이션)
+        userRepository.findByEmail("admin@stage.com").ifPresent(user -> {
+            if (user.getUsername() == null) {
+                user.setUsername("admin");
+                userRepository.save(user);
+                log.info("admin 계정 username 설정 완료");
+            }
+        });
+        userRepository.findByEmail("manager@stage.com").ifPresent(user -> {
+            if (user.getUsername() == null) {
+                user.setUsername("manager");
+                userRepository.save(user);
+                log.info("manager 계정 username 설정 완료");
+            }
+        });
+        userRepository.findByEmail("user@stage.com").ifPresent(user -> {
+            if (user.getUsername() == null) {
+                user.setUsername("user");
+                userRepository.save(user);
+                log.info("user 계정 username 설정 완료");
+            }
+        });
+
         if (teamRepository.count() > 0) {
             log.info("데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
             return;
@@ -35,6 +58,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // 테스트 유저 생성
         User adminUser = User.builder()
+                .username("admin")
                 .email("admin@stage.com")
                 .password(passwordEncoder.encode("admin1234"))
                 .name("관리자")
@@ -44,6 +68,7 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(adminUser);
 
         User managerUser = User.builder()
+                .username("manager")
                 .email("manager@stage.com")
                 .password(passwordEncoder.encode("manager1234"))
                 .name("일정관리자")
@@ -53,6 +78,7 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(managerUser);
 
         User normalUser = User.builder()
+                .username("user")
                 .email("user@stage.com")
                 .password(passwordEncoder.encode("user1234"))
                 .name("일반회원")
@@ -170,8 +196,8 @@ public class DataInitializer implements CommandLineRunner {
         log.info("테스트 데이터 초기화 완료!");
         log.info("생성된 팀 수: {}", teams.size());
         log.info("테스트 계정:");
-        log.info("  - 관리자: admin@stage.com / admin1234");
-        log.info("  - 일정관리자: manager@stage.com / manager1234");
-        log.info("  - 일반회원: user@stage.com / user1234");
+        log.info("  - 관리자: admin / admin1234");
+        log.info("  - 일정관리자: manager / manager1234");
+        log.info("  - 일반회원: user / user1234");
     }
 }

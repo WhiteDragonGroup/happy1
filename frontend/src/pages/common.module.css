@@ -1,0 +1,321 @@
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.backBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: var(--bg-card);
+}
+
+.placeholder {
+  width: 44px;
+}
+
+.container {
+  flex: 1;
+  padding: 24px 16px;
+  padding-bottom: 100px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--neon-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.required {
+  color: var(--neon-pink);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.section input,
+.section select,
+.section textarea {
+  width: 100%;
+}
+
+.section textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* 카드 리스트 */
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cardMeta {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.cardContent {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* 배지 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badgePending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+}
+
+.badgeApproved {
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+}
+
+.badgeRejected {
+  background: rgba(255, 26, 92, 0.15);
+  color: var(--neon-pink);
+}
+
+.badgeAdmin {
+  background: rgba(255, 26, 92, 0.15);
+  color: var(--neon-pink);
+}
+
+.badgeManager {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--neon-purple);
+}
+
+.badgeUser {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--neon-cyan);
+}
+
+/* 빈 상태 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  gap: 16px;
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* 버튼 그룹 */
+.btnGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.iconBtn:hover {
+  background: var(--bg-card);
+  color: var(--neon-cyan);
+}
+
+.iconBtnDanger:hover {
+  background: rgba(255, 26, 92, 0.1);
+  color: var(--neon-pink);
+}
+
+/* 테이블 스타일 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+/* 검색바 */
+.searchBar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.searchBar input {
+  flex: 1;
+}
+
+/* 필터바 */
+.filterBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.filterBtn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.filterBtn.active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+/* 서브밋 버튼 */
+.submitSection {
+  padding: 24px 0;
+  border-top: 1px solid var(--border-color);
+  margin-top: 16px;
+}
+
+/* 권한 없음 */
+.unauthorized {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 32px 24px;
+    padding-bottom: 100px;
+  }
+}
