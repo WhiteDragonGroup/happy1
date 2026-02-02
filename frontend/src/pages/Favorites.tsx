@@ -17,8 +17,8 @@ export default function Favorites() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <h1 className="page-title">찜</h1>
+      <header className={`page-header ${styles.header}`}>
+        <h1 className={styles.pageTitle}>ARTISTS</h1>
       </header>
 
       <div className={styles.container}>
@@ -61,7 +61,7 @@ export default function Favorites() {
                     exit={{ opacity: 0, scale: 0.9 }}
                   >
                     <img
-                      src={team.profileImage}
+                      src={team.imageUrl || 'https://picsum.photos/100/100'}
                       alt={team.name}
                       className={styles.teamImage}
                     />
@@ -71,7 +71,7 @@ export default function Favorites() {
                     </div>
                     <button
                       className={`${styles.favBtn} ${styles.active}`}
-                      onClick={() => toggleFavorite(team.id)}
+                      onClick={() => toggleFavorite(String(team.id))}
                     >
                       <Heart size={20} fill="var(--neon-pink)" />
                     </button>
@@ -89,13 +89,13 @@ export default function Favorites() {
             {filteredTeams.map((team, idx) => (
               <motion.div
                 key={team.id}
-                className={`${styles.teamCard} ${isFavorite(team.id) ? styles.favorited : ''}`}
+                className={`${styles.teamCard} ${isFavorite(String(team.id)) ? styles.favorited : ''}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
                 <img
-                  src={team.profileImage}
+                  src={team.imageUrl || 'https://picsum.photos/100/100'}
                   alt={team.name}
                   className={styles.teamImage}
                 />
@@ -105,12 +105,12 @@ export default function Favorites() {
                   <p className={styles.teamDesc}>{team.description}</p>
                 </div>
                 <button
-                  className={`${styles.favBtn} ${isFavorite(team.id) ? styles.active : ''}`}
-                  onClick={() => toggleFavorite(team.id)}
+                  className={`${styles.favBtn} ${isFavorite(String(team.id)) ? styles.active : ''}`}
+                  onClick={() => toggleFavorite(String(team.id))}
                 >
                   <Heart
                     size={20}
-                    fill={isFavorite(team.id) ? 'var(--neon-pink)' : 'none'}
+                    fill={isFavorite(String(team.id)) ? 'var(--neon-pink)' : 'none'}
                   />
                 </button>
               </motion.div>

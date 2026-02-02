@@ -39,9 +39,9 @@ export default function ScheduleDetail() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showQrCamera, setShowQrCamera] = useState(false);
 
-  const schedule = schedules.find(s => s.id === id);
+  const schedule = schedules.find(s => String(s.id) === id);
 
-  const isOwner = schedule?.managerId === user?.id || user?.role === 'admin';
+  const isOwner = schedule?.managerId === user?.id || user?.role === 'ADMIN';
 
   // 이 일정의 예약자 목록 (관리자용)
   const scheduleReservations = useMemo(() => {
@@ -72,7 +72,7 @@ export default function ScheduleDetail() {
   const handleReservation = async (paymentMethod: 'card' | 'bank') => {
     if (!selectedTimeSlot) return;
 
-    const success = await makeReservation(schedule.id, selectedTimeSlot, paymentMethod);
+    const success = await makeReservation(String(schedule.id), selectedTimeSlot, paymentMethod);
     if (success) {
       setShowPaymentModal(false);
       navigate('/my-schedule');
@@ -84,32 +84,34 @@ export default function ScheduleDetail() {
       navigate('/login');
       return;
     }
-    toggleFavorite(schedule.teamId);
+    const teamId = schedule.team?.id || schedule.teamId;
+    if (teamId) toggleFavorite(String(teamId));
   };
 
-  const handleEntry = (reservationId: string, enter: boolean) => {
+  const handleEntry = (reservationId: number, enter: boolean) => {
     console.log(`${enter ? '입장 처리' : '입장 취소'}: ${reservationId}`);
   };
 
-  const handleBankConfirm = (reservationId: string) => {
+  const handleBankConfirm = (reservationId: number) => {
     console.log(`입금 확인: ${reservationId}`);
   };
 
   const getPaymentStatusText = (status: string) => {
     switch (status) {
-      case 'card_completed': return '카드결제완료';
-      case 'bank_completed': return '입금완료';
-      case 'bank_pending': return '입금대기';
+      case 'COMPLETED': return '결제완료';
+      case 'PENDING': return '입금대기';
+      case 'REFUNDED': return '환불됨';
+      case 'CANCELLED': return '취소됨';
       default: return status;
     }
   };
 
   const getReservationStatusText = (status: string) => {
     switch (status) {
-      case 'confirmed': return '예약확정';
-      case 'pending': return '예약대기';
-      case 'cancelled': return '예약취소';
-      case 'used': return '사용완료';
+      case 'CONFIRMED': return '예약확정';
+      case 'PENDING': return '예약대기';
+      case 'CANCELLED': return '예약취소';
+      case 'USED': return '사용완료';
       default: return status;
     }
   };
@@ -126,8 +128,8 @@ export default function ScheduleDetail() {
           <button className={styles.iconBtn} onClick={handleToggleFavorite}>
             <Heart
               size={22}
-              fill={isFavorite(schedule.teamId) ? 'var(--neon-pink)' : 'none'}
-              color={isFavorite(schedule.teamId) ? 'var(--neon-pink)' : 'currentColor'}
+              fill={isFavorite(String(schedule.team?.id || schedule.teamId || '')) ? 'var(--neon-pink)' : 'none'}
+              color={isFavorite(String(schedule.team?.id || schedule.teamId || '')) ? 'var(--neon-pink)' : 'currentColor'}
             />
           </button>
           <button className={styles.iconBtn}>
@@ -166,11 +168,11 @@ export default function ScheduleDetail() {
             {/* 포스터 */}
             <div className={styles.posterSection}>
               <img
-                src={schedule.posterImage}
+                src={schedule.imageUrl || 'https://picsum.photos/400/600'}
                 alt={schedule.title}
                 className={styles.poster}
               />
-              {schedule.price === 0 && (
+              {(schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0) && (
                 <div className={styles.freeBadge}>무료</div>
               )}
             </div>
@@ -192,10 +194,10 @@ export default function ScheduleDetail() {
                     })}
                   </span>
                 </div>
-                {schedule.location && (
+                {schedule.venue && (
                   <div className={styles.metaItem}>
                     <MapPin size={18} />
-                    <span>{schedule.location}</span>
+                    <span>{schedule.venue}</span>
                   </div>
                 )}
                 <div className={styles.metaItem}>
@@ -205,41 +207,46 @@ export default function ScheduleDetail() {
               </div>
 
               {/* 타임테이블 */}
-              <div className={styles.timeSlotsSection}>
-                <h3 className={styles.sectionLabel}>공연 시간</h3>
-                <div className={styles.timeSlots}>
-                  {schedule.timeSlots.map((slot) => (
-                    <button
-                      key={slot.id}
-                      className={`${styles.timeSlot} ${selectedTimeSlot === slot.id ? styles.selected : ''} ${slot.remainingSeats === 0 ? styles.soldOut : ''}`}
-                      onClick={() => slot.remainingSeats > 0 && setSelectedTimeSlot(slot.id)}
-                      disabled={slot.remainingSeats === 0}
-                    >
-                      <Clock size={16} />
-                      <span className={styles.slotTime}>{slot.time}</span>
-                      <span className={styles.slotSeats}>
-                        {slot.remainingSeats > 0
-                          ? `잔여 ${slot.remainingSeats}석`
-                          : '매진'}
-                      </span>
-                    </button>
-                  ))}
+              {schedule.timeSlots && schedule.timeSlots.length > 0 && (
+                <div className={styles.timeSlotsSection}>
+                  <h3 className={styles.sectionLabel}>공연 시간</h3>
+                  <div className={styles.timeSlots}>
+                    {schedule.timeSlots.map((slot) => {
+                      const remainingSeats = slot.capacity - (slot.reservedCount || 0);
+                      return (
+                        <button
+                          key={slot.id}
+                          className={`${styles.timeSlot} ${String(selectedTimeSlot) === String(slot.id) ? styles.selected : ''} ${remainingSeats === 0 ? styles.soldOut : ''}`}
+                          onClick={() => remainingSeats > 0 && setSelectedTimeSlot(String(slot.id))}
+                          disabled={remainingSeats === 0}
+                        >
+                          <Clock size={16} />
+                          <span className={styles.slotTime}>{slot.startTime?.slice(0, 5)}</span>
+                          <span className={styles.slotSeats}>
+                            {remainingSeats > 0
+                              ? `잔여 ${remainingSeats}석`
+                              : '매진'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* 가격 */}
               <div className={styles.priceSection}>
                 <span className={styles.priceLabel}>가격</span>
                 <span className={styles.price}>
-                  {schedule.price === 0 ? '무료' : `${schedule.price?.toLocaleString()}원`}
+                  {(schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0) ? '무료' : `${Number(schedule.price).toLocaleString()}원`}
                 </span>
               </div>
 
               {/* 안내사항 */}
-              {schedule.notice && (
+              {schedule.description && (
                 <div className={styles.noticeSection}>
                   <h3 className={styles.sectionLabel}>안내사항</h3>
-                  <pre className={styles.notice}>{schedule.notice}</pre>
+                  <pre className={styles.notice}>{schedule.description}</pre>
                 </div>
               )}
             </div>
@@ -282,7 +289,7 @@ export default function ScheduleDetail() {
                       <div className={styles.reservationName}>
                         {reservation.user?.name || '익명'}
                         <span className={styles.reservationTime}>
-                          {reservation.timeSlot?.time}
+                          {reservation.timeSlot?.startTime?.slice(0, 5)}
                         </span>
                       </div>
                       <div className={styles.reservationMeta}>
@@ -300,7 +307,7 @@ export default function ScheduleDetail() {
                       </div>
                     </div>
                     <div className={styles.reservationActions}>
-                      {reservation.paymentStatus === 'bank_pending' && (
+                      {reservation.paymentStatus === 'PENDING' && reservation.paymentMethod === 'BANK' && (
                         <button
                           className={`btn btn-sm ${styles.confirmBtn}`}
                           onClick={() => handleBankConfirm(reservation.id)}
@@ -379,10 +386,10 @@ export default function ScheduleDetail() {
               <div className={styles.modalInfo}>
                 <p>{schedule.title}</p>
                 <p className={styles.modalTime}>
-                  {schedule.timeSlots.find(t => t.id === selectedTimeSlot)?.time}
+                  {schedule.timeSlots?.find(t => String(t.id) === selectedTimeSlot)?.startTime?.slice(0, 5)}
                 </p>
                 <p className={styles.modalPrice}>
-                  {schedule.price === 0 ? '무료' : `${schedule.price?.toLocaleString()}원`}
+                  {(schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0) ? '무료' : `${Number(schedule.price).toLocaleString()}원`}
                 </p>
               </div>
 

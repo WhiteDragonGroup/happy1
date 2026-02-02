@@ -126,7 +126,7 @@ export default function CreateSchedule() {
     }, 1000);
   };
 
-  if (user?.role !== 'manager' && user?.role !== 'admin') {
+  if (user?.role !== 'MANAGER' && user?.role !== 'ADMIN') {
     return (
       <div className="page">
         <header className={styles.header}>

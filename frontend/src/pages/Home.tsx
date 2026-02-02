@@ -44,14 +44,16 @@ export default function Home() {
         scheduleDate.getFullYear() === year &&
         scheduleDate.getMonth() === month &&
         scheduleDate.getDate() === day &&
-        !s.isDeleted &&
-        new Date(s.publicDate) <= new Date()
+        !s.isDeleted
       );
     });
   };
 
   const getFavoriteSchedulesForDay = (day: number) => {
-    return getSchedulesForDay(day).filter(s => favoriteTeamIds.has(s.teamId));
+    return getSchedulesForDay(day).filter(s => {
+      const teamId = s.team?.id || s.teamId;
+      return teamId && favoriteTeamIds.has(teamId);
+    });
   };
 
   const prevMonth = () => {
@@ -70,8 +72,8 @@ export default function Home() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <h1 className="page-title">STAGE</h1>
+      <header className={`page-header ${styles.header}`}>
+        <h1 className={styles.logo}>UNDERPASS</h1>
       </header>
 
       <div className={styles.container}>

@@ -1,12 +1,12 @@
 // 사용자 역할
-export type UserRole = 'guest' | 'member' | 'manager' | 'admin';
+export type UserRole = 'USER' | 'MANAGER' | 'ADMIN';
 
 // 사용자 정보
 export interface User {
-  id: string;
+  id: number;
   email: string;
   name: string;
-  phone: string;
+  phone?: string;
   profileImage?: string;
   role: UserRole;
   createdAt: string;
@@ -14,114 +14,78 @@ export interface User {
 
 // 팀 (공연팀)
 export interface Team {
-  id: string;
+  id: number;
   name: string;
-  description: string;
-  profileImage?: string;
+  description?: string;
+  imageUrl?: string;
   genre?: string;
 }
 
 // 타임테이블 항목
 export interface TimeSlot {
-  id: string;
-  time: string;
+  id: number;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  reservedCount: number;
   description?: string;
-  remainingSeats: number;
 }
 
 // 공연 일정
 export interface Schedule {
-  id: string;
+  id: number;
   title: string;
-  teamId: string;
   team?: Team;
-  posterImage: string;
+  teamId?: number;
+  imageUrl?: string;
   date: string;
-  publicDate: string; // 공개일
-  timeSlots: TimeSlot[];
-  price?: number; // undefined면 무료
+  publicDate?: string;
+  timeSlots?: TimeSlot[];
+  price?: number;
   capacity: number;
-  notice?: string;
-  location?: string;
-  managerId: string;
+  description?: string;
+  venue?: string;
+  manager?: User;
+  managerId?: number;
   isDeleted: boolean;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
+  isPublished: boolean;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // 결제 상태
-export type PaymentStatus = 'pending' | 'card_completed' | 'bank_pending' | 'bank_completed' | 'refunded' | 'cancelled';
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'REFUNDED' | 'CANCELLED';
 
 // 예약 상태
-export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'used';
+export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'USED';
 
 // 예약
 export interface Reservation {
-  id: string;
-  scheduleId: string;
+  id: number;
   schedule?: Schedule;
-  userId: string;
+  scheduleId?: number;
   user?: User;
-  timeSlotId: string;
+  userId?: number;
   timeSlot?: TimeSlot;
+  timeSlotId?: number;
   paymentStatus: PaymentStatus;
   reservationStatus: ReservationStatus;
-  paymentMethod: 'card' | 'bank';
+  paymentMethod: 'CARD' | 'BANK';
   amount: number;
-  qrCode: string;
+  qrCode?: string;
   isEntered: boolean;
+  enteredAt?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 // 찜
 export interface Favorite {
-  id: string;
-  userId: string;
-  teamId: string;
+  id: number;
+  user?: User;
+  userId?: number;
   team?: Team;
+  teamId?: number;
   createdAt: string;
-}
-
-// 정산 요청
-export interface Settlement {
-  id: string;
-  managerId: string;
-  amount: number;
-  bankName: string;
-  accountNumber: string;
-  status: 'pending' | 'completed' | 'rejected';
-  createdAt: string;
-  processedAt?: string;
-}
-
-// 문의
-export interface Inquiry {
-  id: string;
-  userId: string;
-  title: string;
-  content: string;
-  reply?: string;
-  status: 'pending' | 'replied';
-  createdAt: string;
-  repliedAt?: string;
-}
-
-// 일정 등록 폼
-export interface ScheduleFormData {
-  title: string;
-  teamId: string;
-  posterImage: File | null;
-  date: string;
-  publicDate: string;
-  timeSlots: { time: string; description?: string }[];
-  price?: number;
-  capacity: number;
-  notice?: string;
-  location?: string;
-  // 스위치 상태
-  showPrice: boolean;
-  showNotice: boolean;
-  showLocation: boolean;
 }

@@ -6,6 +6,7 @@ import com.stage.backend.dto.LoginRequest;
 import com.stage.backend.dto.RegisterRequest;
 import com.stage.backend.dto.UserResponse;
 import com.stage.backend.entity.User;
+import com.stage.backend.service.KakaoService;
 import com.stage.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
+    private final KakaoService kakaoService;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
@@ -47,5 +51,25 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(userService.toResponse(user));
+    }
+
+    @PostMapping("/kakao")
+    public ResponseEntity<AuthResponse> kakaoLogin(@RequestBody Map<String, String> request) {
+        String accessToken = request.get("accessToken");
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new RuntimeException("카카오 액세스 토큰이 필요합니다.");
+        }
+        AuthResponse response = kakaoService.loginWithKakao(accessToken);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/kakao/callback")
+    public ResponseEntity<AuthResponse> kakaoCallback(@RequestBody Map<String, String> request) {
+        String code = request.get("code");
+        if (code == null || code.isEmpty()) {
+            throw new RuntimeException("카카오 인가 코드가 필요합니다.");
+        }
+        AuthResponse response = kakaoService.loginWithKakaoCode(code);
+        return ResponseEntity.ok(response);
     }
 }

@@ -2,14 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   User,
-  Ticket,
   MessageSquare,
   UserCheck,
   LogOut,
   ChevronRight,
   CalendarPlus,
   Settings,
-  Wallet,
   Users,
   Shield,
   List,
@@ -28,7 +26,7 @@ interface MenuItem {
 
 export default function MyPage() {
   const navigate = useNavigate();
-  const { user, isLoggedIn, logout, reservations } = useApp();
+  const { user, isLoggedIn, logout } = useApp();
 
   if (!isLoggedIn) {
     return (
@@ -38,10 +36,10 @@ export default function MyPage() {
         </header>
         <div className={styles.loginPrompt}>
           <div className={styles.logoWrap}>
-            <span className={styles.logo}>STAGE</span>
+            <span className={styles.logo}>UNDERPASS</span>
           </div>
           <h2>로그인하고 시작하세요</h2>
-          <p>공연 예약, 찜 기능 등 다양한 서비스를 이용해보세요</p>
+          <p>아티스트 찜, 스케줄 알림 등 다양한 서비스를 이용해보세요</p>
           <div className={styles.authButtons}>
             <button
               className="btn btn-primary btn-full"
@@ -61,34 +59,29 @@ export default function MyPage() {
     );
   }
 
-  const myReservationsCount = reservations.filter(r => r.userId === user?.id).length;
-
   // 일반 회원 메뉴
   const memberMenus: MenuItem[] = [
     { icon: User, label: '개인정보 변경', path: '/mypage/profile', description: '프로필 및 연락처 수정' },
-    { icon: Ticket, label: '예약 내역', path: '/mypage/reservations', badge: myReservationsCount > 0 ? String(myReservationsCount) : undefined, description: '예약 및 결제 내역 확인' },
     { icon: MessageSquare, label: '문의 내역', path: '/mypage/inquiries', description: '1:1 문의 내역' },
-    { icon: UserCheck, label: '일정관리자 자격 요청', path: '/mypage/manager-request', description: '일정 등록 권한 요청' },
+    { icon: UserCheck, label: '아티스트 등록 요청', path: '/mypage/manager-request', description: '아티스트 페이지 관리 권한 요청' },
   ];
 
   // 일정관리자 추가 메뉴
   const managerMenus: MenuItem[] = [
     { icon: CalendarPlus, label: '일정 등록', path: '/mypage/create-schedule', description: '새 공연 일정 등록' },
     { icon: Settings, label: '일정 관리', path: '/mypage/manage-schedules', description: '등록한 일정 관리' },
-    { icon: Wallet, label: '정산 내역', path: '/mypage/settlements', description: '수익 및 정산 관리' },
   ];
 
   // 어드민 추가 메뉴
   const adminMenus: MenuItem[] = [
     { icon: Users, label: '전체 회원 관리', path: '/admin/users', description: '모든 회원 조회 및 관리' },
-    { icon: List, label: '전체 공연 관리', path: '/admin/schedules', description: '모든 공연 조회 및 관리' },
-    { icon: Shield, label: '자격 요청 관리', path: '/admin/requests', description: '일정관리자 요청 처리' },
-    { icon: Wallet, label: '정산 요청 관리', path: '/admin/settlements', description: '정산 요청 처리' },
-    { icon: Trash2, label: '삭제된 공연', path: '/admin/deleted', description: '삭제된 공연 복구' },
+    { icon: List, label: '전체 일정 관리', path: '/admin/schedules', description: '모든 일정 조회 및 관리' },
+    { icon: Shield, label: '아티스트 요청 관리', path: '/admin/requests', description: '아티스트 등록 요청 처리' },
+    { icon: Trash2, label: '삭제된 일정', path: '/admin/deleted', description: '삭제된 일정 복구' },
   ];
 
-  const isManager = user?.role === 'manager' || user?.role === 'admin';
-  const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'MANAGER' || user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleLogout = () => {
     logout();
@@ -97,9 +90,9 @@ export default function MyPage() {
 
   const getRoleBadge = () => {
     switch (user?.role) {
-      case 'admin':
+      case 'ADMIN':
         return <span className={`${styles.roleBadge} ${styles.admin}`}>관리자</span>;
-      case 'manager':
+      case 'MANAGER':
         return <span className={`${styles.roleBadge} ${styles.manager}`}>일정관리자</span>;
       default:
         return <span className={`${styles.roleBadge} ${styles.member}`}>일반회원</span>;

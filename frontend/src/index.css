@@ -1,53 +1,62 @@
 :root {
-  /* 네온 나이트 컬러 팔레트 */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #1a1a24;
-  --bg-elevated: #22222e;
+  /* UNDERPASS - 지하아이돌 컬러 팔레트 */
+  --bg-primary: #050508;
+  --bg-secondary: #0a0a10;
+  --bg-card: #101018;
+  --bg-elevated: #18181f;
 
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0b0;
-  --text-muted: #606070;
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888a0;
+  --text-muted: #505068;
 
-  --neon-pink: #ff2d6a;
-  --neon-pink-glow: rgba(255, 45, 106, 0.4);
-  --neon-blue: #00d4ff;
-  --neon-blue-glow: rgba(0, 212, 255, 0.4);
-  --neon-purple: #b14eff;
-  --neon-purple-glow: rgba(177, 78, 255, 0.4);
-  --neon-green: #00ff88;
-  --neon-green-glow: rgba(0, 255, 136, 0.4);
-  --neon-orange: #ff8c00;
-  --neon-orange-glow: rgba(255, 140, 0, 0.4);
+  --neon-pink: #ff1a5c;
+  --neon-pink-glow: rgba(255, 26, 92, 0.5);
+  --neon-cyan: #00f0ff;
+  --neon-cyan-glow: rgba(0, 240, 255, 0.5);
+  --neon-purple: #a855f7;
+  --neon-purple-glow: rgba(168, 85, 247, 0.5);
+  --neon-yellow: #facc15;
+  --neon-yellow-glow: rgba(250, 204, 21, 0.5);
+  --neon-green: #22ff66;
+  --neon-green-glow: rgba(34, 255, 102, 0.4);
+
+  /* 레거시 호환 */
+  --neon-blue: var(--neon-cyan);
+  --neon-blue-glow: var(--neon-cyan-glow);
+  --neon-orange: #ff6b00;
+  --neon-orange-glow: rgba(255, 107, 0, 0.4);
 
   --gradient-primary: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-  --gradient-secondary: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
-  --gradient-bg: radial-gradient(ellipse at top, #1a1a2e 0%, #0a0a0f 50%);
+  --gradient-secondary: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+  --gradient-glitch: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-purple));
+  --gradient-bg: radial-gradient(ellipse at top, #0f0f1a 0%, #050508 60%);
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(255, 255, 255, 0.15);
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(255, 255, 255, 0.12);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-neon-pink: 0 0 20px var(--neon-pink-glow), 0 0 40px var(--neon-pink-glow);
-  --shadow-neon-blue: 0 0 20px var(--neon-blue-glow), 0 0 40px var(--neon-blue-glow);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-neon-pink: 0 0 20px var(--neon-pink-glow), 0 0 60px var(--neon-pink-glow);
+  --shadow-neon-cyan: 0 0 20px var(--neon-cyan-glow), 0 0 60px var(--neon-cyan-glow);
+  --shadow-neon-blue: var(--shadow-neon-cyan);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  --font-display: 'Outfit', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
   --font-body: 'Noto Sans KR', sans-serif;
+  --font-glitch: 'VT323', monospace;
 
   --nav-height: 72px;
   --header-height: 56px;
 
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s ease;
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.35s ease;
 }
 
 * {
@@ -64,6 +73,9 @@ html {
 body {
   font-family: var(--font-body);
   background: var(--bg-primary);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 26, 92, 0.06) 0%, transparent 50%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -405,12 +417,80 @@ img {
   100% { background-position: 200% 0; }
 }
 
+@keyframes glitch {
+  0%, 100% {
+    text-shadow:
+      2px 0 var(--neon-cyan),
+      -2px 0 var(--neon-pink);
+    transform: translate(0);
+  }
+  20% {
+    text-shadow:
+      -2px 0 var(--neon-cyan),
+      2px 0 var(--neon-pink);
+    transform: translate(-1px, 1px);
+  }
+  40% {
+    text-shadow:
+      2px 0 var(--neon-pink),
+      -2px 0 var(--neon-cyan);
+    transform: translate(1px, -1px);
+  }
+  60% {
+    text-shadow:
+      0 2px var(--neon-cyan),
+      0 -2px var(--neon-pink);
+    transform: translate(-1px, 0);
+  }
+  80% {
+    text-shadow:
+      -2px 0 var(--neon-pink),
+      2px 0 var(--neon-cyan);
+    transform: translate(1px, 1px);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 1; }
+  42% { opacity: 0.8; }
+  43% { opacity: 1; }
+  45% { opacity: 0.3; }
+  46% { opacity: 1; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--neon-pink-glow), 0 0 20px var(--neon-pink-glow);
+  }
+  50% {
+    box-shadow: 0 0 10px var(--neon-pink-glow), 0 0 40px var(--neon-pink-glow);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease;
 }
 
 .animate-slide-up {
   animation: slideUp 0.4s ease;
+}
+
+.animate-glitch {
+  animation: glitch 2s infinite;
+}
+
+.animate-flicker {
+  animation: flicker 3s infinite;
+}
+
+.animate-neon-pulse {
+  animation: neonPulse 2s ease-in-out infinite;
 }
 
 /* 스켈레톤 로딩 */

@@ -14,26 +14,19 @@ export default function Explore() {
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
 
-  // 1월 전체 일정 (공개일이 지난 것만)
+  // 전체 일정 (삭제되지 않은 것)
   const allSchedules = useMemo(() => {
-    const now = new Date();
     return schedules
-      .filter(s => {
-        const scheduleDate = new Date(s.date);
-        const publicDate = new Date(s.publicDate);
-        return (
-          scheduleDate.getFullYear() === 2025 &&
-          scheduleDate.getMonth() === 0 &&
-          !s.isDeleted &&
-          publicDate <= now
-        );
-      })
+      .filter(s => !s.isDeleted)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [schedules]);
 
   const filteredSchedules = useMemo(() => {
     if (!filterFavorites || !isLoggedIn) return allSchedules;
-    return allSchedules.filter(s => favoriteTeamIds.has(s.teamId));
+    return allSchedules.filter(s => {
+      const teamId = s.team?.id || s.teamId;
+      return teamId && favoriteTeamIds.has(teamId);
+    });
   }, [allSchedules, filterFavorites, isLoggedIn, favoriteTeamIds]);
 
   // 날짜별로 그룹화
@@ -53,10 +46,14 @@ export default function Explore() {
     return groups;
   }, [filteredSchedules]);
 
+  const getTeamId = (schedule: typeof schedules[0]) => {
+    return String(schedule.team?.id || schedule.teamId || '');
+  };
+
   return (
     <div className="page">
-      <header className="page-header">
-        <h1 className="page-title">탐색</h1>
+      <header className={`page-header ${styles.header}`}>
+        <h1 className={styles.pageTitle}>SCHEDULE</h1>
       </header>
 
       <div className={styles.container}>
@@ -124,29 +121,29 @@ export default function Explore() {
                 >
                   <div className={styles.posterWrap}>
                     <img
-                      src={schedule.posterImage}
+                      src={schedule.imageUrl || 'https://picsum.photos/400/600'}
                       alt={schedule.title}
                       className={styles.poster}
                     />
-                    {isFavorite(schedule.teamId) && (
+                    {isFavorite(getTeamId(schedule)) && (
                       <div className={styles.favBadge}>
                         <Heart size={12} fill="var(--neon-pink)" />
                       </div>
                     )}
-                    {schedule.price === 0 && (
+                    {schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0 ? (
                       <div className={styles.freeBadge}>FREE</div>
-                    )}
+                    ) : null}
                   </div>
                   <div className={styles.cardContent}>
                     <h4 className={styles.scheduleTitle}>{schedule.title}</h4>
                     <p className={styles.teamName}>{schedule.team?.name}</p>
                     <div className={styles.cardMeta}>
                       <span className={styles.time}>
-                        {schedule.timeSlots[0]?.time}
+                        {schedule.timeSlots?.[0]?.startTime?.slice(0, 5) || ''}
                       </span>
-                      {schedule.price !== undefined && schedule.price > 0 && (
+                      {schedule.price !== undefined && schedule.price !== null && Number(schedule.price) > 0 && (
                         <span className={styles.price}>
-                          {schedule.price.toLocaleString()}원
+                          {Number(schedule.price).toLocaleString()}원
                         </span>
                       )}
                     </div>

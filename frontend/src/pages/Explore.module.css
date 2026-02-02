@@ -1,3 +1,17 @@
+.header {
+  background: linear-gradient(180deg, rgba(5, 5, 8, 0.95) 0%, rgba(5, 5, 8, 0.85) 100%);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan-glow);
+}
+
 .container {
   padding: 16px;
   max-width: 1200px;
@@ -15,25 +29,26 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
-  font-size: 0.875rem;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
   transition: all var(--transition-fast);
 }
 
 .filterBtn:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
 }
 
 .filterBtn.active {
-  background: var(--neon-pink-glow);
+  background: rgba(255, 26, 92, 0.1);
   border-color: var(--neon-pink);
   color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--neon-pink-glow);
 }
 
 .filterTags {
@@ -42,28 +57,31 @@
   gap: 8px;
   margin-bottom: 20px;
   padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  background: rgba(16, 16, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(4px);
 }
 
 .filterTag {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
-  background: var(--bg-card);
-  border-radius: var(--radius-full);
+  padding: 5px 10px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid var(--neon-purple);
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--neon-purple);
 }
 
 .clearFilter {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   color: var(--text-muted);
   transition: color var(--transition-fast);
@@ -78,14 +96,15 @@
 }
 
 .dateTitle {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-family: var(--font-glitch);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan-glow);
   margin-bottom: 16px;
-  padding-left: 4px;
-  border-left: 3px solid var(--neon-pink);
   padding-left: 12px;
+  border-left: 2px solid var(--neon-pink);
+  letter-spacing: 0.02em;
 }
 
 .scheduleGrid {
@@ -95,18 +114,36 @@
 }
 
 .scheduleCard {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  background: rgba(16, 16, 24, 0.8);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   overflow: hidden;
   cursor: pointer;
   transition: all var(--transition-normal);
+  backdrop-filter: blur(4px);
+  position: relative;
+}
+
+.scheduleCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 26, 92, 0.03) 0%, rgba(168, 85, 247, 0.03) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+.scheduleCard:hover::before {
+  opacity: 1;
 }
 
 .scheduleCard:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-glow);
+  border-color: rgba(255, 26, 92, 0.3);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px var(--neon-pink-glow);
 }
 
 .posterWrap {
@@ -120,42 +157,47 @@
   height: 100%;
   object-fit: cover;
   transition: transform var(--transition-slow);
+  filter: saturate(0.9);
 }
 
 .scheduleCard:hover .poster {
   transform: scale(1.05);
+  filter: saturate(1.1);
 }
 
 .favBadge {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 28px;
-  height: 28px;
-  background: rgba(0, 0, 0, 0.6);
+  width: 26px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(255, 26, 92, 0.3);
 }
 
 .freeBadge {
   position: absolute;
   top: 8px;
   left: 8px;
-  padding: 4px 10px;
+  padding: 4px 8px;
   background: var(--neon-green);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-family: var(--font-display);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: 0.625rem;
+  font-weight: 400;
   color: black;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 12px var(--neon-green-glow);
 }
 
 .cardContent {
   padding: 12px;
+  background: linear-gradient(180deg, transparent 0%, rgba(5, 5, 8, 0.4) 100%);
 }
 
 .scheduleTitle {
@@ -170,8 +212,9 @@
 
 .teamName {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--neon-pink);
   margin-bottom: 8px;
+  opacity: 0.9;
 }
 
 .cardMeta {
@@ -181,17 +224,16 @@
 }
 
 .time {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--neon-blue);
-  font-weight: 500;
+  font-family: var(--font-glitch);
+  font-size: 0.875rem;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px var(--neon-cyan-glow);
 }
 
 .price {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--neon-pink);
-  font-weight: 600;
+  font-family: var(--font-glitch);
+  font-size: 0.875rem;
+  color: var(--neon-yellow);
 }
 
 .empty {
@@ -203,6 +245,12 @@
   padding: 60px 20px;
   text-align: center;
   color: var(--text-muted);
+}
+
+.empty p {
+  font-family: var(--font-glitch);
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
 }
 
 @media (min-width: 640px) {

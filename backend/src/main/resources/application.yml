@@ -26,6 +26,11 @@ jwt:
   secret: StageAppSecretKeyForJwtTokenGeneration2024StageAppSecretKey
   expiration: 86400000
 
+kakao:
+  rest-api-key: fa35ab7422c93c4782ad86452321dd2c
+  redirect-uri: http://3.26.225.195/oauth/kakao/callback
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG

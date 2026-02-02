@@ -18,7 +18,7 @@ export default function MySchedule() {
   // 내 예약 목록
   const myReservations = useMemo(() => {
     if (!user) return [];
-    return reservations.filter(r => r.userId === user.id && r.reservationStatus !== 'cancelled');
+    return reservations.filter(r => r.userId === user.id && r.reservationStatus !== 'CANCELLED');
   }, [reservations, user]);
 
   // 찜한 팀의 일정 (아직 예약 안한 것)
@@ -26,12 +26,15 @@ export default function MySchedule() {
     if (!isLoggedIn || favoriteTeamIds.size === 0) return [];
     const reservedScheduleIds = new Set(myReservations.map(r => r.scheduleId));
 
-    return schedules.filter(s =>
-      favoriteTeamIds.has(s.teamId) &&
-      !s.isDeleted &&
-      !reservedScheduleIds.has(s.id) &&
-      new Date(s.date) >= new Date()
-    );
+    return schedules.filter(s => {
+      const teamId = s.team?.id || s.teamId;
+      return (
+        teamId && favoriteTeamIds.has(teamId) &&
+        !s.isDeleted &&
+        !reservedScheduleIds.has(s.id) &&
+        new Date(s.date) >= new Date()
+      );
+    });
   }, [schedules, favoriteTeamIds, myReservations, isLoggedIn]);
 
   if (!isLoggedIn) {
@@ -54,11 +57,11 @@ export default function MySchedule() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'confirmed':
+      case 'CONFIRMED':
         return <span className="badge badge-green">예약확정</span>;
-      case 'pending':
+      case 'PENDING':
         return <span className="badge badge-orange">예약대기</span>;
-      case 'used':
+      case 'USED':
         return <span className="badge badge-blue">사용완료</span>;
       default:
         return <span className="badge">알수없음</span>;
@@ -67,12 +70,12 @@ export default function MySchedule() {
 
   const getPaymentBadge = (status: string) => {
     switch (status) {
-      case 'card_completed':
-        return <span className={styles.paymentBadge}>카드결제완료</span>;
-      case 'bank_completed':
-        return <span className={styles.paymentBadge}>입금완료</span>;
-      case 'bank_pending':
+      case 'COMPLETED':
+        return <span className={styles.paymentBadge}>결제완료</span>;
+      case 'PENDING':
         return <span className={`${styles.paymentBadge} ${styles.pending}`}>입금대기</span>;
+      case 'REFUNDED':
+        return <span className={styles.paymentBadge}>환불됨</span>;
       default:
         return null;
     }
@@ -118,7 +121,7 @@ export default function MySchedule() {
                 >
                   <div className={styles.posterWrap}>
                     <img
-                      src={reservation.schedule?.posterImage}
+                      src={reservation.schedule?.imageUrl || 'https://picsum.photos/400/600'}
                       alt={reservation.schedule?.title}
                       className={styles.poster}
                     />
@@ -145,7 +148,7 @@ export default function MySchedule() {
                     </div>
                     <div className={styles.metaRow}>
                       <Clock size={14} />
-                      <span>{reservation.timeSlot?.time}</span>
+                      <span>{reservation.timeSlot?.startTime?.slice(0, 5)}</span>
                     </div>
                     <div className={styles.cardFooter}>
                       {getPaymentBadge(reservation.paymentStatus)}
@@ -186,7 +189,7 @@ export default function MySchedule() {
                 >
                   <div className={styles.posterWrap}>
                     <img
-                      src={schedule.posterImage}
+                      src={schedule.imageUrl || 'https://picsum.photos/400/600'}
                       alt={schedule.title}
                       className={styles.poster}
                     />
@@ -207,15 +210,15 @@ export default function MySchedule() {
                         })}
                       </span>
                     </div>
-                    {schedule.location && (
+                    {schedule.venue && (
                       <div className={styles.metaRow}>
                         <MapPin size={14} />
-                        <span>{schedule.location}</span>
+                        <span>{schedule.venue}</span>
                       </div>
                     )}
                     <div className={styles.cardFooter}>
                       <span className={styles.price}>
-                        {schedule.price === 0 ? '무료' : `${schedule.price?.toLocaleString()}원`}
+                        {(schedule.price === undefined || schedule.price === null || Number(schedule.price) === 0) ? '무료' : `${Number(schedule.price).toLocaleString()}원`}
                       </span>
                     </div>
                   </div>

@@ -21,23 +21,25 @@
 .logo {
   font-family: var(--font-display);
   font-size: 2.5rem;
-  font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 20px var(--neon-pink-glow),
+    0 0 60px var(--neon-pink-glow);
 }
 
 .loginPrompt h2 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
 .loginPrompt p {
-  font-size: 0.9375rem;
+  font-family: var(--font-glitch);
+  font-size: 1rem;
   color: var(--text-secondary);
-  max-width: 280px;
+  max-width: 300px;
 }
 
 .authButtons {
@@ -46,7 +48,7 @@
   gap: 12px;
   width: 100%;
   max-width: 280px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .profileCard {
@@ -54,23 +56,25 @@
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-color);
+  background: rgba(16, 16, 24, 0.8);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 26, 92, 0.2);
   margin-bottom: 24px;
+  backdrop-filter: blur(8px);
 }
 
 .profileImage {
   width: 64px;
   height: 64px;
-  border-radius: var(--radius-full);
-  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   overflow: hidden;
   flex-shrink: 0;
+  box-shadow: 0 0 20px var(--neon-pink-glow);
 }
 
 .profileImage img {
@@ -97,28 +101,36 @@
 .roleBadge {
   display: inline-flex;
   padding: 3px 8px;
-  border-radius: var(--radius-full);
-  font-size: 0.6875rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .roleBadge.member {
-  background: var(--bg-elevated);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .roleBadge.manager {
-  background: var(--neon-blue-glow);
-  color: var(--neon-blue);
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
 .roleBadge.admin {
-  background: var(--neon-pink-glow);
+  background: rgba(255, 26, 92, 0.1);
   color: var(--neon-pink);
+  border: 1px solid rgba(255, 26, 92, 0.3);
+  box-shadow: 0 0 8px var(--neon-pink-glow);
 }
 
 .profileEmail {
-  font-size: 0.875rem;
+  font-family: var(--font-glitch);
+  font-size: 0.9375rem;
   color: var(--text-secondary);
 }
 
@@ -127,22 +139,25 @@
 }
 
 .sectionTitle {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--neon-cyan);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   margin-bottom: 12px;
   padding-left: 4px;
+  text-shadow: 0 0 6px var(--neon-cyan-glow);
 }
 
 .menuList {
   display: flex;
   flex-direction: column;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  background: rgba(16, 16, 24, 0.6);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   overflow: hidden;
+  backdrop-filter: blur(4px);
 }
 
 .menuItem {
@@ -150,8 +165,8 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border-bottom: 1px solid var(--border-color);
-  transition: background var(--transition-fast);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all var(--transition-fast);
   text-align: left;
   width: 100%;
 }
@@ -161,19 +176,27 @@
 }
 
 .menuItem:hover {
-  background: var(--bg-elevated);
+  background: rgba(255, 26, 92, 0.05);
+}
+
+.menuItem:hover .menuIcon {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  box-shadow: 0 0 8px var(--neon-pink-glow);
 }
 
 .menuIcon {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
   flex-shrink: 0;
+  transition: all var(--transition-fast);
 }
 
 .menuContent {
@@ -198,10 +221,11 @@
   height: 20px;
   padding: 0 6px;
   background: var(--neon-pink);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-size: 0.6875rem;
   font-weight: 600;
   color: white;
+  box-shadow: 0 0 8px var(--neon-pink-glow);
 }
 
 .menuDesc {
@@ -223,9 +247,9 @@
   gap: 8px;
   width: 100%;
   padding: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--text-secondary);
@@ -233,9 +257,10 @@
 }
 
 .logoutBtn:hover {
-  background: var(--bg-elevated);
+  background: rgba(255, 26, 92, 0.1);
   color: var(--neon-pink);
   border-color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--neon-pink-glow);
 }
 
 .withdrawBtn {

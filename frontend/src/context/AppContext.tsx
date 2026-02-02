@@ -15,6 +15,7 @@ interface AppState {
 
 interface AppContextType extends AppState {
   login: (email: string, password: string) => Promise<boolean>;
+  kakaoLogin: () => Promise<boolean>;
   logout: () => void;
   register: (email: string, password: string, name: string, phone: string) => Promise<boolean>;
   toggleFavorite: (teamId: string) => void;
@@ -26,6 +27,7 @@ interface AppContextType extends AppState {
   makeReservation: (scheduleId: string, timeSlotId: string, paymentMethod: 'card' | 'bank') => Promise<boolean>;
   cancelReservation: (reservationId: string) => Promise<boolean>;
   refreshData: () => Promise<void>;
+  setAuthResponse: (token: string, user: User) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -66,8 +68,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         teamAPI.getAll(),
         scheduleAPI.getAll(),
       ]);
-      setTeams(teamsRes.data);
-      setSchedules(schedulesRes.data);
+      setTeams(Array.isArray(teamsRes.data) ? teamsRes.data : []);
+      setSchedules(Array.isArray(schedulesRes.data) ? schedulesRes.data : []);
     } catch (error) {
       console.error('Failed to load public data:', error);
     }
@@ -93,6 +95,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setAuthResponse = async (token: string, user: User) => {
+    localStorage.setItem('token', token);
+    setUser(user);
+    await loadUserData();
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await authAPI.login(email, password);
@@ -103,6 +111,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {
       return false;
     }
+  };
+
+  const kakaoLogin = async (): Promise<boolean> => {
+    const Kakao = (window as any).Kakao;
+
+    if (!Kakao) {
+      console.error('Kakao SDK가 로드되지 않았습니다.');
+      return false;
+    }
+
+    if (!Kakao.isInitialized()) {
+      Kakao.init('fa35ab7422c93c4782ad86452321dd2c');
+    }
+
+    return new Promise(() => {
+      Kakao.Auth.authorize({
+        redirectUri: window.location.origin + '/oauth/kakao/callback',
+        state: 'kakao_login',
+      });
+      // 리다이렉트되므로 여기서는 resolve하지 않음
+    });
   };
 
   const logout = () => {
@@ -159,7 +188,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const getSchedulesByTeam = (teamId: string): Schedule[] => {
-    return schedules.filter(s => String(s.teamId) === teamId && !s.isDeleted);
+    return schedules.filter(s => {
+      const scheduleTeamId = s.team?.id || s.teamId;
+      return String(scheduleTeamId) === teamId && !s.isDeleted;
+    });
   };
 
   const makeReservation = async (
@@ -200,6 +232,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         selectedMonth,
         loading,
         login,
+        kakaoLogin,
         logout,
         register,
         toggleFavorite,
@@ -211,6 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         makeReservation,
         cancelReservation,
         refreshData,
+        setAuthResponse,
       }}
     >
       {children}

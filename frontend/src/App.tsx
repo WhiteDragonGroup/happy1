@@ -13,6 +13,7 @@ import ScheduleDetail from './pages/ScheduleDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CreateSchedule from './pages/CreateSchedule';
+import KakaoCallback from './pages/KakaoCallback';
 
 import './index.css';
 
@@ -33,6 +34,7 @@ function AppRoutes() {
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/oauth/kakao/callback" element={<KakaoCallback />} />
         </Routes>
       </AnimatePresence>
       {!hideNav && <BottomNav />}

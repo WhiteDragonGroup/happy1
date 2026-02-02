@@ -1,5 +1,6 @@
 package com.stage.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalTime;
@@ -20,6 +21,7 @@ public class TimeSlot {
     // === 필수 컬럼 (FK) ===
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
+    @JsonIgnore
     private Schedule schedule;
 
     // === 필수 컬럼 ===

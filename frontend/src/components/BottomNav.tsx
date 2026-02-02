@@ -5,11 +5,11 @@ import { useApp } from '../context/AppContext';
 import styles from './BottomNav.module.css';
 
 const navItems = [
-  { path: '/explore', icon: Compass, label: '탐색' },
-  { path: '/favorites', icon: Heart, label: '찜', requireAuth: true },
+  { path: '/explore', icon: Compass, label: '스케줄' },
+  { path: '/favorites', icon: Heart, label: '아티스트', requireAuth: true },
   { path: '/', icon: Home, label: '홈' },
-  { path: '/my-schedule', icon: Calendar, label: '나의일정' },
-  { path: '/mypage', icon: User, label: '마이페이지' },
+  { path: '/my-schedule', icon: Calendar, label: '내일정' },
+  { path: '/mypage', icon: User, label: '마이' },
 ];
 
 export default function BottomNav() {
