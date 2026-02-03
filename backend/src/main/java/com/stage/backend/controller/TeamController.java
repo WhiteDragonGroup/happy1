@@ -2,10 +2,12 @@ package com.stage.backend.controller;
 
 import com.stage.backend.entity.Team;
 import com.stage.backend.entity.User;
+import com.stage.backend.repository.FavoriteRepository;
 import com.stage.backend.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 public class TeamController {
 
     private final TeamRepository teamRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @GetMapping
     public ResponseEntity<List<Team>> getAll() {
@@ -65,17 +68,21 @@ public class TeamController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal User user) {
         if (user.getRole() != User.Role.ADMIN) {
             return ResponseEntity.status(403).build();
         }
 
-        if (!teamRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        teamRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return teamRepository.findById(id)
+                .map(team -> {
+                    // 먼저 해당 팀을 참조하는 Favorite 레코드 삭제
+                    favoriteRepository.deleteByTeam(team);
+                    // 그 후 팀 삭제
+                    teamRepository.delete(team);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
