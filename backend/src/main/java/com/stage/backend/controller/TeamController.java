@@ -3,6 +3,7 @@ package com.stage.backend.controller;
 import com.stage.backend.entity.Team;
 import com.stage.backend.entity.User;
 import com.stage.backend.repository.FavoriteRepository;
+import com.stage.backend.repository.ScheduleRepository;
 import com.stage.backend.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class TeamController {
 
     private final TeamRepository teamRepository;
     private final FavoriteRepository favoriteRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @GetMapping
     public ResponseEntity<List<Team>> getAll() {
@@ -77,7 +79,9 @@ public class TeamController {
 
         return teamRepository.findById(id)
                 .map(team -> {
-                    // 먼저 해당 팀을 참조하는 Favorite 레코드 삭제
+                    // 먼저 해당 팀을 참조하는 Schedule의 team_id를 null로 설정
+                    scheduleRepository.clearTeamReference(team.getId());
+                    // 해당 팀을 참조하는 Favorite 레코드 삭제
                     favoriteRepository.deleteByTeam(team);
                     // 그 후 팀 삭제
                     teamRepository.delete(team);
