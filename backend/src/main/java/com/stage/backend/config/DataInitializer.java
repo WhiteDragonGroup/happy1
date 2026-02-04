@@ -34,7 +34,7 @@ public class DataInitializer implements CommandLineRunner {
             }
         });
 
-        if (teamRepository.count() > 0) {
+        if (teamRepository.count() > 0 || userRepository.count() > 1) {
             log.info("데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
             return;
         }
