@@ -74,7 +74,7 @@ export default function AdminArtists() {
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      alert('아티스트 이름을 입력해주세요');
+      alert('그룹명을 입력해주세요');
       return;
     }
 
@@ -207,7 +207,7 @@ export default function AdminArtists() {
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formGroup}>
-                <label>이름 *</label>
+                <label>그룹명 *</label>
                 <input
                   type="text"
                   value={form.name}
@@ -217,12 +217,12 @@ export default function AdminArtists() {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>장르</label>
+                <label>멤버</label>
                 <input
                   type="text"
                   value={form.genre}
                   onChange={e => setForm({ ...form, genre: e.target.value })}
-                  placeholder="예: 아이돌, 인디, 발라드"
+                  placeholder="예: 홍길동, 김철수, 이영희"
                 />
               </div>
               <div className={styles.formGroup}>

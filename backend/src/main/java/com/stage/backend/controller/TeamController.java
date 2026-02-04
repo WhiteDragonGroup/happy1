@@ -36,8 +36,16 @@ public class TeamController {
 
     @GetMapping("/search")
     public ResponseEntity<List<Team>> search(@RequestParam String q) {
-        // 팀/아티스트 이름으로만 검색 (장르 검색 제외)
+        // 팀 이름 + 멤버 이름으로 검색
         List<Team> byName = teamRepository.findByNameContainingIgnoreCase(q);
+        List<Team> byGenre = teamRepository.findByGenreContainingIgnoreCase(q);
+        // 중복 제거 후 합치기
+        java.util.Set<Long> ids = byName.stream().map(Team::getId).collect(java.util.stream.Collectors.toSet());
+        for (Team t : byGenre) {
+            if (ids.add(t.getId())) {
+                byName.add(t);
+            }
+        }
         return ResponseEntity.ok(byName);
     }
 
