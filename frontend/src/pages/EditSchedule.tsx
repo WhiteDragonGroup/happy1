@@ -201,7 +201,7 @@ export default function EditSchedule() {
 
       const scheduleData = {
         title: form.title,
-        organizer: form.organizer || null,
+        organizer: form.organizer || '',
         date: form.date,
         publicDateTime: form.publicDateTime || null,
         ticketOpenDateTime: form.ticketOpenDateTime || null,
