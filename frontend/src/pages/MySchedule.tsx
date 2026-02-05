@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Ticket, Clock, MapPin, Heart } from 'lucide-react';
+import { Calendar, Ticket, Clock, MapPin, Heart, X } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useApp } from '../context/AppContext';
 import styles from './MySchedule.module.css';
+import type { Reservation } from '../types';
 
 type TabType = 'reserved' | 'wishlist';
 
@@ -11,6 +13,7 @@ export default function MySchedule() {
   const navigate = useNavigate();
   const { user, isLoggedIn, reservations, getFavoriteTeams, schedules } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('reserved');
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -117,7 +120,7 @@ export default function MySchedule() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  onClick={() => navigate(`/schedule/${reservation.scheduleId}`)}
+                  onClick={() => setSelectedReservation(reservation)}
                 >
                   <div className={styles.posterWrap}>
                     <img
@@ -239,6 +242,73 @@ export default function MySchedule() {
           </div>
         )}
       </div>
+
+      {/* QR코드 모달 */}
+      {selectedReservation && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedReservation(null)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 className={styles.modalTitle} style={{ marginBottom: 0 }}>예약 QR코드</h3>
+              <button onClick={() => setSelectedReservation(null)} style={{ color: 'var(--text-muted)' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.qrSection}>
+              <div style={{
+                padding: '16px',
+                background: 'white',
+                borderRadius: 'var(--radius-lg)',
+                display: 'inline-flex'
+              }}>
+                <QRCodeSVG value={selectedReservation.qrCode || ''} size={180} />
+              </div>
+              <p className={styles.qrHint}>입장 시 이 QR코드를 보여주세요</p>
+            </div>
+
+            <div className={styles.reservationDetail}>
+              <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                {selectedReservation.schedule?.title}
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                {new Date(selectedReservation.schedule?.date || '').toLocaleDateString('ko-KR', {
+                  year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                })}
+              </p>
+              {selectedReservation.timeSlot && (
+                <p style={{ fontSize: '0.875rem', color: 'var(--neon-blue)' }}>
+                  {selectedReservation.timeSlot.startTime?.slice(0, 5)} - {selectedReservation.timeSlot.endTime?.slice(0, 5)}
+                  {selectedReservation.timeSlot.teamName && ` / ${selectedReservation.timeSlot.teamName}`}
+                </p>
+              )}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                {getStatusBadge(selectedReservation.reservationStatus)}
+                {getPaymentBadge(selectedReservation.paymentStatus)}
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+                onClick={() => {
+                  setSelectedReservation(null);
+                  navigate(`/schedule/${selectedReservation.scheduleId}`);
+                }}
+              >
+                일정 상세보기
+              </button>
+              <button
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setSelectedReservation(null)}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

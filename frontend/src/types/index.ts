@@ -48,6 +48,7 @@ export interface Schedule {
   capacity: number;
   description?: string;
   venue?: string;
+  openTime?: string;  // 입장시간
   manager?: User;
   managerId?: number;
   isDeleted: boolean;
@@ -70,6 +71,9 @@ export interface Reservation {
   scheduleId?: number;
   user?: User;
   userId?: number;
+  userName?: string;
+  userPhone?: string;
+  userEmail?: string;
   timeSlot?: TimeSlot;
   timeSlotId?: number;
   paymentStatus: PaymentStatus;

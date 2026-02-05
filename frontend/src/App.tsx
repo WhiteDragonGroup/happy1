@@ -25,6 +25,7 @@ import AdminDeleted from './pages/AdminDeleted';
 import AdminArtists from './pages/AdminArtists';
 import TeamDetail from './pages/TeamDetail';
 import DaySchedules from './pages/DaySchedules';
+import ReservationManage from './pages/ReservationManage';
 
 import './index.css';
 
@@ -52,6 +53,7 @@ function AppRoutes() {
           <Route path="/admin/requests" element={<AdminRequests />} />
           <Route path="/admin/deleted" element={<AdminDeleted />} />
           <Route path="/admin/artists" element={<AdminArtists />} />
+          <Route path="/manage-reservations/:scheduleId" element={<ReservationManage />} />
           <Route path="/schedule/:id" element={<ScheduleDetail />} />
           <Route path="/team/:id" element={<TeamDetail />} />
           <Route path="/day/:date" element={<DaySchedules />} />
