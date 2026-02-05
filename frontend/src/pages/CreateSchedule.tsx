@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Plus,
   Trash2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Copy,
+  X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { scheduleAPI } from '../api';
+import type { Schedule } from '../types';
 import styles from './CreateSchedule.module.css';
 
 interface TimeSlotInput {
@@ -42,35 +45,141 @@ interface SwitchState {
   location: boolean;
 }
 
+const DRAFT_STORAGE_KEY = 'schedule-draft';
+
+const DEFAULT_FORM: FormState = {
+  title: '',
+  organizer: '',
+  posterImage: null,
+  posterPreview: '',
+  date: '',
+  publicDateTime: '',
+  ticketOpenDateTime: '',
+  ticketTypes: [],
+  timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+  advancePrice: '',
+  doorPrice: '',
+  capacity: '',
+  notice: '',
+  location: '',
+};
+
+const DEFAULT_SWITCHES: SwitchState = {
+  advancePrice: true,
+  doorPrice: true,
+  notice: true,
+  location: true,
+};
+
 export default function CreateSchedule() {
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user, schedules } = useApp();
 
-  const [form, setForm] = useState<FormState>({
-    title: '',
-    organizer: '',
-    posterImage: null,
-    posterPreview: '',
-    date: '',
-    publicDateTime: '',
-    ticketOpenDateTime: '',
-    ticketTypes: [],
-    timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
-    advancePrice: '',
-    doorPrice: '',
-    capacity: '',
-    notice: '',
-    location: '',
+  const [form, setForm] = useState<FormState>(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.form) {
+          return { ...DEFAULT_FORM, ...parsed.form, posterImage: null, posterPreview: '' };
+        }
+      }
+    } catch { /* ignore */ }
+    return DEFAULT_FORM;
   });
 
-  const [switches, setSwitches] = useState<SwitchState>({
-    advancePrice: true,
-    doorPrice: true,
-    notice: true,
-    location: true,
+  const [switches, setSwitches] = useState<SwitchState>(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.switches) {
+          return { ...DEFAULT_SWITCHES, ...parsed.switches };
+        }
+      }
+    } catch { /* ignore */ }
+    return DEFAULT_SWITCHES;
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+
+  // 임시저장 복원 감지
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.form && parsed.form.title) {
+          setDraftRestored(true);
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // form/switches 변경 시 자동 임시저장
+  useEffect(() => {
+    const { posterImage: _pi, posterPreview: _pp, ...savableForm } = form;
+    const draft = { form: savableForm, switches };
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  }, [form, switches]);
+
+  // 내 일정 필터
+  const mySchedules = schedules
+    .filter((s: Schedule) => !s.isDeleted && s.managerId === user?.id)
+    .sort((a: Schedule, b: Schedule) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleClearDraft = () => {
+    setForm(DEFAULT_FORM);
+    setSwitches(DEFAULT_SWITCHES);
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    setDraftRestored(false);
+  };
+
+  const loadScheduleIntoForm = (schedule: Schedule) => {
+    setForm({
+      ...DEFAULT_FORM,
+      title: schedule.title || '',
+      organizer: schedule.organizer || '',
+      date: '', // 날짜는 복사하지 않음
+      publicDateTime: '',
+      ticketOpenDateTime: '',
+      ticketTypes: schedule.ticketTypes ? schedule.ticketTypes.split(',') : [],
+      timeSlots: schedule.timeSlots && schedule.timeSlots.length > 0
+        ? schedule.timeSlots.map(ts => ({
+            startTime: ts.startTime ? ts.startTime.slice(0, 5) : '',
+            endTime: ts.endTime ? ts.endTime.slice(0, 5) : '',
+            teamName: ts.teamName || '',
+            description: ts.description || '',
+          }))
+        : [{ startTime: '', endTime: '', teamName: '', description: '' }],
+      advancePrice: schedule.advancePrice != null ? String(schedule.advancePrice) : '',
+      doorPrice: schedule.doorPrice != null ? String(schedule.doorPrice) : '',
+      capacity: schedule.capacity ? String(schedule.capacity) : '',
+      notice: schedule.description || '',
+      location: schedule.venue || '',
+    });
+
+    setSwitches({
+      advancePrice: schedule.advancePrice != null,
+      doorPrice: schedule.doorPrice != null,
+      notice: !!schedule.description,
+      location: !!schedule.venue,
+    });
+  };
+
+  const handleSelectSchedule = async (id: number) => {
+    try {
+      const res = await scheduleAPI.getById(id);
+      loadScheduleIntoForm(res.data);
+      setShowCopyModal(false);
+      setDraftRestored(false);
+    } catch (error) {
+      console.error('일정 불러오기 실패:', error);
+      alert('일정을 불러오는데 실패했습니다.');
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -166,6 +275,7 @@ export default function CreateSchedule() {
       };
 
       await scheduleAPI.create(scheduleData);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
       alert('일정이 등록되었습니다!');
       navigate('/mypage/manage-schedules');
     } catch (error) {
@@ -203,7 +313,14 @@ export default function CreateSchedule() {
           <ArrowLeft size={24} />
         </button>
         <h1 className="page-title">일정 등록</h1>
-        <div className={styles.placeholder} />
+        <button
+          type="button"
+          className={styles.copyBtn}
+          onClick={() => setShowCopyModal(true)}
+          title="이전 일정 불러오기"
+        >
+          <Copy size={20} />
+        </button>
       </header>
 
       <motion.form
@@ -212,6 +329,27 @@ export default function CreateSchedule() {
         animate={{ opacity: 1 }}
         onSubmit={handleSubmit}
       >
+        {/* 임시저장 복원 배너 */}
+        <AnimatePresence>
+          {draftRestored && (
+            <motion.div
+              className={styles.draftBanner}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <span>임시저장된 내용을 불러왔습니다</span>
+              <button
+                type="button"
+                className={styles.draftClearBtn}
+                onClick={handleClearDraft}
+              >
+                새로 작성
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* 포스터 이미지 */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
@@ -545,6 +683,54 @@ export default function CreateSchedule() {
           </button>
         </div>
       </motion.form>
+
+      {/* 이전 일정 복사 모달 */}
+      <AnimatePresence>
+        {showCopyModal && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCopyModal(false)}
+          >
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>이전 일정 불러오기</h2>
+                <button onClick={() => setShowCopyModal(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              <div className={styles.modalBody}>
+                {mySchedules.length === 0 ? (
+                  <p className={styles.emptyMessage}>등록한 일정이 없습니다</p>
+                ) : (
+                  <ul className={styles.scheduleList}>
+                    {mySchedules.map((s: Schedule) => (
+                      <li key={s.id}>
+                        <button
+                          type="button"
+                          className={styles.scheduleItem}
+                          onClick={() => handleSelectSchedule(s.id)}
+                        >
+                          <span className={styles.scheduleTitle}>{s.title}</span>
+                          <span className={styles.scheduleDate}>{s.date}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
