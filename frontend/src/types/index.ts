@@ -19,6 +19,7 @@ export interface Team {
   description?: string;
   imageUrl?: string;
   genre?: string;
+  xUrl?: string;
 }
 
 // 타임테이블 항목
@@ -80,6 +81,10 @@ export interface Reservation {
   reservationStatus: ReservationStatus;
   paymentMethod: 'CARD' | 'BANK';
   amount: number;
+  selectedTeamName?: string;
+  refundBank?: string;
+  refundAccount?: string;
+  refundHolder?: string;
   qrCode?: string;
   isEntered: boolean;
   enteredAt?: string;
@@ -94,5 +99,6 @@ export interface Favorite {
   userId?: number;
   team?: Team;
   teamId?: number;
+  color?: string;
   createdAt: string;
 }

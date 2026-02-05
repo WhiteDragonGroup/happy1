@@ -7,7 +7,7 @@ import styles from './Home.module.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { schedules, getFavoriteTeams, selectedMonth, setSelectedMonth } = useApp();
+  const { schedules, getFavoriteTeams, getFavoriteColor, selectedMonth, setSelectedMonth } = useApp();
   const [currentDate, setCurrentDate] = useState(selectedMonth);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -265,32 +265,44 @@ export default function Home() {
 
                     {daySchedules.length > 0 && (
                       <div className={styles.scheduleList}>
-                        {daySchedules.slice(0, 2).map((schedule) => (
-                          <div
-                            key={schedule.id}
-                            className={styles.scheduleItem}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/schedule/${schedule.id}`);
-                            }}
-                          >
-                            <span className={styles.scheduleTitle}>
-                              {schedule.title}
-                            </span>
-                          </div>
-                        ))}
+                        {daySchedules.slice(0, 2).map((schedule) => {
+                          const teamId = String(schedule.team?.id || schedule.teamId || '');
+                          const favColor = teamId ? getFavoriteColor(teamId) : undefined;
+                          return (
+                            <div
+                              key={schedule.id}
+                              className={styles.scheduleItem}
+                              style={favColor ? {
+                                borderLeftColor: favColor,
+                                background: `linear-gradient(90deg, ${favColor}33, ${favColor}1a)`
+                              } : undefined}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/schedule/${schedule.id}`);
+                              }}
+                            >
+                              <span className={styles.scheduleTitle}>
+                                {schedule.title}
+                              </span>
+                            </div>
+                          );
+                        })}
                         {daySchedules.length > 2 && (
                           <span className={styles.moreCount}>+{daySchedules.length - 2}</span>
                         )}
                       </div>
                     )}
 
-                    {favoriteSchedules.length > 0 && (
-                      <div className={styles.favoriteIndicator}>
-                        <Heart size={10} fill="var(--neon-pink)" />
-                        <span>{favoriteSchedules.length}</span>
-                      </div>
-                    )}
+                    {favoriteSchedules.length > 0 && (() => {
+                      const favTeamId = String(favoriteSchedules[0].team?.id || favoriteSchedules[0].teamId || '');
+                      const indicatorColor = getFavoriteColor(favTeamId);
+                      return (
+                        <div className={styles.favoriteIndicator} style={indicatorColor ? { color: indicatorColor } : undefined}>
+                          <Heart size={10} fill={indicatorColor || 'var(--neon-pink)'} />
+                          <span>{favoriteSchedules.length}</span>
+                        </div>
+                      );
+                    })()}
                   </motion.div>
                 );
               })}
@@ -303,11 +315,22 @@ export default function Home() {
           <div className={styles.favoriteTeams}>
             <h3 className={styles.sectionTitle}>찜한 팀</h3>
             <div className={styles.teamChips}>
-              {favoriteTeams.map((team) => (
-                <span key={team.id} className={styles.teamChip}>
-                  {team.name}
-                </span>
-              ))}
+              {favoriteTeams.map((team) => {
+                const chipColor = getFavoriteColor(String(team.id));
+                return (
+                  <span
+                    key={team.id}
+                    className={styles.teamChip}
+                    style={chipColor ? {
+                      borderColor: chipColor,
+                      color: chipColor,
+                      boxShadow: `0 0 8px ${chipColor}44`
+                    } : undefined}
+                  >
+                    {team.name}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}

@@ -311,6 +311,16 @@ export default function ReservationManage() {
                       {reservation.timeSlot.teamName && ` / ${reservation.timeSlot.teamName}`}
                     </div>
                   )}
+                  {reservation.selectedTeamName && (
+                    <div className={styles.reservationContact} style={{ color: 'var(--neon-pink, #ff0080)' }}>
+                      선택 팀: {reservation.selectedTeamName}
+                    </div>
+                  )}
+                  {reservation.refundBank && (
+                    <div className={styles.reservationContact} style={{ color: 'var(--text-tertiary, #999)', fontSize: '0.75rem' }}>
+                      환불계좌: {reservation.refundBank} {reservation.refundAccount} ({reservation.refundHolder})
+                    </div>
+                  )}
                   <div className={styles.reservationMeta}>
                     {/* 결제 상태 */}
                     {reservation.paymentStatus === 'COMPLETED' && (

@@ -112,6 +112,12 @@ public class Reservation {
 
     private LocalDateTime enteredAt;
 
+    // === 팀 선택 / 환불계좌 ===
+    private String selectedTeamName;
+    private String refundBank;
+    private String refundAccount;
+    private String refundHolder;
+
     // === 금액 ===
     private BigDecimal amount;
 

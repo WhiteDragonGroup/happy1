@@ -26,9 +26,10 @@ function isSameDay(a: Date, b: Date) {
 
 export default function Explore() {
   const navigate = useNavigate();
-  const { schedules, getFavoriteTeams, isFavorite, isLoggedIn } = useApp();
+  const { schedules, getFavoriteTeams, getFavoriteColor, isFavorite, isLoggedIn } = useApp();
   const [showFilter, setShowFilter] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
+  const [selectedTeamFilters, setSelectedTeamFilters] = useState<Set<number>>(new Set());
   const [selectedWeekBase, setSelectedWeekBase] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -42,6 +43,21 @@ export default function Explore() {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [schedules]);
 
+  const toggleTeamFilter = (teamId: number) => {
+    setSelectedTeamFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(teamId)) {
+        next.delete(teamId);
+      } else {
+        next.add(teamId);
+      }
+      // 개별 팀 필터가 모두 해제되면 filterFavorites도 off
+      if (next.size === 0) setFilterFavorites(false);
+      else setFilterFavorites(true);
+      return next;
+    });
+  };
+
   const filteredSchedules = useMemo(() => {
     const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const selectedStr = fmt(selectedDate);
@@ -51,7 +67,22 @@ export default function Explore() {
       return dateStr === selectedStr;
     });
 
-    if (filterFavorites && isLoggedIn) {
+    // 개별 팀 필터 적용
+    if (selectedTeamFilters.size > 0 && isLoggedIn) {
+      result = result.filter(s => {
+        const teamId = s.team?.id || s.teamId;
+        if (teamId && selectedTeamFilters.has(teamId)) return true;
+        // timeSlots에 해당 팀이 포함되어 있는지도 확인
+        if (s.timeSlots) {
+          const slotTeamNames = s.timeSlots.map(ts => ts.teamName).filter(Boolean);
+          const favTeamNames = favoriteTeams
+            .filter(t => selectedTeamFilters.has(t.id))
+            .map(t => t.name);
+          return slotTeamNames.some(name => favTeamNames.includes(name!));
+        }
+        return false;
+      });
+    } else if (filterFavorites && isLoggedIn) {
       result = result.filter(s => {
         const teamId = s.team?.id || s.teamId;
         return teamId && favoriteTeamIds.has(teamId);
@@ -59,7 +90,7 @@ export default function Explore() {
     }
 
     return result;
-  }, [allSchedules, filterFavorites, isLoggedIn, favoriteTeamIds, selectedDate]);
+  }, [allSchedules, filterFavorites, selectedTeamFilters, isLoggedIn, favoriteTeamIds, favoriteTeams, selectedDate]);
 
 
   const getTeamId = (schedule: typeof schedules[0]) => {
@@ -154,27 +185,43 @@ export default function Explore() {
           </button>
         </div>
 
-        {/* 찜한 팀 필터 표시 */}
-        {filterFavorites && favoriteTeams.length > 0 && (
-          <motion.div
-            className={styles.filterTags}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            {favoriteTeams.map(team => (
-              <span key={team.id} className={styles.filterTag}>
-                {team.name}
-              </span>
-            ))}
-            <button
-              className={styles.clearFilter}
-              onClick={() => setFilterFavorites(false)}
-            >
-              <X size={14} />
-              초기화
-            </button>
-          </motion.div>
+        {/* 찜한 팀 필터 칩 - 항상 표시 (로그인 + 찜 있을 때) */}
+        {isLoggedIn && favoriteTeams.length > 0 && (
+          <div className={styles.filterTags}>
+            {favoriteTeams.map(team => {
+              const isActive = selectedTeamFilters.has(team.id);
+              const teamColor = getFavoriteColor(String(team.id));
+              return (
+                <button
+                  key={team.id}
+                  className={`${styles.filterTag} ${isActive ? styles.filterTagActive : ''}`}
+                  onClick={() => toggleTeamFilter(team.id)}
+                  style={isActive && teamColor ? {
+                    background: `${teamColor}22`,
+                    borderColor: teamColor,
+                    color: teamColor
+                  } : teamColor ? {
+                    borderColor: `${teamColor}66`,
+                    color: `${teamColor}99`
+                  } : undefined}
+                >
+                  {team.name}
+                </button>
+              );
+            })}
+            {selectedTeamFilters.size > 0 && (
+              <button
+                className={styles.clearFilter}
+                onClick={() => {
+                  setSelectedTeamFilters(new Set());
+                  setFilterFavorites(false);
+                }}
+              >
+                <X size={14} />
+                초기화
+              </button>
+            )}
+          </div>
         )}
 
         {/* 일정 그리드 */}

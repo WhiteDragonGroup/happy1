@@ -1,6 +1,7 @@
 package com.stage.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalTime;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TimeSlot {
 
     // === PK ===

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/favorites")
@@ -53,6 +54,21 @@ public class FavoriteController {
 
         favoriteRepository.deleteByUserAndTeam(user, team);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{teamId}/color")
+    public ResponseEntity<?> updateColor(@PathVariable Long teamId,
+                                         @RequestBody Map<String, String> body,
+                                         @AuthenticationPrincipal User user) {
+        Team team = teamRepository.findById(teamId).orElse(null);
+        if (team == null) return ResponseEntity.notFound().build();
+
+        return favoriteRepository.findByUserAndTeam(user, team)
+                .map(fav -> {
+                    fav.setColor(body.get("color"));
+                    return ResponseEntity.ok(favoriteRepository.save(fav));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/check/{teamId}")

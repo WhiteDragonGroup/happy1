@@ -34,6 +34,8 @@ public class Favorite {
     private Team team;
 
     // === 일반 컬럼 ===
+    private String color;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

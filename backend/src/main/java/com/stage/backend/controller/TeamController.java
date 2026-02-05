@@ -69,6 +69,7 @@ public class TeamController {
                     team.setName(teamData.getName());
                     team.setDescription(teamData.getDescription());
                     team.setGenre(teamData.getGenre());
+                    team.setXUrl(teamData.getXUrl());
                     if (teamData.getImageUrl() != null) {
                         team.setImageUrl(teamData.getImageUrl());
                     }

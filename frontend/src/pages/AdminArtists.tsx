@@ -12,6 +12,7 @@ interface Artist {
   description?: string;
   genre?: string;
   imageUrl?: string;
+  xUrl?: string;
 }
 
 export default function AdminArtists() {
@@ -21,7 +22,7 @@ export default function AdminArtists() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', genre: '' });
+  const [form, setForm] = useState({ name: '', description: '', genre: '', xUrl: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function AdminArtists() {
 
   const openAddModal = () => {
     setEditingArtist(null);
-    setForm({ name: '', description: '', genre: '' });
+    setForm({ name: '', description: '', genre: '', xUrl: '' });
     setShowModal(true);
   };
 
@@ -67,7 +68,8 @@ export default function AdminArtists() {
     setForm({
       name: artist.name,
       description: artist.description || '',
-      genre: artist.genre || ''
+      genre: artist.genre || '',
+      xUrl: artist.xUrl || ''
     });
     setShowModal(true);
   };
@@ -223,6 +225,15 @@ export default function AdminArtists() {
                   value={form.genre}
                   onChange={e => setForm({ ...form, genre: e.target.value })}
                   placeholder="예: 홍길동, 김철수, 이영희"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>X(Twitter) 링크</label>
+                <input
+                  type="text"
+                  value={form.xUrl}
+                  onChange={e => setForm({ ...form, xUrl: e.target.value })}
+                  placeholder="https://x.com/username"
                 />
               </div>
               <div className={styles.formGroup}>

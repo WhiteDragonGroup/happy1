@@ -2,6 +2,11 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import type { User, Team, Schedule, Reservation, Favorite } from '../types';
 import { authAPI, teamAPI, scheduleAPI, reservationAPI, favoriteAPI } from '../api';
 
+const FAVORITE_COLORS = [
+  '#FF1A5C', '#FF6B35', '#FFD600', '#00E676',
+  '#00BCD4', '#536DFE', '#AA00FF', '#FF4081'
+];
+
 interface AppState {
   user: User | null;
   isLoggedIn: boolean;
@@ -21,6 +26,9 @@ interface AppContextType extends AppState {
   toggleFavorite: (teamId: string) => void;
   isFavorite: (teamId: string) => boolean;
   getFavoriteTeams: () => Team[];
+  getFavoriteColor: (teamId: string) => string | undefined;
+  updateFavoriteColor: (teamId: string, color: string) => Promise<void>;
+  favoriteColors: typeof FAVORITE_COLORS;
   setSelectedMonth: (date: Date) => void;
   getSchedulesByDate: (date: Date) => Schedule[];
   getSchedulesByTeam: (teamId: string) => Schedule[];
@@ -214,6 +222,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .filter((t): t is Team => t !== undefined);
   };
 
+  const getFavoriteColor = (teamId: string): string | undefined => {
+    const fav = favorites.find(f => String(f.team?.id) === teamId || String(f.teamId) === teamId);
+    return fav?.color || undefined;
+  };
+
+  const updateFavoriteColor = async (teamId: string, color: string) => {
+    try {
+      const res = await favoriteAPI.updateColor(Number(teamId), color);
+      setFavorites(prev => prev.map(f =>
+        (String(f.team?.id) === teamId || String(f.teamId) === teamId)
+          ? { ...f, color, ...(res.data?.id ? { id: res.data.id } : {}) }
+          : f
+      ));
+    } catch (error) {
+      console.error('Failed to update favorite color:', error);
+    }
+  };
+
   const getSchedulesByDate = (date: Date): Schedule[] => {
     const dateStr = date.toISOString().split('T')[0];
     return schedules.filter(s => {
@@ -273,6 +299,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleFavorite,
         isFavorite,
         getFavoriteTeams,
+        getFavoriteColor,
+        updateFavoriteColor,
+        favoriteColors: FAVORITE_COLORS,
         setSelectedMonth,
         getSchedulesByDate,
         getSchedulesByTeam,

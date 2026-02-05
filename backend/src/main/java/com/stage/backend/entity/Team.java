@@ -37,6 +37,8 @@ public class Team {
 
     private String imageUrl;
 
+    private String xUrl;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

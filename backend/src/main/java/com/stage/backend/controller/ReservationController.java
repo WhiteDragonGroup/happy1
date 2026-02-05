@@ -79,6 +79,16 @@ public class ReservationController {
                             ? schedule.getAdvancePrice()
                             : BigDecimal.ZERO;
 
+                    // 새 필드 추출
+                    String selectedTeamName = body.get("selectedTeamName") != null
+                            ? (String) body.get("selectedTeamName") : null;
+                    String refundBank = body.get("refundBank") != null
+                            ? (String) body.get("refundBank") : null;
+                    String refundAccount = body.get("refundAccount") != null
+                            ? (String) body.get("refundAccount") : null;
+                    String refundHolder = body.get("refundHolder") != null
+                            ? (String) body.get("refundHolder") : null;
+
                     // 모든 예약은 PENDING 상태로 생성 (공연등록자가 입금 확인 후 확정)
                     Reservation reservation = Reservation.builder()
                             .user(user)
@@ -88,6 +98,10 @@ public class ReservationController {
                             .paymentStatus(Reservation.PaymentStatus.PENDING)
                             .reservationStatus(Reservation.ReservationStatus.PENDING)
                             .amount(amount)
+                            .selectedTeamName(selectedTeamName)
+                            .refundBank(refundBank)
+                            .refundAccount(refundAccount)
+                            .refundHolder(refundHolder)
                             .isEntered(false)
                             .build();
 

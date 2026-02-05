@@ -52,9 +52,9 @@ export const teamAPI = {
   getAll: () => api.get('/teams'),
   getById: (id: number) => api.get(`/teams/${id}`),
   search: (query: string) => api.get(`/teams/search?q=${query}`),
-  create: (data: { name: string; description?: string; genre?: string }) =>
+  create: (data: { name: string; description?: string; genre?: string; xUrl?: string }) =>
     api.post('/teams', data),
-  update: (id: number, data: { name: string; description?: string; genre?: string }) =>
+  update: (id: number, data: { name: string; description?: string; genre?: string; xUrl?: string }) =>
     api.put(`/teams/${id}`, data),
   delete: (id: number) => api.delete(`/teams/${id}`),
 };
@@ -76,7 +76,7 @@ export const scheduleAPI = {
 export const reservationAPI = {
   getAll: () => api.get('/reservations'),
   getBySchedule: (scheduleId: number) => api.get(`/reservations/schedule/${scheduleId}`),
-  create: (data: { scheduleId: number; timeSlotId: number; paymentMethod: string }) =>
+  create: (data: any) =>
     api.post('/reservations', data),
   confirmPayment: (id: number) => api.post(`/reservations/${id}/confirm-payment`),
   enter: (id: number) => api.post(`/reservations/${id}/enter`),
@@ -117,6 +117,7 @@ export const favoriteAPI = {
   add: (teamId: number) => api.post(`/favorites/${teamId}`),
   remove: (teamId: number) => api.delete(`/favorites/${teamId}`),
   check: (teamId: number) => api.get(`/favorites/check/${teamId}`),
+  updateColor: (teamId: number, color: string) => api.patch(`/favorites/${teamId}/color`, { color }),
 };
 
 export default api;
