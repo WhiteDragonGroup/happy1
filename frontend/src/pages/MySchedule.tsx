@@ -136,9 +136,11 @@ export default function MySchedule() {
                     <h3 className={styles.scheduleTitle}>
                       {reservation.schedule?.title}
                     </h3>
-                    <p className={styles.teamName}>
-                      {reservation.schedule?.team?.name}
-                    </p>
+                    {reservation.schedule?.organizer && (
+                      <p className={styles.teamName}>
+                        {reservation.schedule.organizer}
+                      </p>
+                    )}
                     <div className={styles.metaRow}>
                       <Calendar size={14} />
                       <span>
@@ -149,14 +151,20 @@ export default function MySchedule() {
                         })}
                       </span>
                     </div>
-                    <div className={styles.metaRow}>
-                      <Clock size={14} />
-                      <span>{reservation.timeSlot?.startTime?.slice(0, 5)}</span>
-                    </div>
+                    {(reservation.timeSlot?.startTime || reservation.schedule?.openTime) && (
+                      <div className={styles.metaRow}>
+                        <Clock size={14} />
+                        <span>
+                          {reservation.timeSlot?.startTime
+                            ? reservation.timeSlot.startTime.slice(0, 5)
+                            : reservation.schedule?.openTime?.slice(0, 5)}
+                        </span>
+                      </div>
+                    )}
                     <div className={styles.cardFooter}>
                       {getPaymentBadge(reservation.paymentStatus)}
                       <span className={styles.amount}>
-                        {reservation.amount.toLocaleString()}원
+                        {reservation.amount > 0 ? `${reservation.amount.toLocaleString()}원` : '무료'}
                       </span>
                     </div>
                   </div>
@@ -291,15 +299,22 @@ export default function MySchedule() {
               <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 {selectedReservation.schedule?.title}
               </p>
+              {selectedReservation.schedule?.organizer && (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                  {selectedReservation.schedule.organizer}
+                </p>
+              )}
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                 {new Date(selectedReservation.schedule?.date || '').toLocaleDateString('ko-KR', {
                   year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
                 })}
               </p>
-              {selectedReservation.timeSlot && (
+              {(selectedReservation.timeSlot?.startTime || selectedReservation.schedule?.openTime) && (
                 <p style={{ fontSize: '0.875rem', color: 'var(--neon-blue)' }}>
-                  {selectedReservation.timeSlot.startTime?.slice(0, 5)} - {selectedReservation.timeSlot.endTime?.slice(0, 5)}
-                  {selectedReservation.timeSlot.teamName && ` / ${selectedReservation.timeSlot.teamName}`}
+                  {selectedReservation.timeSlot?.startTime
+                    ? `${selectedReservation.timeSlot.startTime.slice(0, 5)}${selectedReservation.timeSlot.endTime ? ` - ${selectedReservation.timeSlot.endTime.slice(0, 5)}` : ''}`
+                    : `입장 ${selectedReservation.schedule?.openTime?.slice(0, 5)}`}
+                  {selectedReservation.timeSlot?.teamName && ` / ${selectedReservation.timeSlot.teamName}`}
                 </p>
               )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
