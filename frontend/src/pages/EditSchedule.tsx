@@ -28,6 +28,7 @@ interface FormState {
   ticketOpenDateTime: string;
   ticketTypes: string[];
   timeSlots: TimeSlotInput[];
+  openTime: string;
   advancePrice: string;
   doorPrice: string;
   capacity: string;
@@ -58,6 +59,7 @@ export default function EditSchedule() {
     ticketOpenDateTime: '',
     ticketTypes: [],
     timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+    openTime: '',
     advancePrice: '',
     doorPrice: '',
     capacity: '',
@@ -108,6 +110,7 @@ export default function EditSchedule() {
               description: slot.description || ''
             }))
           : [{ startTime: '', endTime: '', teamName: '', description: '' }],
+        openTime: schedule.openTime?.substring(0, 5) || '',
         advancePrice: schedule.advancePrice?.toString() || '',
         doorPrice: schedule.doorPrice?.toString() || '',
         capacity: schedule.capacity?.toString() || '',
@@ -206,6 +209,7 @@ export default function EditSchedule() {
         publicDateTime: form.publicDateTime || null,
         ticketOpenDateTime: form.ticketOpenDateTime || null,
         ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
+        openTime: form.openTime ? (form.openTime.length === 5 ? form.openTime + ':00' : form.openTime) : null,
         capacity: Number(form.capacity),
         advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
@@ -359,6 +363,20 @@ export default function EditSchedule() {
             max="2099-12-31"
             required
           />
+        </div>
+
+        {/* 입장시간 */}
+        <div className={styles.section}>
+          <label className={styles.label}>
+            입장시간 (오픈 시간)
+          </label>
+          <input
+            type="time"
+            name="openTime"
+            value={form.openTime}
+            onChange={handleInputChange}
+          />
+          <p className={styles.hint}>관객 입장 시작 시간</p>
         </div>
 
         {/* 일정 공개일시 */}

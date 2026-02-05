@@ -7,6 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +79,8 @@ public class Schedule {
     private LocalDateTime ticketOpenDateTime;  // 티켓 판매 오픈일시
 
     private String ticketTypes;  // 티켓 권종 (콤마 구분: A,S,FREE 등)
+
+    private LocalTime openTime;  // 입장시간 (공연 오픈 시간)
 
     @Builder.Default
     private Integer version = 1;

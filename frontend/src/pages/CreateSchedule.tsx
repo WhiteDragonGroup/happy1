@@ -33,6 +33,7 @@ interface FormState {
   timeSlots: TimeSlotInput[];
   advancePrice: string;
   doorPrice: string;
+  openTime: string;
   capacity: string;
   notice: string;
   location: string;
@@ -57,6 +58,7 @@ const DEFAULT_FORM: FormState = {
   ticketOpenDateTime: '',
   ticketTypes: [],
   timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+  openTime: '',
   advancePrice: '',
   doorPrice: '',
   capacity: '',
@@ -73,7 +75,7 @@ const DEFAULT_SWITCHES: SwitchState = {
 
 export default function CreateSchedule() {
   const navigate = useNavigate();
-  const { user, schedules } = useApp();
+  const { user, schedules, refreshData } = useApp();
 
   const [form, setForm] = useState<FormState>(() => {
     try {
@@ -154,6 +156,7 @@ export default function CreateSchedule() {
             description: ts.description || '',
           }))
         : [{ startTime: '', endTime: '', teamName: '', description: '' }],
+      openTime: schedule.openTime ? schedule.openTime.slice(0, 5) : '',
       advancePrice: schedule.advancePrice != null ? String(schedule.advancePrice) : '',
       doorPrice: schedule.doorPrice != null ? String(schedule.doorPrice) : '',
       capacity: schedule.capacity ? String(schedule.capacity) : '',
@@ -257,6 +260,7 @@ export default function CreateSchedule() {
         publicDateTime: form.publicDateTime || null,
         ticketOpenDateTime: form.ticketOpenDateTime || null,
         ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
+        openTime: form.openTime ? form.openTime + ':00' : null,
         capacity: Number(form.capacity),
         advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
@@ -276,6 +280,7 @@ export default function CreateSchedule() {
 
       await scheduleAPI.create(scheduleData);
       localStorage.removeItem(DRAFT_STORAGE_KEY);
+      await refreshData();
       alert('일정이 등록되었습니다!');
       navigate('/mypage/manage-schedules');
     } catch (error) {
@@ -421,6 +426,20 @@ export default function CreateSchedule() {
             max="2099-12-31"
             required
           />
+        </div>
+
+        {/* 입장시간 */}
+        <div className={styles.section}>
+          <label className={styles.label}>
+            입장시간 (오픈 시간)
+          </label>
+          <input
+            type="time"
+            name="openTime"
+            value={form.openTime}
+            onChange={handleInputChange}
+          />
+          <p className={styles.hint}>관객 입장 시작 시간</p>
         </div>
 
         {/* 일정 공개일시 */}

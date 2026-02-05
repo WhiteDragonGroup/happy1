@@ -94,6 +94,7 @@ public class ScheduleController {
                     schedule.setDescription(scheduleData.getDescription());
                     schedule.setImageUrl(scheduleData.getImageUrl());
                     schedule.setIsPublished(scheduleData.getIsPublished());
+                    schedule.setOpenTime(scheduleData.getOpenTime());
 
                     // 타임슬롯 업데이트
                     schedule.getTimeSlots().clear();
