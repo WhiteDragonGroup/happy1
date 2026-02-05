@@ -9,19 +9,16 @@ import {
   Heart,
   Share2,
   Ticket,
-  CreditCard,
-  Building2,
   CheckCircle2,
   Users
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 import { useApp } from '../context/AppContext';
 import { reservationAPI } from '../api';
 import ArtistPopup from '../components/ArtistPopup';
 import styles from './ScheduleDetail.module.css';
 import type { Reservation } from '../types';
 
-type ReserveStep = 'slot' | 'payment' | 'complete';
+type ReserveStep = 'slot' | 'confirm' | 'complete';
 
 export default function ScheduleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +39,6 @@ export default function ScheduleDetail() {
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [reserveStep, setReserveStep] = useState<ReserveStep>('slot');
   const [selectedSlotId, setSelectedSlotId] = useState<number | null>(null);
-  const [, setSelectedPayment] = useState<'CARD' | 'BANK' | null>(null);
   const [reserving, setReserving] = useState(false);
   const [completedReservation, setCompletedReservation] = useState<Reservation | null>(null);
 
@@ -104,27 +100,25 @@ export default function ScheduleDetail() {
       navigate('/login');
       return;
     }
-    setReserveStep(schedule.timeSlots && schedule.timeSlots.length > 0 ? 'slot' : 'payment');
+    setReserveStep(schedule.timeSlots && schedule.timeSlots.length > 0 ? 'slot' : 'confirm');
     setSelectedSlotId(null);
-    setSelectedPayment(null);
     setCompletedReservation(null);
     setShowReserveModal(true);
   };
 
-  const handleReserve = async (paymentMethod: 'CARD' | 'BANK') => {
-    setSelectedPayment(paymentMethod);
+  const handleReserve = async () => {
     setReserving(true);
     try {
       const res = await reservationAPI.create({
         scheduleId: schedule.id,
         timeSlotId: selectedSlotId || 0,
-        paymentMethod,
+        paymentMethod: 'BANK',
       });
       setCompletedReservation(res.data);
       setReserveStep('complete');
       await refreshData();
     } catch (err: any) {
-      alert(err.response?.data || '예약에 실패했습니다.');
+      alert(err.response?.data || '예약 신청에 실패했습니다.');
     } finally {
       setReserving(false);
     }
@@ -286,13 +280,13 @@ export default function ScheduleDetail() {
               onClick={openReserveModal}
             >
               <Ticket size={18} />
-              예약하기
+              예약 신청
             </button>
           )}
         </div>
       )}
 
-      {/* 3단계 예약 모달 */}
+      {/* 예약 모달 */}
       {showReserveModal && (
         <div className={styles.modalOverlay} onClick={() => !reserving && setShowReserveModal(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -320,7 +314,7 @@ export default function ScheduleDetail() {
                   className="btn btn-primary"
                   style={{ width: '100%' }}
                   disabled={!selectedSlotId}
-                  onClick={() => setReserveStep('payment')}
+                  onClick={() => setReserveStep('confirm')}
                 >
                   다음
                 </button>
@@ -330,46 +324,49 @@ export default function ScheduleDetail() {
               </>
             )}
 
-            {/* Step 2: 결제 방법 선택 */}
-            {reserveStep === 'payment' && (
+            {/* Step 2: 예약 신청 확인 */}
+            {reserveStep === 'confirm' && (
               <>
-                <h3 className={styles.modalTitle}>결제 방법 선택</h3>
+                <h3 className={styles.modalTitle}>예약 신청</h3>
                 <div className={styles.modalInfo}>
-                  <p>{schedule.title}</p>
+                  <p style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    {schedule.title}
+                  </p>
                   {selectedSlotId && schedule.timeSlots && (
                     <p className={styles.modalTime}>
                       {schedule.timeSlots.find(s => s.id === selectedSlotId)?.startTime?.slice(0, 5)} - {schedule.timeSlots.find(s => s.id === selectedSlotId)?.endTime?.slice(0, 5)}
+                      {schedule.timeSlots.find(s => s.id === selectedSlotId)?.teamName && ` / ${schedule.timeSlots.find(s => s.id === selectedSlotId)?.teamName}`}
                     </p>
                   )}
-                  <p className={styles.modalPrice}>
-                    {schedule.advancePrice ? `${Number(schedule.advancePrice).toLocaleString()}원` : '무료'}
-                  </p>
+                  {schedule.advancePrice ? (
+                    <p className={styles.modalPrice}>
+                      {Number(schedule.advancePrice).toLocaleString()}원
+                    </p>
+                  ) : (
+                    <p className={styles.modalPrice}>무료</p>
+                  )}
                 </div>
-                <div className={styles.paymentOptions}>
-                  <button
-                    className={styles.paymentOption}
-                    onClick={() => handleReserve('CARD')}
-                    disabled={reserving}
-                  >
-                    <CreditCard size={20} />
-                    <span>카드 결제</span>
-                    <span className={styles.paymentDesc}>즉시 확정</span>
-                  </button>
-                  <button
-                    className={styles.paymentOption}
-                    onClick={() => handleReserve('BANK')}
-                    disabled={reserving}
-                  >
-                    <Building2 size={20} />
-                    <span>계좌이체</span>
-                    <span className={styles.paymentDesc}>입금 확인 후 확정</span>
-                  </button>
-                </div>
-                {reserving && (
-                  <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    예약 처리 중...
+                {schedule.advancePrice && Number(schedule.advancePrice) > 0 && (
+                  <p style={{
+                    color: 'var(--neon-orange)',
+                    fontSize: '0.8125rem',
+                    textAlign: 'center',
+                    padding: '10px 12px',
+                    background: 'var(--neon-orange-glow)',
+                    borderRadius: 'var(--radius-md)',
+                    marginBottom: '16px'
+                  }}>
+                    예약 신청 후 입금이 확인되면 예약이 확정됩니다
                   </p>
                 )}
+                <button
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  onClick={handleReserve}
+                  disabled={reserving}
+                >
+                  {reserving ? '신청 중...' : '예약 신청하기'}
+                </button>
                 <button
                   className={styles.modalClose}
                   onClick={() => {
@@ -381,42 +378,33 @@ export default function ScheduleDetail() {
                   }}
                   disabled={reserving}
                 >
-                  뒤로
+                  {schedule.timeSlots && schedule.timeSlots.length > 0 ? '뒤로' : '취소'}
                 </button>
               </>
             )}
 
-            {/* Step 3: 완료 + QR코드 */}
+            {/* Step 3: 신청 완료 */}
             {reserveStep === 'complete' && completedReservation && (
               <>
                 <h3 className={styles.modalTitle}>
                   <CheckCircle2 size={24} color="var(--neon-green)" />
-                  {' '}예약 완료
+                  {' '}예약 신청 완료
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    padding: '16px',
-                    background: 'white',
-                    borderRadius: 'var(--radius-lg)',
-                    display: 'inline-flex'
-                  }}>
-                    <QRCodeSVG value={completedReservation.qrCode || ''} size={180} />
-                  </div>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center' }}>
-                    입장 시 이 QR코드를 보여주세요
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', textAlign: 'center' }}>
+                    예약 신청이 접수되었습니다
                   </p>
-                  {completedReservation.paymentMethod === 'BANK' && (
-                    <p style={{
-                      color: 'var(--neon-orange)',
-                      fontSize: '0.8125rem',
-                      textAlign: 'center',
-                      padding: '8px 12px',
-                      background: 'var(--neon-orange-glow)',
-                      borderRadius: 'var(--radius-md)'
-                    }}>
-                      계좌이체 선택 - 입금 확인 후 예약이 확정됩니다
-                    </p>
-                  )}
+                  <p style={{
+                    color: 'var(--neon-orange)',
+                    fontSize: '0.8125rem',
+                    textAlign: 'center',
+                    padding: '10px 12px',
+                    background: 'var(--neon-orange-glow)',
+                    borderRadius: 'var(--radius-md)'
+                  }}>
+                    공연 등록자가 입금 확인 후 예약이 확정되며,<br />
+                    확정 후 QR코드가 발급됩니다
+                  </p>
                 </div>
                 <button
                   className="btn btn-primary"

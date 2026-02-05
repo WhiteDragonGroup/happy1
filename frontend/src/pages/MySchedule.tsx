@@ -248,23 +248,44 @@ export default function MySchedule() {
         <div className={styles.modalOverlay} onClick={() => setSelectedReservation(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 className={styles.modalTitle} style={{ marginBottom: 0 }}>예약 QR코드</h3>
+              <h3 className={styles.modalTitle} style={{ marginBottom: 0 }}>
+                {selectedReservation.reservationStatus === 'CONFIRMED' || selectedReservation.reservationStatus === 'USED'
+                  ? '예약 QR코드'
+                  : '예약 정보'}
+              </h3>
               <button onClick={() => setSelectedReservation(null)} style={{ color: 'var(--text-muted)' }}>
                 <X size={20} />
               </button>
             </div>
 
-            <div className={styles.qrSection}>
-              <div style={{
-                padding: '16px',
-                background: 'white',
-                borderRadius: 'var(--radius-lg)',
-                display: 'inline-flex'
-              }}>
-                <QRCodeSVG value={selectedReservation.qrCode || ''} size={180} />
+            {/* 확정된 예약만 QR코드 표시 */}
+            {(selectedReservation.reservationStatus === 'CONFIRMED' || selectedReservation.reservationStatus === 'USED') ? (
+              <div className={styles.qrSection}>
+                <div style={{
+                  padding: '16px',
+                  background: 'white',
+                  borderRadius: 'var(--radius-lg)',
+                  display: 'inline-flex'
+                }}>
+                  <QRCodeSVG value={selectedReservation.qrCode || ''} size={180} />
+                </div>
+                <p className={styles.qrHint}>입장 시 이 QR코드를 보여주세요</p>
               </div>
-              <p className={styles.qrHint}>입장 시 이 QR코드를 보여주세요</p>
-            </div>
+            ) : (
+              <div className={styles.qrSection}>
+                <p style={{
+                  color: 'var(--neon-orange)',
+                  fontSize: '0.875rem',
+                  textAlign: 'center',
+                  padding: '20px 16px',
+                  background: 'var(--neon-orange-glow)',
+                  borderRadius: 'var(--radius-lg)',
+                  width: '100%'
+                }}>
+                  입금 확인 후 예약이 확정되면<br />QR코드가 발급됩니다
+                </p>
+              </div>
+            )}
 
             <div className={styles.reservationDetail}>
               <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>

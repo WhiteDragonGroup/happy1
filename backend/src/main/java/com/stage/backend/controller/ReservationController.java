@@ -42,12 +42,11 @@ public class ReservationController {
                 .orElse(ResponseEntity.status(403).build());
     }
 
-    // 3. 예약 생성
+    // 3. 예약 신청 (결제 없음 - 공연등록자가 입금 확인 후 확정)
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Map<String, Object> body,
                                     @AuthenticationPrincipal User user) {
         Long scheduleId = ((Number) body.get("scheduleId")).longValue();
-        String paymentMethodStr = ((String) body.get("paymentMethod")).toUpperCase();
 
         return scheduleRepository.findById(scheduleId)
                 .map(schedule -> {
@@ -75,32 +74,19 @@ public class ReservationController {
                         }
                     }
 
-                    Reservation.PaymentMethod paymentMethod =
-                            Reservation.PaymentMethod.valueOf(paymentMethodStr);
-
                     // 금액 설정
                     BigDecimal amount = schedule.getAdvancePrice() != null
                             ? schedule.getAdvancePrice()
                             : BigDecimal.ZERO;
 
-                    // CARD → 즉시 COMPLETED/CONFIRMED, BANK → PENDING/PENDING
-                    Reservation.PaymentStatus paymentStatus;
-                    Reservation.ReservationStatus reservationStatus;
-                    if (paymentMethod == Reservation.PaymentMethod.CARD) {
-                        paymentStatus = Reservation.PaymentStatus.COMPLETED;
-                        reservationStatus = Reservation.ReservationStatus.CONFIRMED;
-                    } else {
-                        paymentStatus = Reservation.PaymentStatus.PENDING;
-                        reservationStatus = Reservation.ReservationStatus.PENDING;
-                    }
-
+                    // 모든 예약은 PENDING 상태로 생성 (공연등록자가 입금 확인 후 확정)
                     Reservation reservation = Reservation.builder()
                             .user(user)
                             .schedule(schedule)
                             .timeSlot(timeSlot)
-                            .paymentMethod(paymentMethod)
-                            .paymentStatus(paymentStatus)
-                            .reservationStatus(reservationStatus)
+                            .paymentMethod(Reservation.PaymentMethod.BANK)
+                            .paymentStatus(Reservation.PaymentStatus.PENDING)
+                            .reservationStatus(Reservation.ReservationStatus.PENDING)
                             .amount(amount)
                             .isEntered(false)
                             .build();
