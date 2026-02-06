@@ -12,6 +12,7 @@ export default function Home() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [selectedFavTeamId, setSelectedFavTeamId] = useState<number | null>(null);
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -266,16 +267,45 @@ export default function Home() {
                     {daySchedules.length > 0 && (
                       <div className={styles.scheduleList}>
                         {daySchedules.slice(0, 2).map((schedule) => {
-                          const teamId = String(schedule.team?.id || schedule.teamId || '');
-                          const favColor = teamId ? getFavoriteColor(teamId) : undefined;
+                          // 이 일정에 포함된 찜한 팀 ID들 찾기
+                          const matchedTeamIds: number[] = [];
+                          const directTeamId = schedule.team?.id || schedule.teamId;
+                          if (directTeamId && favoriteTeamIds.has(directTeamId)) {
+                            matchedTeamIds.push(directTeamId);
+                          }
+                          if (schedule.timeSlots) {
+                            for (const slot of schedule.timeSlots) {
+                              if (slot.teamName) {
+                                const matchedTeam = favoriteTeams.find(t => t.name === slot.teamName);
+                                if (matchedTeam && !matchedTeamIds.includes(matchedTeam.id)) {
+                                  matchedTeamIds.push(matchedTeam.id);
+                                }
+                              }
+                            }
+                          }
+
+                          // 선택된 팀이 이 일정에 있으면 그 팀 컬러, 아니면 첫번째 매칭 팀 컬러
+                          let favColor: string | undefined;
+                          if (selectedFavTeamId && matchedTeamIds.includes(selectedFavTeamId)) {
+                            favColor = getFavoriteColor(String(selectedFavTeamId));
+                          } else if (!selectedFavTeamId && matchedTeamIds.length > 0) {
+                            favColor = getFavoriteColor(String(matchedTeamIds[0]));
+                          }
+
+                          // 선택된 팀이 있는데 이 일정에 없으면 흐리게
+                          const isDimmed = selectedFavTeamId && !matchedTeamIds.includes(selectedFavTeamId);
+
                           return (
                             <div
                               key={schedule.id}
                               className={styles.scheduleItem}
-                              style={favColor ? {
-                                borderLeftColor: favColor,
-                                background: `linear-gradient(90deg, ${favColor}33, ${favColor}1a)`
-                              } : undefined}
+                              style={{
+                                ...(favColor ? {
+                                  borderLeftColor: favColor,
+                                  background: `linear-gradient(90deg, ${favColor}33, ${favColor}1a)`
+                                } : {}),
+                                ...(isDimmed ? { opacity: 0.3 } : {})
+                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/schedule/${schedule.id}`);
@@ -317,15 +347,18 @@ export default function Home() {
             <div className={styles.teamChips}>
               {favoriteTeams.map((team) => {
                 const chipColor = getFavoriteColor(String(team.id));
+                const isSelected = selectedFavTeamId === team.id;
                 return (
                   <span
                     key={team.id}
-                    className={styles.teamChip}
+                    className={`${styles.teamChip} ${isSelected ? styles.teamChipActive : ''}`}
                     style={chipColor ? {
                       borderColor: chipColor,
                       color: chipColor,
-                      boxShadow: `0 0 8px ${chipColor}44`
+                      boxShadow: isSelected ? `0 0 12px ${chipColor}88` : `0 0 8px ${chipColor}44`,
+                      background: isSelected ? `${chipColor}22` : undefined
                     } : undefined}
+                    onClick={() => setSelectedFavTeamId(isSelected ? null : team.id)}
                   >
                     {team.name}
                   </span>

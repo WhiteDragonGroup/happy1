@@ -82,18 +82,42 @@ export default function Favorites() {
                         <h3 className={styles.teamName}>{team.name}</h3>
                         <span className={styles.teamGenre}>{team.genre}</span>
                       </div>
-                      <div className={styles.cardActions}>
-                        {/* 컬러 선택 버튼 */}
+                      {/* 컬러 선택 동그라미 - 왼쪽 하단 */}
+                      <div className={styles.colorBtnWrap}>
                         <button
                           className={styles.colorBtn}
                           onClick={() => setColorPickerTeamId(
                             colorPickerTeamId === team.id ? null : team.id
                           )}
-                          style={{ background: teamColor || 'transparent' }}
+                          style={teamColor ? {
+                            background: teamColor,
+                            borderColor: teamColor
+                          } : undefined}
                           title="팀 컬러 선택"
-                        >
-                          <div className={styles.colorDot} style={teamColor ? { background: teamColor } : undefined} />
-                        </button>
+                        />
+                        {/* 컬러 피커 팝업 */}
+                        {colorPickerTeamId === team.id && (
+                          <motion.div
+                            className={styles.colorPicker}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            onClick={e => e.stopPropagation()}
+                          >
+                            {favoriteColors.map(c => (
+                              <button
+                                key={c}
+                                className={`${styles.colorOption} ${teamColor === c ? styles.colorSelected : ''}`}
+                                style={{ background: c }}
+                                onClick={() => {
+                                  updateFavoriteColor(String(team.id), c);
+                                  setColorPickerTeamId(null);
+                                }}
+                              />
+                            ))}
+                          </motion.div>
+                        )}
+                      </div>
+                      <div className={styles.cardActions}>
                         {/* X 링크 */}
                         {team.xUrl && (
                           <a
@@ -114,26 +138,6 @@ export default function Favorites() {
                           <Heart size={20} fill="var(--neon-pink)" />
                         </button>
                       </div>
-                      {/* 컬러 피커 */}
-                      {colorPickerTeamId === team.id && (
-                        <motion.div
-                          className={styles.colorPicker}
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                        >
-                          {favoriteColors.map(c => (
-                            <button
-                              key={c}
-                              className={`${styles.colorOption} ${teamColor === c ? styles.colorSelected : ''}`}
-                              style={{ background: c }}
-                              onClick={() => {
-                                updateFavoriteColor(String(team.id), c);
-                                setColorPickerTeamId(null);
-                              }}
-                            />
-                          ))}
-                        </motion.div>
-                      )}
                     </motion.div>
                   );
                 })}

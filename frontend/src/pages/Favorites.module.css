@@ -264,49 +264,49 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* 컬러 선택 버튼 래퍼 */
+.colorBtnWrap {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 5;
+}
+
 /* 컬러 선택 버튼 */
 .colorBtn {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
   transition: all var(--transition-fast);
   cursor: pointer;
   padding: 0;
 }
 
 .colorBtn:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.1);
-}
-
-.colorDot {
-  width: 14px;
-  height: 14px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.15);
 }
 
 /* 컬러 피커 */
 .colorPicker {
   position: absolute;
-  bottom: -4px;
-  left: 8px;
-  right: 8px;
-  transform: translateY(100%);
+  bottom: 28px;
+  left: 0;
   display: flex;
   gap: 6px;
-  padding: 8px;
-  background: rgba(20, 20, 30, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 10px;
+  background: rgba(20, 20, 30, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-md);
   backdrop-filter: blur(12px);
-  z-index: 10;
-  justify-content: center;
-  flex-wrap: wrap;
+  z-index: 20;
+  flex-wrap: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
 .colorOption {
