@@ -120,7 +120,7 @@ public class ScheduleController {
                         user.getRole() == User.Role.ADMIN)
                 .map(s -> {
                     // 예약자가 있으면 삭제 불가
-                    long reservationCount = reservationRepository.countByScheduleId(id);
+                    long reservationCount = reservationRepository.countBySchedule_Id(id);
                     if (reservationCount > 0) {
                         return ResponseEntity.badRequest().body("예약자가 " + reservationCount + "명 있어 삭제할 수 없습니다.");
                     }

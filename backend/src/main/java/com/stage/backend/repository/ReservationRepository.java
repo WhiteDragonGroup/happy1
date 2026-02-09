@@ -20,5 +20,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     long countByScheduleAndReservationStatusNot(Schedule schedule, Reservation.ReservationStatus status);
 
-    long countByScheduleId(Long scheduleId);
+    long countBySchedule_Id(Long scheduleId);
 }
