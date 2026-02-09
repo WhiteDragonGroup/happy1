@@ -37,6 +37,7 @@ interface FormState {
   capacity: string;
   notice: string;
   location: string;
+  entryNumberType: string;
 }
 
 interface SwitchState {
@@ -64,6 +65,7 @@ const DEFAULT_FORM: FormState = {
   capacity: '',
   notice: '',
   location: '',
+  entryNumberType: 'NONE',
 };
 
 const DEFAULT_SWITCHES: SwitchState = {
@@ -162,6 +164,7 @@ export default function CreateSchedule() {
       capacity: schedule.capacity ? String(schedule.capacity) : '',
       notice: schedule.description || '',
       location: schedule.venue || '',
+      entryNumberType: schedule.entryNumberType || 'NONE',
     });
 
     setSwitches({
@@ -266,6 +269,7 @@ export default function CreateSchedule() {
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
         venue: switches.location ? form.location : null,
         description: switches.notice ? form.notice : null,
+        entryNumberType: form.entryNumberType || 'NONE',
         imageUrl: null,
         isPublished: true,
         timeSlots: form.timeSlots
@@ -470,103 +474,6 @@ export default function CreateSchedule() {
           <p className={styles.hint}>일정 공개일 이후로 설정해주세요</p>
         </div>
 
-        {/* 티켓 권종 */}
-        <div className={styles.section}>
-          <label className={styles.label}>
-            티켓 권종
-          </label>
-          <div className={styles.ticketTypes}>
-            {['A석', 'S석', 'R석', '스탠딩', '무료'].map(type => (
-              <label key={type} className={styles.ticketTypeLabel}>
-                <input
-                  type="checkbox"
-                  checked={form.ticketTypes.includes(type)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setForm(prev => ({ ...prev, ticketTypes: [...prev.ticketTypes, type] }));
-                    } else {
-                      setForm(prev => ({ ...prev, ticketTypes: prev.ticketTypes.filter(t => t !== type) }));
-                    }
-                  }}
-                />
-                <span>{type}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* 타임테이블 */}
-        <div className={styles.section}>
-          <label className={styles.label}>
-            타임테이블 <span className={styles.required}>*</span>
-          </label>
-          <div className={styles.timeSlots}>
-            {form.timeSlots.map((slot, index) => (
-              <div key={index} className={styles.timeSlotCard}>
-                <div className={styles.timeSlotHeader}>
-                  <span className={styles.slotNumber}>#{index + 1}</span>
-                  {form.timeSlots.length > 1 && (
-                    <button
-                      type="button"
-                      className={styles.removeBtn}
-                      onClick={() => removeTimeSlot(index)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-                <div className={styles.timeRow}>
-                  <div className={styles.timeField}>
-                    <label>시작</label>
-                    <input
-                      type="time"
-                      value={slot.startTime}
-                      onChange={(e) => handleTimeSlotChange(index, 'startTime', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <span className={styles.timeSeparator}>~</span>
-                  <div className={styles.timeField}>
-                    <label>종료</label>
-                    <input
-                      type="time"
-                      value={slot.endTime}
-                      onChange={(e) => handleTimeSlotChange(index, 'endTime', e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className={styles.artistSelect}>
-                  <input
-                    type="text"
-                    value={slot.teamName}
-                    onChange={(e) => handleTimeSlotChange(index, 'teamName', e.target.value)}
-                    placeholder="아티스트/팀 이름 입력"
-                    className={styles.teamNameInput}
-                    required
-                  />
-                </div>
-                <input
-                  type="text"
-                  value={slot.description}
-                  onChange={(e) => handleTimeSlotChange(index, 'description', e.target.value)}
-                  placeholder="설명 (선택)"
-                  className={styles.descInput}
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              className={styles.addSlotBtn}
-              onClick={addTimeSlot}
-            >
-              <Plus size={18} />
-              팀 추가
-            </button>
-            <p className={styles.hint}>팀 추가 시 이전 팀 종료 시간이 자동으로 시작 시간에 입력됩니다</p>
-          </div>
-        </div>
-
         {/* 정원 */}
         <div className={styles.section}>
           <label className={styles.label}>
@@ -689,6 +596,125 @@ export default function CreateSchedule() {
               rows={4}
             />
           )}
+        </div>
+
+        {/* 권종 선택 */}
+        <div className={styles.section}>
+          <label className={styles.label}>권종 선택</label>
+          <div className={styles.ticketTypeGrid}>
+            {['A석', 'S석', 'R석', '무료'].map(type => (
+              <button
+                key={type}
+                type="button"
+                className={`${styles.ticketTypeBtn} ${form.ticketTypes.includes(type) ? styles.active : ''}`}
+                onClick={() => {
+                  setForm(prev => ({
+                    ...prev,
+                    ticketTypes: prev.ticketTypes.includes(type)
+                      ? prev.ticketTypes.filter(t => t !== type)
+                      : [...prev.ticketTypes, type]
+                  }));
+                }}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+          <p className={styles.hint}>여러 개 선택 가능, 예약 시 권종별 선택</p>
+        </div>
+
+        {/* 입장순 타입 */}
+        <div className={styles.section}>
+          <label className={styles.label}>입장번호 방식</label>
+          <div className={styles.entryTypeGrid}>
+            {[
+              { value: 'NONE', label: '입장순 없음' },
+              { value: 'RESERVATION_ORDER', label: '예매순' },
+              { value: 'RANDOM', label: '랜덤순' },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`${styles.entryTypeBtn} ${form.entryNumberType === opt.value ? styles.active : ''}`}
+                onClick={() => setForm(prev => ({ ...prev, entryNumberType: opt.value }))}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className={styles.hint}>티켓 발권 시 입장번호가 부여되는 방식</p>
+        </div>
+
+        {/* 타임테이블 */}
+        <div className={styles.section}>
+          <label className={styles.label}>
+            타임테이블 <span className={styles.required}>*</span>
+          </label>
+          <div className={styles.timeSlots}>
+            {form.timeSlots.map((slot, index) => (
+              <div key={index} className={styles.timeSlotCard}>
+                <div className={styles.timeSlotHeader}>
+                  <span className={styles.slotNumber}>#{index + 1}</span>
+                  {form.timeSlots.length > 1 && (
+                    <button
+                      type="button"
+                      className={styles.removeBtn}
+                      onClick={() => removeTimeSlot(index)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+                <div className={styles.timeRow}>
+                  <div className={styles.timeField}>
+                    <label>시작</label>
+                    <input
+                      type="time"
+                      value={slot.startTime}
+                      onChange={(e) => handleTimeSlotChange(index, 'startTime', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <span className={styles.timeSeparator}>~</span>
+                  <div className={styles.timeField}>
+                    <label>종료</label>
+                    <input
+                      type="time"
+                      value={slot.endTime}
+                      onChange={(e) => handleTimeSlotChange(index, 'endTime', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className={styles.artistSelect}>
+                  <input
+                    type="text"
+                    value={slot.teamName}
+                    onChange={(e) => handleTimeSlotChange(index, 'teamName', e.target.value)}
+                    placeholder="아티스트/팀 이름 입력"
+                    className={styles.teamNameInput}
+                    required
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={slot.description}
+                  onChange={(e) => handleTimeSlotChange(index, 'description', e.target.value)}
+                  placeholder="설명 (선택)"
+                  className={styles.descInput}
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              className={styles.addSlotBtn}
+              onClick={addTimeSlot}
+            >
+              <Plus size={18} />
+              팀 추가
+            </button>
+            <p className={styles.hint}>팀 추가 시 이전 팀 종료 시간이 자동으로 시작 시간에 입력됩니다</p>
+          </div>
         </div>
 
         {/* 제출 버튼 */}

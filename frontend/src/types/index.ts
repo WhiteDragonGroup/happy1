@@ -50,6 +50,7 @@ export interface Schedule {
   description?: string;
   venue?: string;
   openTime?: string;  // 입장시간
+  entryNumberType?: string;  // 입장순 타입: NONE, RESERVATION_ORDER, RANDOM
   manager?: User;
   managerId?: number;
   isDeleted: boolean;

@@ -19,4 +19,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByUserAndSchedule(User user, Schedule schedule);
 
     long countByScheduleAndReservationStatusNot(Schedule schedule, Reservation.ReservationStatus status);
+
+    long countByScheduleId(Long scheduleId);
 }

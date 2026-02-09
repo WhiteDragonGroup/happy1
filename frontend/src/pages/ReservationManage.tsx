@@ -151,6 +151,39 @@ export default function ReservationManage() {
     }
   };
 
+  // 입금 확인 취소
+  const handleCancelPayment = async (reservationId: number) => {
+    try {
+      await reservationAPI.cancelPayment(reservationId);
+      setReservationList(prev =>
+        prev.map(r =>
+          r.id === reservationId
+            ? { ...r, paymentStatus: 'PENDING' as const, reservationStatus: 'PENDING' as const }
+            : r
+        )
+      );
+    } catch (err: any) {
+      alert(err.response?.data || '입금 취소에 실패했습니다.');
+    }
+  };
+
+  // 입장 취소
+  const handleCancelEnter = async (reservationId: number) => {
+    try {
+      const res = await reservationAPI.cancelEnter(reservationId);
+      const updatedReservation = res.data as Reservation;
+      setReservationList(prev =>
+        prev.map(r =>
+          r.id === reservationId
+            ? { ...r, isEntered: false, enteredAt: undefined, reservationStatus: updatedReservation.reservationStatus }
+            : r
+        )
+      );
+    } catch (err: any) {
+      alert(err.response?.data || '입장 취소에 실패했습니다.');
+    }
+  };
+
   // 검색 필터
   const filteredReservations = useMemo(() => {
     let list = [...reservationList];
@@ -352,7 +385,14 @@ export default function ReservationManage() {
                 </div>
 
                 <div className={styles.reservationActions}>
-                  {!reservation.isEntered && (
+                  {reservation.isEntered ? (
+                    <button
+                      className={styles.cancelBtn}
+                      onClick={() => handleCancelEnter(reservation.id)}
+                    >
+                      입장취소
+                    </button>
+                  ) : (
                     <button
                       className={styles.enterBtn}
                       onClick={() => handleEnter(reservation.id)}
@@ -361,7 +401,14 @@ export default function ReservationManage() {
                       입장
                     </button>
                   )}
-                  {reservation.paymentStatus === 'PENDING' && (
+                  {reservation.paymentStatus === 'COMPLETED' ? (
+                    <button
+                      className={styles.cancelBtn}
+                      onClick={() => handleCancelPayment(reservation.id)}
+                    >
+                      입금취소
+                    </button>
+                  ) : reservation.paymentStatus === 'PENDING' && (
                     <button
                       className={styles.confirmBtn}
                       onClick={() => handleConfirmPayment(reservation.id)}

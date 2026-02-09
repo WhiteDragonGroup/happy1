@@ -79,7 +79,9 @@ export const reservationAPI = {
   create: (data: any) =>
     api.post('/reservations', data),
   confirmPayment: (id: number) => api.post(`/reservations/${id}/confirm-payment`),
+  cancelPayment: (id: number) => api.post(`/reservations/${id}/cancel-payment`),
   enter: (id: number) => api.post(`/reservations/${id}/enter`),
+  cancelEnter: (id: number) => api.post(`/reservations/${id}/cancel-enter`),
   enterByQr: (qrCode: string) => api.post(`/reservations/qr/${qrCode}`),
 };
 

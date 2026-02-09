@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Calendar, Edit2, Trash2, Eye, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { scheduleAPI } from '../api';
 import styles from './common.module.css';
@@ -100,6 +100,20 @@ export default function ManageSchedules() {
                   {new Date(schedule.date).toLocaleDateString('ko-KR')} | {schedule.venue}
                 </p>
                 <div className={styles.cardActions}>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => navigate(`/schedule/${schedule.id}`)}
+                  >
+                    <Eye size={14} />
+                    상세
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => navigate(`/manage/reservations/${schedule.id}`)}
+                  >
+                    <Users size={14} />
+                    예약자
+                  </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => navigate(`/mypage/edit-schedule/${schedule.id}`)}

@@ -1,10 +1,8 @@
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   height: var(--header-height);
-  background: rgba(10, 10, 15, 0.9);
+  background: rgba(10, 10, 15, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -79,7 +77,6 @@
 
 .container {
   padding: 16px;
-  padding-top: calc(var(--header-height) + 16px);
   max-width: 600px;
   margin: 0 auto;
   padding-bottom: 120px;
@@ -556,7 +553,6 @@
 @media (min-width: 640px) {
   .container {
     padding: 24px;
-    padding-top: calc(var(--header-height) + 56px);
   }
 
   .title {

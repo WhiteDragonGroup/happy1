@@ -177,4 +177,48 @@ public class ReservationController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // 7. 입금 확인 취소 (MANAGER/ADMIN)
+    @PostMapping("/{id}/cancel-payment")
+    public ResponseEntity<?> cancelPayment(@PathVariable Long id,
+                                           @AuthenticationPrincipal User user) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    Schedule schedule = reservation.getSchedule();
+                    if (!schedule.getManager().getId().equals(user.getId()) &&
+                            user.getRole() != User.Role.ADMIN) {
+                        return ResponseEntity.status(403).body("권한이 없습니다.");
+                    }
+
+                    reservation.setPaymentStatus(Reservation.PaymentStatus.PENDING);
+                    reservation.setReservationStatus(Reservation.ReservationStatus.PENDING);
+                    return ResponseEntity.ok(reservationRepository.save(reservation));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 8. 입장 취소 (MANAGER/ADMIN)
+    @PostMapping("/{id}/cancel-enter")
+    public ResponseEntity<?> cancelEnter(@PathVariable Long id,
+                                         @AuthenticationPrincipal User user) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    Schedule schedule = reservation.getSchedule();
+                    if (!schedule.getManager().getId().equals(user.getId()) &&
+                            user.getRole() != User.Role.ADMIN) {
+                        return ResponseEntity.status(403).body("권한이 없습니다.");
+                    }
+
+                    reservation.setIsEntered(false);
+                    reservation.setEnteredAt(null);
+                    // 결제가 완료되어 있으면 CONFIRMED로, 아니면 PENDING으로
+                    if (reservation.getPaymentStatus() == Reservation.PaymentStatus.COMPLETED) {
+                        reservation.setReservationStatus(Reservation.ReservationStatus.CONFIRMED);
+                    } else {
+                        reservation.setReservationStatus(Reservation.ReservationStatus.PENDING);
+                    }
+                    return ResponseEntity.ok(reservationRepository.save(reservation));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

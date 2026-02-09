@@ -82,6 +82,8 @@ public class Schedule {
 
     private LocalTime openTime;  // 입장시간 (공연 오픈 시간)
 
+    private String entryNumberType;  // 입장순 타입: NONE, RESERVATION_ORDER, RANDOM
+
     @Builder.Default
     private Integer version = 1;
 

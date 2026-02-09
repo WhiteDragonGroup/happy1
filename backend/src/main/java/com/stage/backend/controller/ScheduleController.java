@@ -2,6 +2,7 @@ package com.stage.backend.controller;
 
 import com.stage.backend.entity.Schedule;
 import com.stage.backend.entity.User;
+import com.stage.backend.repository.ReservationRepository;
 import com.stage.backend.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleRepository scheduleRepository;
+    private final ReservationRepository reservationRepository;
 
     @GetMapping
     public ResponseEntity<List<Schedule>> getAll() {
@@ -111,12 +113,17 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id,
+    public ResponseEntity<?> delete(@PathVariable Long id,
                                        @AuthenticationPrincipal User user) {
         return scheduleRepository.findById(id)
                 .filter(s -> s.getManager().getId().equals(user.getId()) ||
                         user.getRole() == User.Role.ADMIN)
                 .map(s -> {
+                    // 예약자가 있으면 삭제 불가
+                    long reservationCount = reservationRepository.countByScheduleId(id);
+                    if (reservationCount > 0) {
+                        return ResponseEntity.badRequest().body("예약자가 " + reservationCount + "명 있어 삭제할 수 없습니다.");
+                    }
                     s.setIsDeleted(true);
                     scheduleRepository.save(s);
                     return ResponseEntity.ok().<Void>build();

@@ -318,6 +318,22 @@
   background: rgba(255, 165, 0, 0.2);
 }
 
+.cancelBtn {
+  padding: 8px 16px;
+  background: rgba(255, 45, 106, 0.1);
+  border: 1px solid var(--neon-pink);
+  border-radius: var(--radius-md);
+  color: var(--neon-pink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.cancelBtn:hover {
+  background: rgba(255, 45, 106, 0.2);
+}
+
 .empty {
   display: flex;
   flex-direction: column;
