@@ -11,9 +11,8 @@ const XIcon = ({ size = 16 }: { size?: number }) => (
 );
 
 export default function Favorites() {
-  const { teams, toggleFavorite, isFavorite, getFavoriteTeams, getFavoriteColor, updateFavoriteColor, favoriteColors } = useApp();
+  const { teams, toggleFavorite, isFavorite, getFavoriteTeams, getFavoriteColor, updateFavoriteColor } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
-  const [colorPickerTeamId, setColorPickerTeamId] = useState<number | null>(null);
 
   const favoriteTeams = getFavoriteTeams();
 
@@ -82,53 +81,24 @@ export default function Favorites() {
                         <h3 className={styles.teamName}>{team.name}</h3>
                         <span className={styles.teamGenre}>{team.genre}</span>
                       </div>
-                      {/* 컬러 선택 동그라미 - 왼쪽 하단 */}
-                      <div className={styles.colorBtnWrap}>
-                        <button
+                      {/* 컬러 선택 - 왼쪽 하단 */}
+                      <label className={styles.colorBtnWrap}>
+                        <input
+                          type="color"
+                          value={teamColor || '#ff1a5c'}
+                          onChange={(e) => {
+                            updateFavoriteColor(String(team.id), e.target.value);
+                          }}
+                          className={styles.colorInput}
+                        />
+                        <span
                           className={styles.colorBtn}
-                          onClick={() => setColorPickerTeamId(
-                            colorPickerTeamId === team.id ? null : team.id
-                          )}
                           style={teamColor ? {
                             background: teamColor,
                             borderColor: teamColor
                           } : undefined}
-                          title="팀 컬러 선택"
                         />
-                        {/* 컬러 피커 팝업 */}
-                        {colorPickerTeamId === team.id && (
-                          <motion.div
-                            className={styles.colorPicker}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            onClick={e => e.stopPropagation()}
-                          >
-                            {favoriteColors.map(c => (
-                              <button
-                                key={c}
-                                className={`${styles.colorOption} ${teamColor === c ? styles.colorSelected : ''}`}
-                                style={{ background: c }}
-                                onClick={() => {
-                                  updateFavoriteColor(String(team.id), c);
-                                  setColorPickerTeamId(null);
-                                }}
-                              />
-                            ))}
-                            {/* 자유 색상 선택 */}
-                            <label className={styles.customColorWrap}>
-                              <input
-                                type="color"
-                                value={teamColor || '#ffffff'}
-                                onChange={(e) => {
-                                  updateFavoriteColor(String(team.id), e.target.value);
-                                }}
-                                className={styles.customColorInput}
-                              />
-                              <span className={styles.customColorBtn} title="직접 선택">+</span>
-                            </label>
-                          </motion.div>
-                        )}
-                      </div>
+                      </label>
                       <div className={styles.cardActions}>
                         {/* X 링크 */}
                         {team.xUrl && (

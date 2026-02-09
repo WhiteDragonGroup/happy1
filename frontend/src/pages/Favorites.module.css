@@ -270,24 +270,31 @@
   bottom: 8px;
   left: 8px;
   z-index: 5;
+  cursor: pointer;
+}
+
+/* 숨김 컬러 인풋 */
+.colorInput {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  cursor: pointer;
 }
 
 /* 컬러 선택 버튼 */
 .colorBtn {
+  display: block;
   width: 20px;
   height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: var(--radius-full);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+  background: linear-gradient(135deg, #ff0080, #ff8c00, #40e0d0);
   transition: all var(--transition-fast);
   cursor: pointer;
-  padding: 0;
 }
 
-.colorBtn:hover {
+.colorBtnWrap:hover .colorBtn {
   border-color: rgba(255, 255, 255, 0.6);
   transform: scale(1.15);
 }
