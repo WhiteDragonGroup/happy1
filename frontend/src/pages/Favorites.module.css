@@ -328,6 +328,41 @@
   box-shadow: 0 0 8px currentColor;
 }
 
+/* 커스텀 컬러 피커 */
+.customColorWrap {
+  position: relative;
+  cursor: pointer;
+}
+
+.customColorInput {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.customColorBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  transition: all var(--transition-fast);
+}
+
+.customColorWrap:hover .customColorBtn {
+  transform: scale(1.2);
+  border-color: #fff;
+}
+
 .empty {
   display: flex;
   align-items: center;

@@ -114,6 +114,18 @@ export default function Favorites() {
                                 }}
                               />
                             ))}
+                            {/* 자유 색상 선택 */}
+                            <label className={styles.customColorWrap}>
+                              <input
+                                type="color"
+                                value={teamColor || '#ffffff'}
+                                onChange={(e) => {
+                                  updateFavoriteColor(String(team.id), e.target.value);
+                                }}
+                                className={styles.customColorInput}
+                              />
+                              <span className={styles.customColorBtn} title="직접 선택">+</span>
+                            </label>
                           </motion.div>
                         )}
                       </div>
