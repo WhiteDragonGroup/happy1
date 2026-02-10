@@ -92,6 +92,9 @@ public class ScheduleController {
                     schedule.setCapacity(scheduleData.getCapacity());
                     schedule.setAdvancePrice(scheduleData.getAdvancePrice());
                     schedule.setDoorPrice(scheduleData.getDoorPrice());
+                    schedule.setPriceA(scheduleData.getPriceA());
+                    schedule.setPriceS(scheduleData.getPriceS());
+                    schedule.setPriceR(scheduleData.getPriceR());
                     schedule.setVenue(scheduleData.getVenue());
                     schedule.setDescription(scheduleData.getDescription());
                     schedule.setImageUrl(scheduleData.getImageUrl());

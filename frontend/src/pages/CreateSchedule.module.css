@@ -342,15 +342,22 @@
   color: var(--neon-cyan);
 }
 
-/* 권종 선택 그리드 */
-.ticketTypeGrid {
+/* 권종 선택 */
+.ticketTypesContainer {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
+}
+
+.ticketTypeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .ticketTypeBtn {
   padding: 10px 18px;
+  min-width: 70px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -358,6 +365,7 @@
   font-weight: 500;
   color: var(--text-secondary);
   transition: all var(--transition-fast);
+  text-align: center;
 }
 
 .ticketTypeBtn:hover {
@@ -370,6 +378,39 @@
   border-color: var(--neon-cyan);
   color: var(--neon-cyan);
   box-shadow: 0 0 8px var(--neon-cyan-glow);
+}
+
+.ticketPriceInput {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.ticketPriceInput input {
+  flex: 1;
+  max-width: 120px;
+  text-align: right;
+}
+
+.ticketPriceInput span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.freeTag {
+  padding: 6px 14px;
+  background: var(--neon-green-glow);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--neon-green);
+}
+
+/* 기존 그리드 (하위호환) */
+.ticketTypeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* 입장순 타입 그리드 */

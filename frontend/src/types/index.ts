@@ -46,6 +46,9 @@ export interface Schedule {
   timeSlots?: TimeSlot[];
   advancePrice?: number;
   doorPrice?: number;
+  priceA?: number;
+  priceS?: number;
+  priceR?: number;
   capacity: number;
   description?: string;
   venue?: string;

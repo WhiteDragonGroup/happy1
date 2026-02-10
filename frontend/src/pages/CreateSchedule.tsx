@@ -33,6 +33,9 @@ interface FormState {
   timeSlots: TimeSlotInput[];
   advancePrice: string;
   doorPrice: string;
+  priceA: string;
+  priceS: string;
+  priceR: string;
   openTime: string;
   capacity: string;
   notice: string;
@@ -62,6 +65,9 @@ const DEFAULT_FORM: FormState = {
   openTime: '',
   advancePrice: '',
   doorPrice: '',
+  priceA: '',
+  priceS: '',
+  priceR: '',
   capacity: '',
   notice: '',
   location: '',
@@ -161,6 +167,9 @@ export default function CreateSchedule() {
       openTime: schedule.openTime ? schedule.openTime.slice(0, 5) : '',
       advancePrice: schedule.advancePrice != null ? String(schedule.advancePrice) : '',
       doorPrice: schedule.doorPrice != null ? String(schedule.doorPrice) : '',
+      priceA: schedule.priceA != null ? String(schedule.priceA) : '',
+      priceS: schedule.priceS != null ? String(schedule.priceS) : '',
+      priceR: schedule.priceR != null ? String(schedule.priceR) : '',
       capacity: schedule.capacity ? String(schedule.capacity) : '',
       notice: schedule.description || '',
       location: schedule.venue || '',
@@ -247,26 +256,44 @@ export default function CreateSchedule() {
     setIsSubmitting(true);
 
     try {
+      // 필수값 검증
+      if (!form.openTime) {
+        alert('입장시간을 입력해주세요.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!form.publicDateTime) {
+        alert('일정 공개일시를 입력해주세요.');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!form.ticketOpenDateTime) {
+        alert('티켓 판매 오픈일시를 입력해주세요.');
+        setIsSubmitting(false);
+        return;
+      }
+
       // 티켓 판매일이 일정 공개일보다 앞서면 안됨
-      if (form.ticketOpenDateTime && form.publicDateTime) {
-        if (new Date(form.ticketOpenDateTime) < new Date(form.publicDateTime)) {
-          alert('티켓 판매 오픈일은 일정 공개일 이후여야 합니다.');
-          setIsSubmitting(false);
-          return;
-        }
+      if (new Date(form.ticketOpenDateTime) < new Date(form.publicDateTime)) {
+        alert('티켓 판매 오픈일은 일정 공개일 이후여야 합니다.');
+        setIsSubmitting(false);
+        return;
       }
 
       const scheduleData = {
         title: form.title,
         organizer: form.organizer || '',
         date: form.date,
-        publicDateTime: form.publicDateTime || null,
-        ticketOpenDateTime: form.ticketOpenDateTime || null,
+        publicDateTime: form.publicDateTime,
+        ticketOpenDateTime: form.ticketOpenDateTime,
         ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
-        openTime: form.openTime ? form.openTime + ':00' : null,
+        openTime: form.openTime + ':00',
         capacity: Number(form.capacity),
         advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
         doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
+        priceA: form.ticketTypes.includes('A석') && form.priceA ? Number(form.priceA) : null,
+        priceS: form.ticketTypes.includes('S석') && form.priceS ? Number(form.priceS) : null,
+        priceR: form.ticketTypes.includes('R석') && form.priceR ? Number(form.priceR) : null,
         venue: switches.location ? form.location : null,
         description: switches.notice ? form.notice : null,
         entryNumberType: form.entryNumberType || 'NONE',
@@ -435,13 +462,14 @@ export default function CreateSchedule() {
         {/* 입장시간 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            입장시간 (오픈 시간)
+            입장시간 (오픈 시간) <span className={styles.required}>*</span>
           </label>
           <input
             type="time"
             name="openTime"
             value={form.openTime}
             onChange={handleInputChange}
+            required
           />
           <p className={styles.hint}>관객 입장 시작 시간</p>
         </div>
@@ -449,27 +477,28 @@ export default function CreateSchedule() {
         {/* 일정 공개일시 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            일정 공개일시
+            일정 공개일시 <span className={styles.required}>*</span>
           </label>
           <input
             type="datetime-local"
             name="publicDateTime"
             value={form.publicDateTime}
             onChange={handleInputChange}
+            required
           />
-          <p className={styles.hint}>비워두면 즉시 공개됩니다</p>
         </div>
 
         {/* 티켓 판매 오픈일시 */}
         <div className={styles.section}>
           <label className={styles.label}>
-            티켓 판매 오픈일시
+            티켓 판매 오픈일시 <span className={styles.required}>*</span>
           </label>
           <input
             type="datetime-local"
             name="ticketOpenDateTime"
             value={form.ticketOpenDateTime}
             onChange={handleInputChange}
+            required
           />
           <p className={styles.hint}>일정 공개일 이후로 설정해주세요</p>
         </div>
@@ -598,29 +627,49 @@ export default function CreateSchedule() {
           )}
         </div>
 
-        {/* 권종 선택 */}
+        {/* 권종 선택 및 가격 설정 */}
         <div className={styles.section}>
-          <label className={styles.label}>권종 선택</label>
-          <div className={styles.ticketTypeGrid}>
-            {['A석', 'S석', 'R석', '무료'].map(type => (
-              <button
-                key={type}
-                type="button"
-                className={`${styles.ticketTypeBtn} ${form.ticketTypes.includes(type) ? styles.active : ''}`}
-                onClick={() => {
-                  setForm(prev => ({
-                    ...prev,
-                    ticketTypes: prev.ticketTypes.includes(type)
-                      ? prev.ticketTypes.filter(t => t !== type)
-                      : [...prev.ticketTypes, type]
-                  }));
-                }}
-              >
-                {type}
-              </button>
-            ))}
+          <label className={styles.label}>권종 선택 및 가격</label>
+          <div className={styles.ticketTypesContainer}>
+            {['A석', 'S석', 'R석', '무료'].map(type => {
+              const isSelected = form.ticketTypes.includes(type);
+              const priceKey = type === 'A석' ? 'priceA' : type === 'S석' ? 'priceS' : type === 'R석' ? 'priceR' : null;
+              return (
+                <div key={type} className={styles.ticketTypeRow}>
+                  <button
+                    type="button"
+                    className={`${styles.ticketTypeBtn} ${isSelected ? styles.active : ''}`}
+                    onClick={() => {
+                      setForm(prev => ({
+                        ...prev,
+                        ticketTypes: prev.ticketTypes.includes(type)
+                          ? prev.ticketTypes.filter(t => t !== type)
+                          : [...prev.ticketTypes, type]
+                      }));
+                    }}
+                  >
+                    {type}
+                  </button>
+                  {isSelected && priceKey && (
+                    <div className={styles.ticketPriceInput}>
+                      <input
+                        type="number"
+                        value={form[priceKey]}
+                        onChange={(e) => setForm(prev => ({ ...prev, [priceKey]: e.target.value }))}
+                        placeholder="가격"
+                        min="0"
+                      />
+                      <span>원</span>
+                    </div>
+                  )}
+                  {isSelected && type === '무료' && (
+                    <span className={styles.freeTag}>무료</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <p className={styles.hint}>여러 개 선택 가능, 예약 시 권종별 선택</p>
+          <p className={styles.hint}>선택한 권종별로 가격을 설정하세요</p>
         </div>
 
         {/* 입장순 타입 */}

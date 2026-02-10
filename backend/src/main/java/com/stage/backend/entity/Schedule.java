@@ -67,9 +67,13 @@ public class Schedule {
 
     private String venue;
 
-    private BigDecimal advancePrice;  // 예약 발권 가격
+    private BigDecimal advancePrice;  // 예약 발권 가격 (기존 호환용)
 
     private BigDecimal doorPrice;     // 현장 발권 가격
+
+    private BigDecimal priceA;  // A석 가격
+    private BigDecimal priceS;  // S석 가격
+    private BigDecimal priceR;  // R석 가격
 
     @Column(columnDefinition = "TEXT")
     private String description;
