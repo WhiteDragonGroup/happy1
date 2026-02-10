@@ -44,8 +44,6 @@ interface FormState {
 }
 
 interface SwitchState {
-  advancePrice: boolean;
-  doorPrice: boolean;
   notice: boolean;
   location: boolean;
 }
@@ -75,8 +73,6 @@ const DEFAULT_FORM: FormState = {
 };
 
 const DEFAULT_SWITCHES: SwitchState = {
-  advancePrice: true,
-  doorPrice: true,
   notice: true,
   location: true,
 };
@@ -177,8 +173,6 @@ export default function CreateSchedule() {
     });
 
     setSwitches({
-      advancePrice: schedule.advancePrice != null,
-      doorPrice: schedule.doorPrice != null,
       notice: !!schedule.description,
       location: !!schedule.venue,
     });
@@ -289,8 +283,8 @@ export default function CreateSchedule() {
         ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
         openTime: form.openTime + ':00',
         capacity: Number(form.capacity),
-        advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
-        doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
+        advancePrice: null,
+        doorPrice: null,
         priceA: form.ticketTypes.includes('A석') && form.priceA ? Number(form.priceA) : null,
         priceS: form.ticketTypes.includes('S석') && form.priceS ? Number(form.priceS) : null,
         priceR: form.ticketTypes.includes('R석') && form.priceR ? Number(form.priceR) : null,
@@ -517,66 +511,6 @@ export default function CreateSchedule() {
             min="1"
             required
           />
-        </div>
-
-        {/* 예약 발권 가격 */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <label className={styles.label}>예약 발권 가격</label>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={switches.advancePrice}
-                onChange={() => toggleSwitch('advancePrice')}
-              />
-              <span className="switch-slider"></span>
-            </label>
-          </div>
-          {switches.advancePrice ? (
-            <div className={styles.priceInput}>
-              <input
-                type="number"
-                name="advancePrice"
-                value={form.advancePrice}
-                onChange={handleInputChange}
-                placeholder="0"
-                min="0"
-              />
-              <span className={styles.priceUnit}>원</span>
-            </div>
-          ) : (
-            <div className={styles.freeLabel}>예약 발권 없음</div>
-          )}
-        </div>
-
-        {/* 현장 발권 가격 */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <label className={styles.label}>현장 발권 가격</label>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={switches.doorPrice}
-                onChange={() => toggleSwitch('doorPrice')}
-              />
-              <span className="switch-slider"></span>
-            </label>
-          </div>
-          {switches.doorPrice ? (
-            <div className={styles.priceInput}>
-              <input
-                type="number"
-                name="doorPrice"
-                value={form.doorPrice}
-                onChange={handleInputChange}
-                placeholder="0"
-                min="0"
-              />
-              <span className={styles.priceUnit}>원</span>
-            </div>
-          ) : (
-            <div className={styles.freeLabel}>현장 발권 없음</div>
-          )}
         </div>
 
         {/* 장소 */}
