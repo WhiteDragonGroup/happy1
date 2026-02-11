@@ -112,7 +112,8 @@ export default function ScheduleDetail() {
     ? [...new Set(schedule.timeSlots.map(s => s.teamName).filter(Boolean) as string[])]
     : [];
 
-  const isFreeSchedule = !schedule.advancePrice || Number(schedule.advancePrice) === 0;
+  const hasTicketPrice = !!(schedule.priceA || schedule.priceS || schedule.priceR);
+  const isFreeSchedule = !hasTicketPrice;
 
   const openReserveModal = () => {
     if (!isLoggedIn) {
@@ -230,27 +231,44 @@ export default function ScheduleDetail() {
           </div>
 
           {/* 가격 정보 */}
-          {(schedule.advancePrice || schedule.doorPrice) && (
+          {hasTicketPrice ? (
             <div className={styles.priceSection}>
               <h3 className={styles.sectionLabel}>입장료</h3>
               <div className={styles.priceList}>
-                {schedule.advancePrice && (
+                {schedule.priceA != null && Number(schedule.priceA) > 0 && (
                   <div className={styles.priceItem}>
                     <Ticket size={16} />
-                    <span>예약 발권</span>
-                    <span className={styles.priceValue}>{Number(schedule.advancePrice).toLocaleString()}원</span>
+                    <span>A석</span>
+                    <span className={styles.priceValue}>{Number(schedule.priceA).toLocaleString()}원</span>
                   </div>
                 )}
-                {schedule.doorPrice && (
+                {schedule.priceS != null && Number(schedule.priceS) > 0 && (
                   <div className={styles.priceItem}>
                     <Ticket size={16} />
-                    <span>현장 발권</span>
-                    <span className={styles.priceValue}>{Number(schedule.doorPrice).toLocaleString()}원</span>
+                    <span>S석</span>
+                    <span className={styles.priceValue}>{Number(schedule.priceS).toLocaleString()}원</span>
+                  </div>
+                )}
+                {schedule.priceR != null && Number(schedule.priceR) > 0 && (
+                  <div className={styles.priceItem}>
+                    <Ticket size={16} />
+                    <span>R석</span>
+                    <span className={styles.priceValue}>{Number(schedule.priceR).toLocaleString()}원</span>
                   </div>
                 )}
               </div>
             </div>
-          )}
+          ) : schedule.ticketTypes?.includes('무료') ? (
+            <div className={styles.priceSection}>
+              <h3 className={styles.sectionLabel}>입장료</h3>
+              <div className={styles.priceList}>
+                <div className={styles.priceItem}>
+                  <Ticket size={16} />
+                  <span>무료</span>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* 타임테이블 */}
           {schedule.timeSlots && schedule.timeSlots.length > 0 && (
@@ -461,10 +479,18 @@ export default function ScheduleDetail() {
                       선택 팀: {selectedTeamName}
                     </p>
                   )}
-                  {schedule.advancePrice ? (
-                    <p className={styles.modalPrice}>
-                      {Number(schedule.advancePrice).toLocaleString()}원
-                    </p>
+                  {hasTicketPrice ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {schedule.priceA != null && Number(schedule.priceA) > 0 && (
+                        <p className={styles.modalPrice}>A석 {Number(schedule.priceA).toLocaleString()}원</p>
+                      )}
+                      {schedule.priceS != null && Number(schedule.priceS) > 0 && (
+                        <p className={styles.modalPrice}>S석 {Number(schedule.priceS).toLocaleString()}원</p>
+                      )}
+                      {schedule.priceR != null && Number(schedule.priceR) > 0 && (
+                        <p className={styles.modalPrice}>R석 {Number(schedule.priceR).toLocaleString()}원</p>
+                      )}
+                    </div>
                   ) : (
                     <p className={styles.modalPrice}>무료</p>
                   )}

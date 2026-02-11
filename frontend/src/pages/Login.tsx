@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, KeyRound } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './Login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { kakaoLogin } = useApp();
+  const { kakaoLogin, login } = useApp();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showTestLogin, setShowTestLogin] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleKakaoLogin = async () => {
     setError('');
@@ -21,6 +24,23 @@ export default function Login() {
       navigate(-1);
     } else {
       setError('카카오 로그인에 실패했습니다');
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleTestLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !password) return;
+    setError('');
+    setIsLoading(true);
+
+    const success = await login(username, password);
+
+    if (success) {
+      navigate('/');
+    } else {
+      setError('아이디 또는 비밀번호가 올바르지 않습니다');
     }
 
     setIsLoading(false);
@@ -65,6 +85,57 @@ export default function Login() {
           </svg>
           {isLoading ? '로그인 중...' : '카카오로 시작하기'}
         </button>
+
+        <div className={styles.orDivider}>
+          <span>or</span>
+        </div>
+
+        <button
+          type="button"
+          className={styles.adminToggle}
+          onClick={() => setShowTestLogin(!showTestLogin)}
+        >
+          <KeyRound size={18} />
+          {showTestLogin ? '테스트 로그인 닫기' : '테스트 계정 로그인'}
+        </button>
+
+        {showTestLogin && (
+          <motion.form
+            className={styles.form}
+            onSubmit={handleTestLogin}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            style={{ marginTop: '16px' }}
+          >
+            <div className={styles.inputGroup}>
+              <label>아이디</label>
+              <input
+                type="text"
+                placeholder="아이디 입력"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                autoComplete="username"
+              />
+            </div>
+            <div className={styles.inputGroup}>
+              <label>비밀번호</label>
+              <input
+                type="password"
+                placeholder="비밀번호 입력"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isLoading || !username || !password}
+            >
+              {isLoading ? '로그인 중...' : '로그인'}
+            </button>
+          </motion.form>
+        )}
       </motion.div>
     </div>
   );

@@ -610,6 +610,7 @@
 /* 제출 버튼 */
 .submitSection {
   padding: 24px 0;
+  padding-bottom: calc(var(--nav-height) + 24px);
   border-top: 1px solid var(--border-color);
   margin-top: 16px;
 }

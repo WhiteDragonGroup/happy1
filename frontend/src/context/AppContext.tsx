@@ -179,35 +179,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Optimistic update - UI responds immediately
     if (existing) {
       // Optimistically remove
-      const previousFavorites = [...favorites];
-      setFavorites(favorites.filter(f => f.id !== existing.id));
+      setFavorites(prev => prev.filter(f => f.id !== existing.id));
 
       try {
         await favoriteAPI.remove(Number(teamId));
       } catch (error) {
-        // Rollback on error
+        // Rollback on error - re-fetch from server
         console.error('Failed to remove favorite:', error);
-        setFavorites(previousFavorites);
+        try {
+          const res = await favoriteAPI.getAll();
+          setFavorites(res.data);
+        } catch { /* ignore */ }
       }
     } else {
       // Optimistically add with temporary data
+      const tempId = Date.now() + Math.random();
       const tempFavorite: Favorite = {
-        id: Date.now(), // temporary ID
+        id: tempId,
         teamId: Number(teamId),
         userId: user.id,
         createdAt: new Date().toISOString(),
       };
-      const previousFavorites = [...favorites];
-      setFavorites([...favorites, tempFavorite]);
+      setFavorites(prev => [...prev, tempFavorite]);
 
       try {
         const res = await favoriteAPI.add(Number(teamId));
         // Replace temp favorite with real data
-        setFavorites(prev => prev.map(f => f.id === tempFavorite.id ? res.data : f));
+        setFavorites(prev => prev.map(f => f.id === tempId ? res.data : f));
       } catch (error) {
         // Rollback on error
         console.error('Failed to add favorite:', error);
-        setFavorites(previousFavorites);
+        setFavorites(prev => prev.filter(f => f.id !== tempId));
       }
     }
   };
