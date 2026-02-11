@@ -109,7 +109,7 @@ export default function ManageSchedules() {
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"
-                    onClick={() => navigate(`/manage/reservations/${schedule.id}`)}
+                    onClick={() => navigate(`/manage-reservations/${schedule.id}`)}
                   >
                     <Users size={14} />
                     예약자

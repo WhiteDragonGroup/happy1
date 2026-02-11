@@ -42,14 +42,14 @@ export default function Home() {
   }, [year, month]);
 
   const getSchedulesForDay = (day: number) => {
+    const now = new Date();
     return schedules.filter(s => {
       const scheduleDate = new Date(s.date);
-      return (
-        scheduleDate.getFullYear() === year &&
-        scheduleDate.getMonth() === month &&
-        scheduleDate.getDate() === day &&
-        !s.isDeleted
-      );
+      if (scheduleDate.getFullYear() !== year || scheduleDate.getMonth() !== month || scheduleDate.getDate() !== day) return false;
+      if (s.isDeleted) return false;
+      // 공개일시가 설정되어 있고 아직 도래하지 않았으면 숨김
+      if (s.publicDateTime && new Date(s.publicDateTime) > now) return false;
+      return true;
     });
   };
 
@@ -90,8 +90,10 @@ export default function Home() {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
+    const now = new Date();
     return schedules.filter(s => {
       if (s.isDeleted) return false;
+      if (s.publicDateTime && new Date(s.publicDateTime) > now) return false;
       // 제목 검색
       if (s.title?.toLowerCase().includes(query)) return true;
       // 팀명 검색

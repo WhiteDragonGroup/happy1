@@ -29,16 +29,16 @@ interface FormState {
   ticketTypes: string[];
   timeSlots: TimeSlotInput[];
   openTime: string;
-  advancePrice: string;
-  doorPrice: string;
+  priceA: string;
+  priceS: string;
+  priceR: string;
   capacity: string;
   notice: string;
   location: string;
+  entryNumberType: string;
 }
 
 interface SwitchState {
-  advancePrice: boolean;
-  doorPrice: boolean;
   notice: boolean;
   location: boolean;
 }
@@ -60,16 +60,16 @@ export default function EditSchedule() {
     ticketTypes: [],
     timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
     openTime: '',
-    advancePrice: '',
-    doorPrice: '',
+    priceA: '',
+    priceS: '',
+    priceR: '',
     capacity: '',
     notice: '',
     location: '',
+    entryNumberType: 'NONE',
   });
 
   const [switches, setSwitches] = useState<SwitchState>({
-    advancePrice: true,
-    doorPrice: true,
     notice: true,
     location: true,
   });
@@ -111,16 +111,16 @@ export default function EditSchedule() {
             }))
           : [{ startTime: '', endTime: '', teamName: '', description: '' }],
         openTime: schedule.openTime?.substring(0, 5) || '',
-        advancePrice: schedule.advancePrice?.toString() || '',
-        doorPrice: schedule.doorPrice?.toString() || '',
+        priceA: schedule.priceA?.toString() || '',
+        priceS: schedule.priceS?.toString() || '',
+        priceR: schedule.priceR?.toString() || '',
         capacity: schedule.capacity?.toString() || '',
         notice: schedule.description || '',
         location: schedule.venue || '',
+        entryNumberType: schedule.entryNumberType || 'NONE',
       });
 
       setSwitches({
-        advancePrice: schedule.advancePrice !== null && schedule.advancePrice !== undefined,
-        doorPrice: schedule.doorPrice !== null && schedule.doorPrice !== undefined,
         notice: !!schedule.description,
         location: !!schedule.venue,
       });
@@ -211,10 +211,14 @@ export default function EditSchedule() {
         ticketTypes: form.ticketTypes.length > 0 ? form.ticketTypes.join(',') : null,
         openTime: form.openTime ? (form.openTime.length === 5 ? form.openTime + ':00' : form.openTime) : null,
         capacity: Number(form.capacity),
-        advancePrice: switches.advancePrice && form.advancePrice ? Number(form.advancePrice) : null,
-        doorPrice: switches.doorPrice && form.doorPrice ? Number(form.doorPrice) : null,
+        advancePrice: null,
+        doorPrice: null,
+        priceA: form.ticketTypes.includes('A석') && form.priceA ? Number(form.priceA) : null,
+        priceS: form.ticketTypes.includes('S석') && form.priceS ? Number(form.priceS) : null,
+        priceR: form.ticketTypes.includes('R석') && form.priceR ? Number(form.priceR) : null,
         venue: switches.location ? form.location : null,
         description: switches.notice ? form.notice : null,
+        entryNumberType: form.entryNumberType || 'NONE',
         imageUrl: form.posterPreview || null,
         isPublished: true,
         timeSlots: form.timeSlots
@@ -407,29 +411,71 @@ export default function EditSchedule() {
           <p className={styles.hint}>일정 공개일 이후로 설정해주세요</p>
         </div>
 
-        {/* 티켓 권종 */}
+        {/* 권종 선택 및 가격 설정 */}
         <div className={styles.section}>
-          <label className={styles.label}>
-            티켓 권종
-          </label>
-          <div className={styles.ticketTypes}>
-            {['A석', 'S석', 'R석', '스탠딩', '무료'].map(type => (
-              <label key={type} className={styles.ticketTypeLabel}>
-                <input
-                  type="checkbox"
-                  checked={form.ticketTypes.includes(type)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setForm(prev => ({ ...prev, ticketTypes: [...prev.ticketTypes, type] }));
-                    } else {
-                      setForm(prev => ({ ...prev, ticketTypes: prev.ticketTypes.filter(t => t !== type) }));
-                    }
-                  }}
-                />
-                <span>{type}</span>
-              </label>
+          <label className={styles.label}>권종 선택 및 가격</label>
+          <div className={styles.ticketTypesContainer}>
+            {['A석', 'S석', 'R석', '무료'].map(type => {
+              const isSelected = form.ticketTypes.includes(type);
+              const priceKey = type === 'A석' ? 'priceA' : type === 'S석' ? 'priceS' : type === 'R석' ? 'priceR' : null;
+              return (
+                <div key={type} className={styles.ticketTypeRow}>
+                  <button
+                    type="button"
+                    className={`${styles.ticketTypeBtn} ${isSelected ? styles.active : ''}`}
+                    onClick={() => {
+                      setForm(prev => ({
+                        ...prev,
+                        ticketTypes: prev.ticketTypes.includes(type)
+                          ? prev.ticketTypes.filter(t => t !== type)
+                          : [...prev.ticketTypes, type]
+                      }));
+                    }}
+                  >
+                    {type}
+                  </button>
+                  {isSelected && priceKey && (
+                    <div className={styles.ticketPriceInput}>
+                      <input
+                        type="number"
+                        value={form[priceKey]}
+                        onChange={(e) => setForm(prev => ({ ...prev, [priceKey]: e.target.value }))}
+                        placeholder="가격"
+                        min="0"
+                      />
+                      <span>원</span>
+                    </div>
+                  )}
+                  {isSelected && type === '무료' && (
+                    <span className={styles.freeTag}>무료</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <p className={styles.hint}>선택한 권종별로 가격을 설정하세요</p>
+        </div>
+
+        {/* 입장번호 방식 */}
+        <div className={styles.section}>
+          <label className={styles.label}>입장번호 방식</label>
+          <div className={styles.entryTypeGrid}>
+            {[
+              { value: 'NONE', label: '입장순 없음' },
+              { value: 'RESERVATION_ORDER', label: '예매순' },
+              { value: 'RANDOM', label: '랜덤순' },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`${styles.entryTypeBtn} ${form.entryNumberType === opt.value ? styles.active : ''}`}
+                onClick={() => setForm(prev => ({ ...prev, entryNumberType: opt.value }))}
+              >
+                {opt.label}
+              </button>
             ))}
           </div>
+          <p className={styles.hint}>티켓 발권 시 입장번호가 부여되는 방식</p>
         </div>
 
         {/* 타임테이블 */}
@@ -518,66 +564,6 @@ export default function EditSchedule() {
             min="1"
             required
           />
-        </div>
-
-        {/* 예약 발권 가격 */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <label className={styles.label}>예약 발권 가격</label>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={switches.advancePrice}
-                onChange={() => toggleSwitch('advancePrice')}
-              />
-              <span className="switch-slider"></span>
-            </label>
-          </div>
-          {switches.advancePrice ? (
-            <div className={styles.priceInput}>
-              <input
-                type="number"
-                name="advancePrice"
-                value={form.advancePrice}
-                onChange={handleInputChange}
-                placeholder="0"
-                min="0"
-              />
-              <span className={styles.priceUnit}>원</span>
-            </div>
-          ) : (
-            <div className={styles.freeLabel}>예약 발권 없음</div>
-          )}
-        </div>
-
-        {/* 현장 발권 가격 */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <label className={styles.label}>현장 발권 가격</label>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={switches.doorPrice}
-                onChange={() => toggleSwitch('doorPrice')}
-              />
-              <span className="switch-slider"></span>
-            </label>
-          </div>
-          {switches.doorPrice ? (
-            <div className={styles.priceInput}>
-              <input
-                type="number"
-                name="doorPrice"
-                value={form.doorPrice}
-                onChange={handleInputChange}
-                placeholder="0"
-                min="0"
-              />
-              <span className={styles.priceUnit}>원</span>
-            </div>
-          ) : (
-            <div className={styles.freeLabel}>현장 발권 없음</div>
-          )}
         </div>
 
         {/* 장소 */}
