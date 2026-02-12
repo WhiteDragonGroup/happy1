@@ -197,7 +197,30 @@ public class ReservationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 8. 입장 취소 (MANAGER/ADMIN)
+    // 8. 유저 예약 취소 (입금 전만 가능)
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long id,
+                                    @AuthenticationPrincipal User user) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    // 본인 예약만 취소 가능
+                    if (!reservation.getUser().getId().equals(user.getId())) {
+                        return ResponseEntity.status(403).body("본인의 예약만 취소할 수 있습니다.");
+                    }
+
+                    // 입금 전(PENDING)만 취소 가능
+                    if (reservation.getPaymentStatus() != Reservation.PaymentStatus.PENDING) {
+                        return ResponseEntity.badRequest().body("입금 완료된 예약은 취소할 수 없습니다. 관리자에게 문의해주세요.");
+                    }
+
+                    reservation.setReservationStatus(Reservation.ReservationStatus.CANCELLED);
+                    reservation.setPaymentStatus(Reservation.PaymentStatus.CANCELLED);
+                    return ResponseEntity.ok(reservationRepository.save(reservation));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 9. 입장 취소 (MANAGER/ADMIN)
     @PostMapping("/{id}/cancel-enter")
     public ResponseEntity<?> cancelEnter(@PathVariable Long id,
                                          @AuthenticationPrincipal User user) {

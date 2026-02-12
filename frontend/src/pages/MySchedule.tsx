@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Ticket, Clock, MapPin, Heart, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useApp } from '../context/AppContext';
+import { reservationAPI } from '../api';
 import styles from './MySchedule.module.css';
 import type { Reservation } from '../types';
 
@@ -11,9 +12,10 @@ type TabType = 'reserved' | 'wishlist';
 
 export default function MySchedule() {
   const navigate = useNavigate();
-  const { user, isLoggedIn, reservations, getFavoriteTeams, schedules } = useApp();
+  const { user, isLoggedIn, reservations, getFavoriteTeams, schedules, refreshData } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('reserved');
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -229,7 +231,9 @@ export default function MySchedule() {
                     )}
                     <div className={styles.cardFooter}>
                       <span className={styles.price}>
-                        {(!schedule.advancePrice && !schedule.doorPrice) ? '무료' : (schedule.advancePrice ? `${Number(schedule.advancePrice).toLocaleString()}원` : `${Number(schedule.doorPrice).toLocaleString()}원`)}
+                        {(schedule.priceA || schedule.priceS || schedule.priceR)
+                          ? [schedule.priceA && `A ${Number(schedule.priceA).toLocaleString()}원`, schedule.priceS && `S ${Number(schedule.priceS).toLocaleString()}원`, schedule.priceR && `R ${Number(schedule.priceR).toLocaleString()}원`].filter(Boolean).join(' / ')
+                          : '무료'}
                       </span>
                     </div>
                   </div>
@@ -342,6 +346,35 @@ export default function MySchedule() {
                 닫기
               </button>
             </div>
+            {selectedReservation.paymentStatus === 'PENDING' && selectedReservation.reservationStatus === 'PENDING' && (
+              <button
+                style={{
+                  width: '100%',
+                  marginTop: '8px',
+                  padding: '12px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  fontSize: '0.8125rem',
+                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                }}
+                disabled={cancelling}
+                onClick={async () => {
+                  if (!confirm('예약을 취소하시겠습니까?')) return;
+                  setCancelling(true);
+                  try {
+                    await reservationAPI.cancel(selectedReservation.id);
+                    await refreshData();
+                    setSelectedReservation(null);
+                  } catch (err: any) {
+                    alert(err.response?.data || '예약 취소에 실패했습니다.');
+                  }
+                  setCancelling(false);
+                }}
+              >
+                {cancelling ? '취소 중...' : '예약 취소'}
+              </button>
+            )}
           </div>
         </div>
       )}
