@@ -270,6 +270,20 @@ export default function ScheduleDetail() {
             </div>
           ) : null}
 
+          {/* 입금 계좌 정보 */}
+          {schedule.bankAccount && hasTicketPrice && (
+            <div className={styles.priceSection}>
+              <h3 className={styles.sectionLabel}>입금 계좌</h3>
+              <div className={styles.priceList}>
+                <div className={styles.priceItem}>
+                  <Ticket size={16} />
+                  <span>{schedule.bankName} {schedule.bankAccount}</span>
+                  <span className={styles.priceValue}>{schedule.bankHolder}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 타임테이블 */}
           {schedule.timeSlots && schedule.timeSlots.length > 0 && (
             <div className={styles.timeSlotsSection}>

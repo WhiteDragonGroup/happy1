@@ -54,6 +54,10 @@ export interface Schedule {
   venue?: string;
   openTime?: string;  // 입장시간
   entryNumberType?: string;  // 입장순 타입: NONE, RESERVATION_ORDER, RANDOM
+  paymentCollectionType?: string;  // 결제 수단: BANK, PG
+  bankName?: string;
+  bankAccount?: string;
+  bankHolder?: string;
   manager?: User;
   managerId?: number;
   isDeleted: boolean;

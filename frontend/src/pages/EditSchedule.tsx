@@ -36,6 +36,10 @@ interface FormState {
   notice: string;
   location: string;
   entryNumberType: string;
+  paymentCollectionType: string;
+  bankName: string;
+  bankAccount: string;
+  bankHolder: string;
 }
 
 interface SwitchState {
@@ -67,6 +71,10 @@ export default function EditSchedule() {
     notice: '',
     location: '',
     entryNumberType: 'NONE',
+    paymentCollectionType: 'BANK',
+    bankName: '',
+    bankAccount: '',
+    bankHolder: '',
   });
 
   const [switches, setSwitches] = useState<SwitchState>({
@@ -118,6 +126,10 @@ export default function EditSchedule() {
         notice: schedule.description || '',
         location: schedule.venue || '',
         entryNumberType: schedule.entryNumberType || 'NONE',
+        paymentCollectionType: schedule.paymentCollectionType || 'BANK',
+        bankName: schedule.bankName || '',
+        bankAccount: schedule.bankAccount || '',
+        bankHolder: schedule.bankHolder || '',
       });
 
       setSwitches({
@@ -219,6 +231,10 @@ export default function EditSchedule() {
         venue: switches.location ? form.location : null,
         description: switches.notice ? form.notice : null,
         entryNumberType: form.entryNumberType || 'NONE',
+        paymentCollectionType: form.paymentCollectionType || 'BANK',
+        bankName: form.paymentCollectionType === 'BANK' ? form.bankName : null,
+        bankAccount: form.paymentCollectionType === 'BANK' ? form.bankAccount : null,
+        bankHolder: form.paymentCollectionType === 'BANK' ? form.bankHolder : null,
         imageUrl: form.posterPreview || null,
         isPublished: true,
         timeSlots: form.timeSlots
@@ -409,6 +425,55 @@ export default function EditSchedule() {
             onChange={handleInputChange}
           />
           <p className={styles.hint}>일정 공개일 이후로 설정해주세요</p>
+        </div>
+
+        {/* 결제 수단 */}
+        <div className={styles.section}>
+          <label className={styles.label}>결제 수단</label>
+          <div className={styles.entryTypeGrid}>
+            <button
+              type="button"
+              className={`${styles.entryTypeBtn} ${form.paymentCollectionType === 'BANK' ? styles.active : ''}`}
+              onClick={() => setForm(prev => ({ ...prev, paymentCollectionType: 'BANK' }))}
+            >
+              계좌로 받기
+            </button>
+            <button
+              type="button"
+              className={`${styles.entryTypeBtn} ${form.paymentCollectionType === 'PG' ? styles.active : ''}`}
+              onClick={() => setForm(prev => ({ ...prev, paymentCollectionType: 'PG' }))}
+            >
+              PG로 받기
+            </button>
+          </div>
+          {form.paymentCollectionType === 'BANK' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+              <input
+                type="text"
+                name="bankName"
+                value={form.bankName}
+                onChange={handleInputChange}
+                placeholder="은행명 (예: 카카오뱅크)"
+              />
+              <input
+                type="text"
+                name="bankAccount"
+                value={form.bankAccount}
+                onChange={handleInputChange}
+                placeholder="계좌번호"
+              />
+              <input
+                type="text"
+                name="bankHolder"
+                value={form.bankHolder}
+                onChange={handleInputChange}
+                placeholder="예금주"
+              />
+            </div>
+          )}
+          {form.paymentCollectionType === 'PG' && (
+            <p className={styles.hint}>PG 결제 기능은 준비 중입니다</p>
+          )}
         </div>
 
         {/* 권종 선택 및 가격 설정 */}

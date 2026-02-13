@@ -88,6 +88,11 @@ public class Schedule {
 
     private String entryNumberType;  // 입장순 타입: NONE, RESERVATION_ORDER, RANDOM
 
+    private String paymentCollectionType;  // 결제 수단: BANK, PG
+    private String bankName;       // 입금 은행명
+    private String bankAccount;    // 입금 계좌번호
+    private String bankHolder;     // 예금주
+
     @Builder.Default
     private Integer version = 1;
 
