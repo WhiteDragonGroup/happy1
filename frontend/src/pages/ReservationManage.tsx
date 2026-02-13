@@ -10,7 +10,8 @@ import {
   Search,
   Users,
   LogIn,
-  Clock
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { reservationAPI } from '../api';
@@ -27,7 +28,9 @@ export default function ReservationManage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [entryToast, setEntryToast] = useState<string | null>(null);
   const scannerRef = useRef<any>(null);
+  const processingRef = useRef(false);
   const scannerElementId = 'qr-reader';
 
   const schedule = schedules.find(s => String(s.id) === scheduleId);
@@ -74,9 +77,12 @@ export default function ReservationManage() {
       try {
         await scanner.start(
           { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 200, height: 200 } },
+          { fps: 5, qrbox: { width: 200, height: 200 } },
           async (decodedText) => {
-            // 스캔 성공
+            // 중복 스캔 방지
+            if (processingRef.current) return;
+            processingRef.current = true;
+
             try {
               const res = await reservationAPI.enterByQr(decodedText);
               const enteredReservation = res.data as Reservation;
@@ -90,14 +96,22 @@ export default function ReservationManage() {
                 )
               );
 
-              setScanResult({ type: 'success', message: `${enteredReservation.userName || '예약자'} 입장 처리 완료` });
+              const name = enteredReservation.userName || '예약자';
+              setScanResult({ type: 'success', message: `${name} 입장 처리 완료` });
+
+              // 큰 토스트 알림
+              setEntryToast(`${name} 입장되었습니다`);
+              setTimeout(() => setEntryToast(null), 3000);
             } catch (err: any) {
               const msg = err.response?.data || 'QR코드 처리 실패';
               setScanResult({ type: 'error', message: typeof msg === 'string' ? msg : 'QR코드 처리 실패' });
             }
 
-            // 3초 후 결과 메시지 제거
-            setTimeout(() => setScanResult(null), 3000);
+            // 3초 쿨다운 후 다음 스캔 허용
+            setTimeout(() => {
+              setScanResult(null);
+              processingRef.current = false;
+            }, 3000);
           },
           () => {} // ignore errors during scanning
         );
@@ -427,6 +441,19 @@ export default function ReservationManage() {
           </div>
         )}
       </div>
+
+      {/* 입장 토스트 알림 */}
+      {entryToast && (
+        <motion.div
+          className={styles.entryToast}
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 50 }}
+        >
+          <CheckCircle size={40} />
+          <span>{entryToast}</span>
+        </motion.div>
+      )}
     </div>
   );
 }

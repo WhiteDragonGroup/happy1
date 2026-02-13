@@ -18,7 +18,7 @@ import ArtistPopup from '../components/ArtistPopup';
 import styles from './ScheduleDetail.module.css';
 import type { Reservation } from '../types';
 
-type ReserveStep = 'team' | 'account' | 'confirm' | 'complete';
+type ReserveStep = 'team' | 'ticket' | 'account' | 'confirm' | 'complete';
 
 const BANK_LIST = [
   '카카오뱅크', '국민은행', '신한은행', '하나은행', '우리은행',
@@ -49,6 +49,7 @@ export default function ScheduleDetail() {
   const [reserving, setReserving] = useState(false);
   const [completedReservation, setCompletedReservation] = useState<Reservation | null>(null);
   const [selectedTeamName, setSelectedTeamName] = useState<string | null>(null);
+  const [selectedTicketType, setSelectedTicketType] = useState<string | null>(null);
   const [refundBank, setRefundBank] = useState('');
   const [refundAccount, setRefundAccount] = useState('');
   const [refundHolder, setRefundHolder] = useState('');
@@ -115,6 +116,15 @@ export default function ScheduleDetail() {
   const hasTicketPrice = !!(schedule.priceA || schedule.priceS || schedule.priceR);
   const isFreeSchedule = !hasTicketPrice;
 
+  // 사용 가능한 권종 목록
+  const availableTickets: { type: string; label: string; price: number }[] = [];
+  if (schedule.priceA && Number(schedule.priceA) > 0)
+    availableTickets.push({ type: 'A', label: 'A석', price: Number(schedule.priceA) });
+  if (schedule.priceS && Number(schedule.priceS) > 0)
+    availableTickets.push({ type: 'S', label: 'S석', price: Number(schedule.priceS) });
+  if (schedule.priceR && Number(schedule.priceR) > 0)
+    availableTickets.push({ type: 'R', label: 'R석', price: Number(schedule.priceR) });
+
   const openReserveModal = () => {
     if (!isLoggedIn) {
       navigate('/login');
@@ -123,6 +133,7 @@ export default function ScheduleDetail() {
     setSelectedSlotId(null);
     setCompletedReservation(null);
     setSelectedTeamName(null);
+    setSelectedTicketType(null);
     setRefundBank('');
     setRefundAccount('');
     setRefundHolder('');
@@ -131,7 +142,15 @@ export default function ScheduleDetail() {
     // 팀이 0~1개면 자동 선택 후 다음 단계로
     if (teamNames.length <= 1) {
       if (teamNames.length === 1) setSelectedTeamName(teamNames[0]);
-      setReserveStep(isFreeSchedule ? 'confirm' : 'account');
+      // 권종이 여러개면 ticket 단계, 1개면 자동선택 후 스킵
+      if (availableTickets.length > 1) {
+        setReserveStep('ticket');
+      } else if (availableTickets.length === 1) {
+        setSelectedTicketType(availableTickets[0].type);
+        setReserveStep('account');
+      } else {
+        setReserveStep(isFreeSchedule ? 'confirm' : 'account');
+      }
     } else {
       setReserveStep('team');
     }
@@ -145,6 +164,7 @@ export default function ScheduleDetail() {
         scheduleId: schedule.id,
         timeSlotId: selectedSlotId || 0,
         paymentMethod: 'BANK',
+        ticketType: selectedTicketType || undefined,
         selectedTeamName: selectedTeamName || undefined,
         refundBank: refundBank || undefined,
         refundAccount: refundAccount || undefined,
@@ -391,7 +411,16 @@ export default function ScheduleDetail() {
                   className="btn btn-primary"
                   style={{ width: '100%' }}
                   disabled={!selectedTeamName}
-                  onClick={() => setReserveStep(isFreeSchedule ? 'confirm' : 'account')}
+                  onClick={() => {
+                    if (availableTickets.length > 1) {
+                      setReserveStep('ticket');
+                    } else if (availableTickets.length === 1) {
+                      setSelectedTicketType(availableTickets[0].type);
+                      setReserveStep(isFreeSchedule ? 'confirm' : 'account');
+                    } else {
+                      setReserveStep(isFreeSchedule ? 'confirm' : 'account');
+                    }
+                  }}
                 >
                   다음
                 </button>
@@ -401,7 +430,64 @@ export default function ScheduleDetail() {
               </>
             )}
 
-            {/* Step 2: 환불 계좌 입력 */}
+            {/* Step 2: 권종 선택 */}
+            {reserveStep === 'ticket' && (
+              <>
+                <h3 className={styles.modalTitle}>권종 선택</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                  {availableTickets.map(ticket => (
+                    <div
+                      key={ticket.type}
+                      onClick={() => setSelectedTicketType(ticket.type)}
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        border: selectedTicketType === ticket.type
+                          ? '2px solid var(--neon-pink)'
+                          : '1px solid var(--border-color)',
+                        background: selectedTicketType === ticket.type
+                          ? 'var(--neon-pink-glow, rgba(255,0,128,0.08))'
+                          : 'var(--bg-card)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      <span style={{ fontWeight: selectedTicketType === ticket.type ? 600 : 400 }}>
+                        {ticket.label}
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+                        {ticket.price.toLocaleString()}원
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={!selectedTicketType}
+                  onClick={() => setReserveStep('account')}
+                >
+                  다음
+                </button>
+                <button
+                  className={styles.modalClose}
+                  onClick={() => {
+                    if (teamNames.length > 1) {
+                      setReserveStep('team');
+                    } else {
+                      setShowReserveModal(false);
+                    }
+                  }}
+                >
+                  {teamNames.length > 1 ? '뒤로' : '취소'}
+                </button>
+              </>
+            )}
+
+            {/* Step 3: 환불 계좌 입력 */}
             {reserveStep === 'account' && (
               <>
                 <h3 className={styles.modalTitle}>환불 계좌 입력</h3>
@@ -468,19 +554,21 @@ export default function ScheduleDetail() {
                 <button
                   className={styles.modalClose}
                   onClick={() => {
-                    if (teamNames.length > 1) {
+                    if (availableTickets.length > 1) {
+                      setReserveStep('ticket');
+                    } else if (teamNames.length > 1) {
                       setReserveStep('team');
                     } else {
                       setShowReserveModal(false);
                     }
                   }}
                 >
-                  {teamNames.length > 1 ? '뒤로' : '취소'}
+                  뒤로
                 </button>
               </>
             )}
 
-            {/* Step 3: 최종 확인 */}
+            {/* Step 4: 최종 확인 */}
             {reserveStep === 'confirm' && (
               <>
                 <h3 className={styles.modalTitle}>예약 확인</h3>
@@ -493,18 +581,11 @@ export default function ScheduleDetail() {
                       선택 팀: {selectedTeamName}
                     </p>
                   )}
-                  {hasTicketPrice ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                      {schedule.priceA != null && Number(schedule.priceA) > 0 && (
-                        <p className={styles.modalPrice}>A석 {Number(schedule.priceA).toLocaleString()}원</p>
-                      )}
-                      {schedule.priceS != null && Number(schedule.priceS) > 0 && (
-                        <p className={styles.modalPrice}>S석 {Number(schedule.priceS).toLocaleString()}원</p>
-                      )}
-                      {schedule.priceR != null && Number(schedule.priceR) > 0 && (
-                        <p className={styles.modalPrice}>R석 {Number(schedule.priceR).toLocaleString()}원</p>
-                      )}
-                    </div>
+                  {selectedTicketType ? (
+                    <p className={styles.modalPrice}>
+                      {availableTickets.find(t => t.type === selectedTicketType)?.label}{' '}
+                      {availableTickets.find(t => t.type === selectedTicketType)?.price.toLocaleString()}원
+                    </p>
                   ) : (
                     <p className={styles.modalPrice}>무료</p>
                   )}
@@ -544,14 +625,14 @@ export default function ScheduleDetail() {
                 <button
                   className={styles.modalClose}
                   onClick={() => {
-                    if (isFreeSchedule) {
-                      if (teamNames.length > 1) {
-                        setReserveStep('team');
-                      } else {
-                        setShowReserveModal(false);
-                      }
-                    } else {
+                    if (!isFreeSchedule) {
                       setReserveStep('account');
+                    } else if (availableTickets.length > 1) {
+                      setReserveStep('ticket');
+                    } else if (teamNames.length > 1) {
+                      setReserveStep('team');
+                    } else {
+                      setShowReserveModal(false);
                     }
                   }}
                   disabled={reserving}

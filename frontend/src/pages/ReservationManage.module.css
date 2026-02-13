@@ -356,6 +356,32 @@
   color: var(--text-secondary);
 }
 
+/* 입장 토스트 */
+.entryToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 48px;
+  background: rgba(10, 10, 15, 0.95);
+  border: 2px solid var(--neon-green);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 40px rgba(34, 255, 102, 0.3);
+  z-index: 1000;
+  color: var(--neon-green);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.entryToast svg {
+  color: var(--neon-green);
+}
+
 @media (min-width: 640px) {
   .container {
     padding: 24px;

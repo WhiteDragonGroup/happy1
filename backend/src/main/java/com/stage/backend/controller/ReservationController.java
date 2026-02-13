@@ -74,10 +74,17 @@ public class ReservationController {
                         }
                     }
 
-                    // 금액 설정
-                    BigDecimal amount = schedule.getAdvancePrice() != null
-                            ? schedule.getAdvancePrice()
-                            : BigDecimal.ZERO;
+                    // 권종 & 금액 설정
+                    String ticketType = body.get("ticketType") != null
+                            ? (String) body.get("ticketType") : null;
+                    BigDecimal amount = BigDecimal.ZERO;
+                    if ("A".equals(ticketType) && schedule.getPriceA() != null) {
+                        amount = schedule.getPriceA();
+                    } else if ("S".equals(ticketType) && schedule.getPriceS() != null) {
+                        amount = schedule.getPriceS();
+                    } else if ("R".equals(ticketType) && schedule.getPriceR() != null) {
+                        amount = schedule.getPriceR();
+                    }
 
                     // 새 필드 추출
                     String selectedTeamName = body.get("selectedTeamName") != null
@@ -98,6 +105,7 @@ public class ReservationController {
                             .paymentStatus(Reservation.PaymentStatus.PENDING)
                             .reservationStatus(Reservation.ReservationStatus.PENDING)
                             .amount(amount)
+                            .ticketType(ticketType)
                             .selectedTeamName(selectedTeamName)
                             .refundBank(refundBank)
                             .refundAccount(refundAccount)

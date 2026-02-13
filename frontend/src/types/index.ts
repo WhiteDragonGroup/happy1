@@ -89,6 +89,7 @@ export interface Reservation {
   reservationStatus: ReservationStatus;
   paymentMethod: 'CARD' | 'BANK';
   amount: number;
+  ticketType?: string;
   selectedTeamName?: string;
   refundBank?: string;
   refundAccount?: string;

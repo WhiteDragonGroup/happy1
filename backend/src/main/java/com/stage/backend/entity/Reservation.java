@@ -112,7 +112,8 @@ public class Reservation {
 
     private LocalDateTime enteredAt;
 
-    // === 팀 선택 / 환불계좌 ===
+    // === 권종 / 팀 선택 / 환불계좌 ===
+    private String ticketType;  // A, S, R, FREE 등
     private String selectedTeamName;
     private String refundBank;
     private String refundAccount;
