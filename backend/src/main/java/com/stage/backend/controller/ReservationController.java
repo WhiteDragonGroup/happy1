@@ -252,4 +252,23 @@ public class ReservationController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // 10. 매니저 예약 취소 (MANAGER/ADMIN)
+    @PostMapping("/{id}/manager-cancel")
+    public ResponseEntity<?> managerCancel(@PathVariable Long id,
+                                           @AuthenticationPrincipal User user) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    Schedule schedule = reservation.getSchedule();
+                    if (!schedule.getManager().getId().equals(user.getId()) &&
+                            user.getRole() != User.Role.ADMIN) {
+                        return ResponseEntity.status(403).body("권한이 없습니다.");
+                    }
+
+                    reservation.setReservationStatus(Reservation.ReservationStatus.CANCELLED);
+                    reservation.setPaymentStatus(Reservation.PaymentStatus.CANCELLED);
+                    return ResponseEntity.ok(reservationRepository.save(reservation));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

@@ -181,6 +181,23 @@ export default function ReservationManage() {
     }
   };
 
+  // 예약 취소 (매니저)
+  const handleManagerCancel = async (reservationId: number) => {
+    if (!confirm('이 예약을 취소하시겠습니까?')) return;
+    try {
+      await reservationAPI.managerCancel(reservationId);
+      setReservationList(prev =>
+        prev.map(r =>
+          r.id === reservationId
+            ? { ...r, reservationStatus: 'CANCELLED' as const, paymentStatus: 'CANCELLED' as const }
+            : r
+        )
+      );
+    } catch (err: any) {
+      alert(err.response?.data || '예약 취소에 실패했습니다.');
+    }
+  };
+
   // 입장 취소
   const handleCancelEnter = async (reservationId: number) => {
     try {
@@ -386,6 +403,9 @@ export default function ReservationManage() {
                     {reservation.reservationStatus === 'USED' && (
                       <span className={`${styles.badge} ${styles.purple}`}>입장완료</span>
                     )}
+                    {reservation.reservationStatus === 'CANCELLED' && (
+                      <span className={`${styles.badge} ${styles.red}`}>취소</span>
+                    )}
                     {/* 결제 방법 */}
                     <span className={styles.badge}>
                       {reservation.paymentMethod === 'CARD' ? '카드' : '계좌이체'}
@@ -399,36 +419,49 @@ export default function ReservationManage() {
                 </div>
 
                 <div className={styles.reservationActions}>
-                  {reservation.isEntered ? (
-                    <button
-                      className={styles.cancelBtn}
-                      onClick={() => handleCancelEnter(reservation.id)}
-                    >
-                      입장취소
-                    </button>
+                  {reservation.reservationStatus === 'CANCELLED' ? (
+                    <span className={`${styles.badge} ${styles.red}`} style={{ padding: '8px 12px', fontSize: '0.8125rem' }}>취소됨</span>
                   ) : (
-                    <button
-                      className={styles.enterBtn}
-                      onClick={() => handleEnter(reservation.id)}
-                    >
-                      <LogIn size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-                      입장
-                    </button>
-                  )}
-                  {reservation.paymentStatus === 'COMPLETED' ? (
-                    <button
-                      className={styles.cancelBtn}
-                      onClick={() => handleCancelPayment(reservation.id)}
-                    >
-                      입금취소
-                    </button>
-                  ) : reservation.paymentStatus === 'PENDING' && (
-                    <button
-                      className={styles.confirmBtn}
-                      onClick={() => handleConfirmPayment(reservation.id)}
-                    >
-                      입금확인
-                    </button>
+                    <>
+                      {reservation.isEntered ? (
+                        <button
+                          className={styles.cancelBtn}
+                          onClick={() => handleCancelEnter(reservation.id)}
+                        >
+                          입장취소
+                        </button>
+                      ) : (
+                        <button
+                          className={styles.enterBtn}
+                          onClick={() => handleEnter(reservation.id)}
+                        >
+                          <LogIn size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+                          입장
+                        </button>
+                      )}
+                      {reservation.paymentStatus === 'COMPLETED' ? (
+                        <button
+                          className={styles.cancelBtn}
+                          onClick={() => handleCancelPayment(reservation.id)}
+                        >
+                          입금취소
+                        </button>
+                      ) : reservation.paymentStatus === 'PENDING' && (
+                        <button
+                          className={styles.confirmBtn}
+                          onClick={() => handleConfirmPayment(reservation.id)}
+                        >
+                          입금확인
+                        </button>
+                      )}
+                      <button
+                        className={styles.cancelBtn}
+                        onClick={() => handleManagerCancel(reservation.id)}
+                        style={{ fontSize: '0.75rem', padding: '6px 12px' }}
+                      >
+                        예약취소
+                      </button>
+                    </>
                   )}
                 </div>
               </motion.div>

@@ -361,6 +361,13 @@ export default function ScheduleDetail() {
               <CheckCircle2 size={18} />
               예약완료
             </button>
+          ) : schedule.ticketOpenDateTime && new Date(schedule.ticketOpenDateTime) > new Date() ? (
+            <button className="btn btn-secondary" style={{ width: '100%' }} disabled>
+              <Clock size={18} />
+              {new Date(schedule.ticketOpenDateTime).toLocaleString('ko-KR', {
+                month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+              })} 오픈
+            </button>
           ) : (
             <button
               className="btn btn-primary"

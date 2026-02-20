@@ -273,6 +273,11 @@
   color: var(--neon-purple);
 }
 
+.badge.red {
+  background: rgba(255, 45, 106, 0.1);
+  color: var(--neon-pink);
+}
+
 .enteredTime {
   font-size: 0.6875rem;
   color: var(--neon-green);

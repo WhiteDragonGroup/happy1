@@ -84,6 +84,7 @@ export const reservationAPI = {
   cancelEnter: (id: number) => api.post(`/reservations/${id}/cancel-enter`),
   enterByQr: (qrCode: string) => api.post(`/reservations/qr/${qrCode}`),
   cancel: (id: number) => api.post(`/reservations/${id}/cancel`),
+  managerCancel: (id: number) => api.post(`/reservations/${id}/manager-cancel`),
 };
 
 // User API
