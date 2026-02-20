@@ -511,9 +511,7 @@ export default function ScheduleDetail() {
                       border: '1px solid var(--border-color)',
                       background: 'var(--bg-card)',
                       color: 'var(--text-primary)',
-                      fontSize: '0.9375rem',
-                      appearance: 'none',
-                      WebkitAppearance: 'none'
+                      fontSize: '0.9375rem'
                     }}
                   >
                     <option value="">은행 선택</option>
