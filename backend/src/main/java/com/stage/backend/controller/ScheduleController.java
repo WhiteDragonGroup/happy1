@@ -122,8 +122,9 @@ public class ScheduleController {
                 .filter(s -> s.getManager().getId().equals(user.getId()) ||
                         user.getRole() == User.Role.ADMIN)
                 .map(s -> {
-                    // 예약자가 있으면 삭제 불가
-                    long reservationCount = reservationRepository.countBySchedule_Id(id);
+                    // 활성 예약자가 있으면 삭제 불가 (취소된 예약 제외)
+                    long reservationCount = reservationRepository.countByScheduleAndReservationStatusNot(
+                            s, com.stage.backend.entity.Reservation.ReservationStatus.CANCELLED);
                     if (reservationCount > 0) {
                         return ResponseEntity.badRequest().body("예약자가 " + reservationCount + "명 있어 삭제할 수 없습니다.");
                     }
