@@ -59,7 +59,10 @@ export default function ScheduleDetail() {
 
   // 파생 데이터
   const existingReservation = schedule
-    ? reservations.find(r => r.scheduleId === schedule.id && r.reservationStatus !== 'CANCELLED')
+    ? reservations.find(r => {
+        const rScheduleId = r.scheduleId || r.schedule?.id;
+        return rScheduleId === schedule.id && r.reservationStatus !== 'CANCELLED';
+      })
     : null;
   const isManagerOrAdmin = user && schedule
     ? (schedule.managerId === user.id || user.role === 'ADMIN')
@@ -98,8 +101,8 @@ export default function ScheduleDetail() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: schedule.title,
-          text: `${schedule.team?.name} - ${schedule.title}`,
+          title: `티켓스테이지 - ${schedule.title}`,
+          text: `${schedule.organizer || ''} ${schedule.title}`.trim(),
           url: window.location.href
         });
       } catch (err) {
@@ -210,11 +213,20 @@ export default function ScheduleDetail() {
       >
         {/* 포스터 */}
         <div className={styles.posterSection}>
-          <img
-            src={schedule.imageUrl || 'https://picsum.photos/400/600'}
-            alt={schedule.title}
-            className={styles.poster}
-          />
+          {schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? (
+            <img
+              src={schedule.imageUrl}
+              alt={schedule.title}
+              className={styles.poster}
+            />
+          ) : (
+            <div className={styles.poster} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--bg-card)', color: 'var(--text-muted)', fontSize: '0.875rem'
+            }}>
+              포스터 없음
+            </div>
+          )}
         </div>
 
         {/* 정보 */}
@@ -292,8 +304,18 @@ export default function ScheduleDetail() {
 
           {/* 입금 계좌 정보 */}
           {schedule.bankAccount && hasTicketPrice && (
-            <div className={styles.priceSection}>
-              <h3 className={styles.sectionLabel}>입금 계좌</h3>
+            <div
+              className={styles.priceSection}
+              onClick={() => {
+                const text = `${schedule.bankName} ${schedule.bankAccount}`;
+                navigator.clipboard.writeText(text).then(() => {
+                  const el = document.getElementById('copy-toast');
+                  if (el) { el.style.opacity = '1'; setTimeout(() => { el.style.opacity = '0'; }, 1500); }
+                });
+              }}
+              style={{ cursor: 'pointer', position: 'relative' }}
+            >
+              <h3 className={styles.sectionLabel}>입금 계좌 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400 }}>터치하면 복사</span></h3>
               <div className={styles.priceList}>
                 <div className={styles.priceItem}>
                   <Ticket size={16} />
@@ -301,38 +323,82 @@ export default function ScheduleDetail() {
                   <span className={styles.priceValue}>{schedule.bankHolder}</span>
                 </div>
               </div>
+              <div id="copy-toast" style={{
+                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                background: 'rgba(0,0,0,0.8)', color: '#fff', padding: '8px 16px',
+                borderRadius: 'var(--radius-md)', fontSize: '0.8125rem',
+                opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none'
+              }}>
+                복사됨!
+              </div>
             </div>
           )}
 
           {/* 타임테이블 */}
-          {schedule.timeSlots && schedule.timeSlots.length > 0 && (
-            <div className={styles.timeSlotsSection}>
-              <h3 className={styles.sectionLabel}>타임테이블</h3>
-              <div className={styles.timeSlots}>
-                {schedule.timeSlots.map((slot, idx) => (
-                  <div key={slot.id || idx} className={styles.timeSlot}>
-                    <Clock size={16} />
-                    <span className={styles.slotTime}>
-                      {slot.startTime?.slice(0, 5)}
-                      {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
-                    </span>
-                    {slot.teamName && (
-                      <span
-                        className={styles.slotTeam}
-                        onClick={() => setSelectedArtist(slot.teamName || null)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {slot.teamName}
-                      </span>
-                    )}
-                    {slot.description && (
-                      <span className={styles.slotDesc}>{slot.description}</span>
-                    )}
+          {schedule.timeSlots && schedule.timeSlots.length > 0 && (() => {
+            const perfSlots = schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING');
+            const fanSlots = schedule.timeSlots.filter(s => s.slotType === 'FANMEETING');
+            return (
+              <>
+                {perfSlots.length > 0 && (
+                  <div className={styles.timeSlotsSection}>
+                    <h3 className={styles.sectionLabel}>타임테이블</h3>
+                    <div className={styles.timeSlots}>
+                      {perfSlots.map((slot, idx) => (
+                        <div key={slot.id || idx} className={styles.timeSlot}>
+                          <Clock size={16} />
+                          <span className={styles.slotTime}>
+                            {slot.startTime?.slice(0, 5)}
+                            {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                          </span>
+                          {slot.teamName && (
+                            <span
+                              className={styles.slotTeam}
+                              onClick={() => setSelectedArtist(slot.teamName || null)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {slot.teamName}
+                            </span>
+                          )}
+                          {slot.description && (
+                            <span className={styles.slotDesc}>{slot.description}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                )}
+                {fanSlots.length > 0 && (
+                  <div className={styles.timeSlotsSection}>
+                    <h3 className={styles.sectionLabel}>팬미팅</h3>
+                    <div className={styles.timeSlots}>
+                      {fanSlots.map((slot, idx) => (
+                        <div key={slot.id || idx} className={styles.timeSlot} style={{ borderLeftColor: 'var(--neon-purple)' }}>
+                          <Clock size={16} style={{ color: 'var(--neon-purple)' }} />
+                          <span className={styles.slotTime}>
+                            {slot.startTime?.slice(0, 5)}
+                            {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                          </span>
+                          {slot.teamName && (
+                            <span
+                              className={styles.slotTeam}
+                              onClick={() => setSelectedArtist(slot.teamName || null)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {slot.teamName}
+                            </span>
+                          )}
+                          {slot.description && (
+                            <span className={styles.slotDesc}>{slot.description}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {/* 안내사항 */}
           {schedule.description && (
@@ -360,6 +426,11 @@ export default function ScheduleDetail() {
             <button className="btn btn-secondary" style={{ width: '100%' }} disabled>
               <CheckCircle2 size={18} />
               예약완료
+            </button>
+          ) : schedule.date < new Date().toISOString().split('T')[0] ? (
+            <button className="btn btn-secondary" style={{ width: '100%' }} disabled>
+              <Clock size={18} />
+              공연 종료
             </button>
           ) : schedule.ticketOpenDateTime && new Date(schedule.ticketOpenDateTime) > new Date() ? (
             <button className="btn btn-secondary" style={{ width: '100%' }} disabled>

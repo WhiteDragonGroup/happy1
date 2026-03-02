@@ -7,4 +7,5 @@ import java.util.List;
 public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findByNameContainingIgnoreCase(String name);
     List<Team> findByGenreContainingIgnoreCase(String genre);
+    List<Team> findByKoreanNameContainingIgnoreCase(String koreanName);
 }

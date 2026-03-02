@@ -16,6 +16,7 @@ interface TimeSlotInput {
   endTime: string;
   teamName: string;
   description: string;
+  slotType: string;
 }
 
 interface FormState {
@@ -62,7 +63,7 @@ export default function EditSchedule() {
     publicDateTime: '',
     ticketOpenDateTime: '',
     ticketTypes: [],
-    timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+    timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '', slotType: 'PERFORMANCE' }],
     openTime: '',
     priceA: '',
     priceS: '',
@@ -115,9 +116,10 @@ export default function EditSchedule() {
               startTime: slot.startTime?.substring(0, 5) || '',
               endTime: slot.endTime?.substring(0, 5) || '',
               teamName: slot.teamName || '',
-              description: slot.description || ''
+              description: slot.description || '',
+              slotType: slot.slotType || 'PERFORMANCE'
             }))
-          : [{ startTime: '', endTime: '', teamName: '', description: '' }],
+          : [{ startTime: '', endTime: '', teamName: '', description: '', slotType: 'PERFORMANCE' }],
         openTime: schedule.openTime?.substring(0, 5) || '',
         priceA: schedule.priceA?.toString() || '',
         priceS: schedule.priceS?.toString() || '',
@@ -182,7 +184,8 @@ export default function EditSchedule() {
         startTime: newStartTime,
         endTime: '',
         teamName: '',
-        description: ''
+        description: '',
+        slotType: 'PERFORMANCE'
       }],
     }));
   };
@@ -244,6 +247,7 @@ export default function EditSchedule() {
             endTime: slot.endTime.length === 5 ? slot.endTime + ':00' : slot.endTime,
             teamName: slot.teamName,
             description: slot.description || null,
+            slotType: slot.slotType || 'PERFORMANCE',
           })),
       };
 
@@ -553,15 +557,32 @@ export default function EditSchedule() {
               <div key={index} className={styles.timeSlotCard}>
                 <div className={styles.timeSlotHeader}>
                   <span className={styles.slotNumber}>#{index + 1}</span>
-                  {form.timeSlots.length > 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
                     <button
                       type="button"
-                      className={styles.removeBtn}
-                      onClick={() => removeTimeSlot(index)}
+                      style={{
+                        fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
+                        border: `1px solid ${slot.slotType === 'FANMEETING' ? 'var(--neon-purple)' : 'var(--border-color)'}`,
+                        background: slot.slotType === 'FANMEETING' ? 'rgba(168,85,247,0.2)' : 'transparent',
+                        color: slot.slotType === 'FANMEETING' ? 'var(--neon-purple)' : 'var(--text-muted)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleTimeSlotChange(index, 'slotType',
+                        slot.slotType === 'FANMEETING' ? 'PERFORMANCE' : 'FANMEETING'
+                      )}
                     >
-                      <Trash2 size={16} />
+                      {slot.slotType === 'FANMEETING' ? '팬미팅' : '공연'}
                     </button>
-                  )}
+                    {form.timeSlots.length > 1 && (
+                      <button
+                        type="button"
+                        className={styles.removeBtn}
+                        onClick={() => removeTimeSlot(index)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.timeRow}>
                   <div className={styles.timeField}>

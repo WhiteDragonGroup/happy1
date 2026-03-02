@@ -35,6 +35,8 @@ public class Team {
 
     private String genre;
 
+    private String koreanName;
+
     private String imageUrl;
 
     private String xUrl;

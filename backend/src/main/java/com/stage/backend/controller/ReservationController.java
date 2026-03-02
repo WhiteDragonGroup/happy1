@@ -50,6 +50,11 @@ public class ReservationController {
 
         return scheduleRepository.findById(scheduleId)
                 .map(schedule -> {
+                    // 공연 날짜 지남 체크
+                    if (schedule.getDate() != null && schedule.getDate().isBefore(java.time.LocalDate.now())) {
+                        return ResponseEntity.badRequest().body("공연이 종료되어 예약할 수 없습니다.");
+                    }
+
                     // 중복 예약 체크
                     if (reservationRepository.existsByUserAndSchedule(user, schedule)) {
                         return ResponseEntity.badRequest().body("이미 예약한 일정입니다.");

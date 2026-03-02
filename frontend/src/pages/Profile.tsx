@@ -68,11 +68,7 @@ export default function Profile() {
             position: 'relative',
             cursor: 'pointer'
           }}>
-            {user?.profileImage ? (
-              <img src={user.profileImage} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-            ) : (
-              <User size={40} color="var(--text-muted)" />
-            )}
+            <User size={40} color="var(--text-muted)" />
             <div style={{
               position: 'absolute',
               bottom: 0,

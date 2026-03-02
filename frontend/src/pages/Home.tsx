@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, Search, Calendar, X } from 'lucide-react';
@@ -16,6 +16,22 @@ export default function Home() {
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
+
+  // 스와이프 관련
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx > 0) prevMonth();
+      else nextMonth();
+    }
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -109,7 +125,7 @@ export default function Home() {
   return (
     <div className="page">
       <header className={`page-header ${styles.header}`}>
-        <h1 className={styles.logo}>STAGE</h1>
+        <h1 className={styles.logo}>티켓스테이지</h1>
         <div className={styles.headerActions}>
           <button onClick={() => setShowSearch(!showSearch)} className={styles.iconBtn}>
             <Search size={20} />
@@ -212,6 +228,8 @@ export default function Home() {
             className={styles.monthTitle}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            onClick={() => setShowDatePicker(!showDatePicker)}
+            style={{ cursor: 'pointer' }}
           >
             {year}년 {month + 1}월
           </motion.h2>
@@ -233,7 +251,7 @@ export default function Home() {
         </div>
 
         {/* 캘린더 그리드 */}
-        <div className={styles.calendar}>
+        <div className={styles.calendar} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           <AnimatePresence mode="wait">
             <motion.div
               key={`${year}-${month}`}

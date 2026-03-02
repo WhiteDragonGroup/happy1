@@ -36,11 +36,17 @@ public class TeamController {
 
     @GetMapping("/search")
     public ResponseEntity<List<Team>> search(@RequestParam String q) {
-        // 팀 이름 + 멤버 이름으로 검색
+        // 팀 이름 + 한글명 + 장르로 검색
         List<Team> byName = teamRepository.findByNameContainingIgnoreCase(q);
+        List<Team> byKoreanName = teamRepository.findByKoreanNameContainingIgnoreCase(q);
         List<Team> byGenre = teamRepository.findByGenreContainingIgnoreCase(q);
         // 중복 제거 후 합치기
         java.util.Set<Long> ids = byName.stream().map(Team::getId).collect(java.util.stream.Collectors.toSet());
+        for (Team t : byKoreanName) {
+            if (ids.add(t.getId())) {
+                byName.add(t);
+            }
+        }
         for (Team t : byGenre) {
             if (ids.add(t.getId())) {
                 byName.add(t);
@@ -67,6 +73,7 @@ public class TeamController {
         return teamRepository.findById(id)
                 .map(team -> {
                     team.setName(teamData.getName());
+                    team.setKoreanName(teamData.getKoreanName());
                     team.setDescription(teamData.getDescription());
                     team.setGenre(teamData.getGenre());
                     team.setXUrl(teamData.getXUrl());

@@ -10,7 +10,7 @@ import {
   X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { scheduleAPI } from '../api';
+import { scheduleAPI, imageAPI } from '../api';
 import type { Schedule } from '../types';
 import styles from './CreateSchedule.module.css';
 
@@ -19,6 +19,7 @@ interface TimeSlotInput {
   endTime: string;
   teamName: string;
   description: string;
+  slotType: string;
 }
 
 interface FormState {
@@ -63,7 +64,7 @@ const DEFAULT_FORM: FormState = {
   publicDateTime: '',
   ticketOpenDateTime: '',
   ticketTypes: [],
-  timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '' }],
+  timeSlots: [{ startTime: '', endTime: '', teamName: '', description: '', slotType: 'PERFORMANCE' }],
   openTime: '',
   advancePrice: '',
   doorPrice: '',
@@ -166,8 +167,9 @@ export default function CreateSchedule() {
             endTime: ts.endTime ? ts.endTime.slice(0, 5) : '',
             teamName: ts.teamName || '',
             description: ts.description || '',
+            slotType: ts.slotType || 'PERFORMANCE',
           }))
-        : [{ startTime: '', endTime: '', teamName: '', description: '' }],
+        : [{ startTime: '', endTime: '', teamName: '', description: '', slotType: 'PERFORMANCE' }],
       openTime: schedule.openTime ? schedule.openTime.slice(0, 5) : '',
       advancePrice: schedule.advancePrice != null ? String(schedule.advancePrice) : '',
       doorPrice: schedule.doorPrice != null ? String(schedule.doorPrice) : '',
@@ -235,7 +237,8 @@ export default function CreateSchedule() {
         startTime: newStartTime,
         endTime: '',
         teamName: '',
-        description: ''
+        description: '',
+        slotType: 'PERFORMANCE'
       }],
     }));
   };
@@ -282,6 +285,19 @@ export default function CreateSchedule() {
         return;
       }
 
+      // 포스터 이미지 업로드
+      let imageUrl: string | null = null;
+      if (form.posterImage) {
+        try {
+          const uploadRes = await imageAPI.upload(form.posterImage);
+          imageUrl = uploadRes.data.url;
+        } catch {
+          alert('포스터 이미지 업로드에 실패했습니다.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const scheduleData = {
         title: form.title,
         organizer: form.organizer || '',
@@ -303,7 +319,7 @@ export default function CreateSchedule() {
         bankName: form.paymentCollectionType === 'BANK' ? form.bankName : null,
         bankAccount: form.paymentCollectionType === 'BANK' ? form.bankAccount : null,
         bankHolder: form.paymentCollectionType === 'BANK' ? form.bankHolder : null,
-        imageUrl: null,
+        imageUrl,
         isPublished: true,
         timeSlots: form.timeSlots
           .filter(slot => slot.startTime && slot.endTime && slot.teamName)
@@ -312,6 +328,7 @@ export default function CreateSchedule() {
             endTime: slot.endTime + ':00',
             teamName: slot.teamName,
             description: slot.description || null,
+            slotType: slot.slotType || 'PERFORMANCE',
           })),
       };
 
@@ -699,15 +716,32 @@ export default function CreateSchedule() {
               <div key={index} className={styles.timeSlotCard}>
                 <div className={styles.timeSlotHeader}>
                   <span className={styles.slotNumber}>#{index + 1}</span>
-                  {form.timeSlots.length > 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
                     <button
                       type="button"
-                      className={styles.removeBtn}
-                      onClick={() => removeTimeSlot(index)}
+                      style={{
+                        fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
+                        border: `1px solid ${slot.slotType === 'FANMEETING' ? 'var(--neon-purple)' : 'var(--border-color)'}`,
+                        background: slot.slotType === 'FANMEETING' ? 'rgba(168,85,247,0.2)' : 'transparent',
+                        color: slot.slotType === 'FANMEETING' ? 'var(--neon-purple)' : 'var(--text-muted)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleTimeSlotChange(index, 'slotType',
+                        slot.slotType === 'FANMEETING' ? 'PERFORMANCE' : 'FANMEETING'
+                      )}
                     >
-                      <Trash2 size={16} />
+                      {slot.slotType === 'FANMEETING' ? '팬미팅' : '공연'}
                     </button>
-                  )}
+                    {form.timeSlots.length > 1 && (
+                      <button
+                        type="button"
+                        className={styles.removeBtn}
+                        onClick={() => removeTimeSlot(index)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.timeRow}>
                   <div className={styles.timeField}>

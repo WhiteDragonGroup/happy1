@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Edit2, Music, X, Check } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit2, Music, X, Check, Camera } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { teamAPI } from '../api';
+import { teamAPI, imageAPI } from '../api';
 import styles from './common.module.css';
 
 interface Artist {
@@ -22,7 +22,9 @@ export default function AdminArtists() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingArtist, setEditingArtist] = useState<Artist | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', genre: '', xUrl: '' });
+  const [form, setForm] = useState({ name: '', koreanName: '', description: '', genre: '', xUrl: '' });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -59,7 +61,9 @@ export default function AdminArtists() {
 
   const openAddModal = () => {
     setEditingArtist(null);
-    setForm({ name: '', description: '', genre: '', xUrl: '' });
+    setForm({ name: '', koreanName: '', description: '', genre: '', xUrl: '' });
+    setImageFile(null);
+    setImagePreview(null);
     setShowModal(true);
   };
 
@@ -67,11 +71,22 @@ export default function AdminArtists() {
     setEditingArtist(artist);
     setForm({
       name: artist.name,
+      koreanName: (artist as any).koreanName || '',
       description: artist.description || '',
       genre: artist.genre || '',
       xUrl: artist.xUrl || ''
     });
+    setImageFile(null);
+    setImagePreview(artist.imageUrl || null);
     setShowModal(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSave = async () => {
@@ -82,15 +97,22 @@ export default function AdminArtists() {
 
     setSaving(true);
     try {
+      let imageUrl = editingArtist?.imageUrl || undefined;
+      if (imageFile) {
+        const uploadRes = await imageAPI.upload(imageFile);
+        imageUrl = uploadRes.data.url;
+      }
+      const payload = { ...form, imageUrl };
+
       if (editingArtist) {
         // 수정
-        await teamAPI.update(editingArtist.id, form);
+        await teamAPI.update(editingArtist.id, payload);
         setArtists(artists.map(a =>
-          a.id === editingArtist.id ? { ...a, ...form } : a
+          a.id === editingArtist.id ? { ...a, ...payload } : a
         ));
       } else {
         // 추가
-        const res = await teamAPI.create(form);
+        const res = await teamAPI.create(payload);
         setArtists([...artists, res.data]);
       }
       setShowModal(false);
@@ -156,7 +178,14 @@ export default function AdminArtists() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.03 }}
               >
-                <div className={styles.cardHeader}>
+                <div className={styles.cardHeader} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {artist.imageUrl && (
+                    <img
+                      src={artist.imageUrl}
+                      alt={artist.name}
+                      style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border-color)' }}
+                    />
+                  )}
                   <div>
                     <span className={styles.cardTitle}>{artist.name}</span>
                     {artist.genre && (
@@ -209,6 +238,26 @@ export default function AdminArtists() {
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formGroup}>
+                <label>아티스트 이미지</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <label style={{
+                    width: 72, height: 72, borderRadius: '50%', border: '2px dashed var(--border-color)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                    overflow: 'hidden', background: 'var(--bg-secondary)', flexShrink: 0
+                  }}>
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <Camera size={24} style={{ color: 'var(--text-muted)' }} />
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                  </label>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    {imageFile ? imageFile.name : '클릭하여 이미지 선택'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.formGroup}>
                 <label>그룹명 *</label>
                 <input
                   type="text"
@@ -216,6 +265,15 @@ export default function AdminArtists() {
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   placeholder="아티스트/팀 이름"
                   autoFocus
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>한글명</label>
+                <input
+                  type="text"
+                  value={form.koreanName}
+                  onChange={e => setForm({ ...form, koreanName: e.target.value })}
+                  placeholder="한글 검색용 이름 (선택)"
                 />
               </div>
               <div className={styles.formGroup}>

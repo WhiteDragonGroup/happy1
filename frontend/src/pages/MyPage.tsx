@@ -37,7 +37,7 @@ export default function MyPage() {
         </header>
         <div className={styles.loginPrompt}>
           <div className={styles.logoWrap}>
-            <span className={styles.logo}>STAGE</span>
+            <span className={styles.logo}>티켓스테이지</span>
           </div>
           <h2>로그인하고 시작하세요</h2>
           <p>아티스트 찜, 스케줄 알림 등 다양한 서비스를 이용해보세요</p>
@@ -141,11 +141,7 @@ export default function MyPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className={styles.profileImage}>
-            {user?.profileImage ? (
-              <img src={user.profileImage} alt={user.name} />
-            ) : (
-              <User size={32} />
-            )}
+            <User size={32} />
           </div>
           <div className={styles.profileInfo}>
             <div className={styles.profileName}>

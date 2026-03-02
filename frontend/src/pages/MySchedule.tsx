@@ -126,7 +126,7 @@ export default function MySchedule() {
                 >
                   <div className={styles.posterWrap}>
                     <img
-                      src={reservation.schedule?.imageUrl || 'https://picsum.photos/400/600'}
+                      src={reservation.schedule?.imageUrl && !reservation.schedule.imageUrl.startsWith('blob:') ? reservation.schedule.imageUrl : ''}
                       alt={reservation.schedule?.title}
                       className={styles.poster}
                     />
@@ -202,7 +202,7 @@ export default function MySchedule() {
                 >
                   <div className={styles.posterWrap}>
                     <img
-                      src={schedule.imageUrl || 'https://picsum.photos/400/600'}
+                      src={schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? schedule.imageUrl : ''}
                       alt={schedule.title}
                       className={styles.poster}
                     />

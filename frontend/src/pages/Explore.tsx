@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter, Heart, X } from 'lucide-react';
@@ -119,6 +119,31 @@ export default function Explore() {
     setSelectedDate(now);
   };
 
+  // 스와이프
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      // 날짜 1일씩 이동
+      setSelectedDate(prev => {
+        const d = new Date(prev);
+        d.setDate(d.getDate() + (dx > 0 ? -1 : 1));
+        return d;
+      });
+      setSelectedWeekBase(prev => {
+        const d = new Date(prev);
+        d.setDate(d.getDate() + (dx > 0 ? -1 : 1));
+        return d;
+      });
+    }
+  };
+
   // 현재 주에 표시할 월
   const displayMonth = weekDates[3]; // 주 중간 기준
 
@@ -225,8 +250,11 @@ export default function Explore() {
         )}
 
         {/* 일정 그리드 */}
-        <div className={styles.scheduleGrid}>
-          {filteredSchedules.map((schedule, idx) => (
+        <div className={styles.scheduleGrid} onTouchStart={handleTouchStart} onTouchEnd={handleSwipeEnd}>
+          {filteredSchedules.map((schedule, idx) => {
+            const teamId = getTeamId(schedule);
+            const favColor = isFavorite(teamId) ? getFavoriteColor(teamId) : undefined;
+            return (
             <motion.div
               key={schedule.id}
               className={styles.scheduleCard}
@@ -234,16 +262,20 @@ export default function Explore() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
               onClick={() => navigate(`/schedule/${schedule.id}`)}
+              style={favColor ? {
+                border: `1.5px solid ${favColor}`,
+                boxShadow: `0 0 12px ${favColor}44`
+              } : undefined}
             >
               <div className={styles.posterWrap}>
                 <img
-                  src={schedule.imageUrl || 'https://picsum.photos/400/600'}
+                  src={schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? schedule.imageUrl : ''}
                   alt={schedule.title}
                   className={styles.poster}
                 />
-                {isFavorite(getTeamId(schedule)) && (
-                  <div className={styles.favBadge}>
-                    <Heart size={12} fill="var(--neon-pink)" />
+                {isFavorite(teamId) && (
+                  <div className={styles.favBadge} style={favColor ? { color: favColor } : undefined}>
+                    <Heart size={12} fill={favColor || 'var(--neon-pink)'} />
                   </div>
                 )}
               </div>
@@ -257,7 +289,8 @@ export default function Explore() {
                 </p>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredSchedules.length === 0 && (

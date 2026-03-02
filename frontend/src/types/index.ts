@@ -16,6 +16,7 @@ export interface User {
 export interface Team {
   id: number;
   name: string;
+  koreanName?: string;
   description?: string;
   imageUrl?: string;
   genre?: string;
@@ -29,6 +30,7 @@ export interface TimeSlot {
   endTime: string;
   teamName?: string;
   description?: string;
+  slotType?: string;  // 'PERFORMANCE' | 'FANMEETING'
 }
 
 // 공연 일정

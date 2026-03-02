@@ -38,4 +38,7 @@ public class TimeSlot {
 
     // === 일반 컬럼 ===
     private String description;
+
+    @Column(columnDefinition = "VARCHAR(20) DEFAULT 'PERFORMANCE'")
+    private String slotType;  // PERFORMANCE or FANMEETING
 }

@@ -72,6 +72,17 @@ export const scheduleAPI = {
   delete: (id: number) => api.delete(`/schedules/${id}`),
 };
 
+// Image API
+export const imageAPI = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/images/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+};
+
 // Reservation API
 export const reservationAPI = {
   getAll: () => api.get('/reservations'),

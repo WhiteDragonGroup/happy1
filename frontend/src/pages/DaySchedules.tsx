@@ -9,7 +9,7 @@ import styles from './common.module.css';
 export default function DaySchedules() {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
-  const { schedules, isFavorite, getFavoriteTeams, teams } = useApp();
+  const { schedules, isFavorite, getFavoriteTeams, getFavoriteColor, teams } = useApp();
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamNames = new Set(favoriteTeams.map(t => t.name.toLowerCase()));
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
@@ -93,7 +93,10 @@ export default function DaySchedules() {
           </div>
         ) : (
           <div className={styles.cardList}>
-            {daySchedules.map((schedule, idx) => (
+            {daySchedules.map((schedule, idx) => {
+              const tId = getTeamId(schedule);
+              const favColor = isFavorite(tId) ? getFavoriteColor(tId) : undefined;
+              return (
               <motion.div
                 key={schedule.id}
                 className={styles.card}
@@ -101,7 +104,10 @@ export default function DaySchedules() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 onClick={() => navigate(`/schedule/${schedule.id}`)}
-                style={{ cursor: 'pointer' }}
+                style={{
+                  cursor: 'pointer',
+                  ...(favColor ? { border: `1.5px solid ${favColor}`, boxShadow: `0 0 12px ${favColor}44` } : {})
+                }}
               >
                 <div style={{ display: 'flex', gap: 16 }}>
                   {/* 포스터 썸네일 */}
@@ -114,11 +120,11 @@ export default function DaySchedules() {
                     position: 'relative'
                   }}>
                     <img
-                      src={schedule.imageUrl || 'https://picsum.photos/200/250'}
+                      src={schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? schedule.imageUrl : ''}
                       alt={schedule.title}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    {isFavorite(getTeamId(schedule)) && (
+                    {isFavorite(tId) && (
                       <div style={{
                         position: 'absolute',
                         top: 4,
@@ -127,7 +133,7 @@ export default function DaySchedules() {
                         borderRadius: '50%',
                         padding: 4
                       }}>
-                        <Heart size={12} fill="var(--neon-pink)" color="var(--neon-pink)" />
+                        <Heart size={12} fill={favColor || 'var(--neon-pink)'} color={favColor || 'var(--neon-pink)'} />
                       </div>
                     )}
                   </div>
@@ -222,7 +228,8 @@ export default function DaySchedules() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         )}
       </motion.div>
