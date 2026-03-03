@@ -7,7 +7,7 @@ import styles from './Home.module.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { schedules, getFavoriteTeams, getFavoriteColor, selectedMonth, setSelectedMonth } = useApp();
+  const { schedules, teams, getFavoriteTeams, getFavoriteColor, selectedMonth, setSelectedMonth } = useApp();
   const [currentDate, setCurrentDate] = useState(selectedMonth);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,22 +103,42 @@ export default function Home() {
   };
 
   // 검색 결과
+  // 아티스트 검색 결과
+  const searchedTeams = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return teams.filter(t =>
+      t.name?.toLowerCase().includes(query) ||
+      t.koreanName?.toLowerCase().includes(query) ||
+      t.genre?.toLowerCase().includes(query)
+    ).slice(0, 5);
+  }, [searchQuery, teams]);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
     const now = new Date();
+    // 한글명으로 매칭된 팀 이름도 검색에 포함
+    const matchedTeamNames = new Set(
+      searchedTeams.map(t => t.name?.toLowerCase()).filter(Boolean)
+    );
     return schedules.filter(s => {
       if (s.isDeleted) return false;
       if (s.publicDateTime && new Date(s.publicDateTime) > now) return false;
       // 제목 검색
       if (s.title?.toLowerCase().includes(query)) return true;
-      // 팀명 검색
+      // 팀명 검색 (영문 + 한글명 매칭)
       if (s.team?.name?.toLowerCase().includes(query)) return true;
+      if (s.team?.name && matchedTeamNames.has(s.team.name.toLowerCase())) return true;
       // 타임슬롯 팀명 검색
-      if (s.timeSlots?.some(ts => ts.teamName?.toLowerCase().includes(query))) return true;
+      if (s.timeSlots?.some(ts => {
+        if (ts.teamName?.toLowerCase().includes(query)) return true;
+        if (ts.teamName && matchedTeamNames.has(ts.teamName.toLowerCase())) return true;
+        return false;
+      })) return true;
       return false;
     }).slice(0, 10);
-  }, [searchQuery, schedules]);
+  }, [searchQuery, schedules, searchedTeams]);
 
   const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -160,8 +180,37 @@ export default function Home() {
                 </button>
               )}
             </div>
+            {searchedTeams.length > 0 && (
+              <div className={styles.searchResults}>
+                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>아티스트</div>
+                {searchedTeams.map(team => (
+                  <div
+                    key={`team-${team.id}`}
+                    className={styles.searchResultItem}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                    onClick={() => {
+                      navigate(`/team/${team.id}`);
+                      setShowSearch(false);
+                      setSearchQuery('');
+                    }}
+                  >
+                    {team.imageUrl && (
+                      <img src={team.imageUrl} alt={team.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                    )}
+                    <div>
+                      <div className={styles.searchResultTitle}>{team.name}</div>
+                      <div className={styles.searchResultMeta}>
+                        {team.koreanName && `${team.koreanName}`}
+                        {team.genre && ` · ${team.genre}`}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {searchResults.length > 0 && (
               <div className={styles.searchResults}>
+                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>일정</div>
                 {searchResults.map(schedule => (
                   <div
                     key={schedule.id}
@@ -181,7 +230,7 @@ export default function Home() {
                 ))}
               </div>
             )}
-            {searchQuery && searchResults.length === 0 && (
+            {searchQuery && searchResults.length === 0 && searchedTeams.length === 0 && (
               <div className={styles.noResults}>검색 결과가 없습니다</div>
             )}
           </motion.div>
