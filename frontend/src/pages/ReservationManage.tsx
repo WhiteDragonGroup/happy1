@@ -224,6 +224,7 @@ export default function ReservationManage() {
       const q = searchQuery.toLowerCase();
       list = list.filter(r =>
         (r.userName || '').toLowerCase().includes(q) ||
+        (r.userNickname || '').toLowerCase().includes(q) ||
         (r.userPhone || '').includes(q) ||
         (r.userEmail || '').toLowerCase().includes(q)
       );
@@ -364,6 +365,11 @@ export default function ReservationManage() {
                 <div className={styles.reservationInfo}>
                   <div className={styles.reservationName}>
                     {reservation.userName || '이름 없음'}
+                    {reservation.userNickname && reservation.userNickname !== reservation.userName && (
+                      <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.8125rem' }}>
+                        {' '}({reservation.userNickname})
+                      </span>
+                    )}
                   </div>
                   <div className={styles.reservationContact}>
                     {reservation.userPhone || ''} {reservation.userEmail ? `· ${reservation.userEmail}` : ''}

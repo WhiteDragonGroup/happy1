@@ -54,6 +54,9 @@ public class Reservation {
     private String userEmail;
 
     @Transient
+    private String userNickname;
+
+    @Transient
     private Long scheduleId;
 
     @Transient
@@ -64,6 +67,7 @@ public class Reservation {
         if (user != null) {
             this.userId = user.getId();
             this.userName = user.getName();
+            this.userNickname = user.getNickname();
             this.userPhone = user.getPhone();
             this.userEmail = user.getEmail();
         }

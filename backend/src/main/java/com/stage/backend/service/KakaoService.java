@@ -70,6 +70,7 @@ public class KakaoService {
                     .email(email)
                     .password(UUID.randomUUID().toString()) // 랜덤 비밀번호 (카카오 로그인만 사용)
                     .name(nickname != null ? nickname : "카카오사용자")
+                    .nickname(nickname != null ? nickname : "카카오사용자")
                     .profileImage(profileImage)
                     .role(User.Role.USER)
                     .build();

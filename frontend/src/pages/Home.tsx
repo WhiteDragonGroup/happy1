@@ -343,6 +343,37 @@ export default function Home() {
                       </div>
                     )}
 
+                    {daySchedules.length > 0 && (
+                      <div className={styles.dotIndicator}>
+                        {daySchedules.slice(0, 3).map((s) => {
+                          const sTeamId = s.team?.id || s.teamId;
+                          const matchedFavTeam = sTeamId && favoriteTeamIds.has(sTeamId);
+                          let slotMatchColor: string | undefined;
+                          if (!matchedFavTeam && s.timeSlots) {
+                            for (const slot of s.timeSlots) {
+                              if (slot.teamName) {
+                                const matched = favoriteTeams.find(t => t.name === slot.teamName);
+                                if (matched) {
+                                  slotMatchColor = getFavoriteColor(String(matched.id));
+                                  break;
+                                }
+                              }
+                            }
+                          }
+                          const dotColor = matchedFavTeam
+                            ? (getFavoriteColor(String(sTeamId)) || 'var(--neon-pink)')
+                            : (slotMatchColor || undefined);
+                          return (
+                            <span
+                              key={s.id}
+                              className={styles.dot}
+                              style={dotColor ? { background: dotColor, boxShadow: `0 0 4px ${dotColor}` } : undefined}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
                     {favoriteSchedules.length > 0 && (() => {
                       const favTeamId = String(favoriteSchedules[0].team?.id || favoriteSchedules[0].teamId || '');
                       const indicatorColor = getFavoriteColor(favTeamId);

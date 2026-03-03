@@ -69,6 +69,7 @@ public class UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .nickname(user.getNickname())
                 .phone(user.getPhone())
                 .profileImage(user.getProfileImage())
                 .role(user.getRole().name())

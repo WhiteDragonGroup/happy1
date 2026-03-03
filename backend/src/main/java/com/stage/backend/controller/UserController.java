@@ -71,6 +71,9 @@ public class UserController {
         if (request.containsKey("name")) {
             currentUser.setName(request.get("name"));
         }
+        if (request.containsKey("nickname")) {
+            currentUser.setNickname(request.get("nickname"));
+        }
         if (request.containsKey("phone")) {
             currentUser.setPhone(request.get("phone"));
         }

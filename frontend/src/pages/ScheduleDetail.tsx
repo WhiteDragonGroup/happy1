@@ -570,7 +570,7 @@ export default function ScheduleDetail() {
               <>
                 <h3 className={styles.modalTitle}>환불 계좌 입력</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', marginBottom: '16px', textAlign: 'center' }}>
-                  환불이 필요한 경우를 위해 입력해 주세요
+                  환불이 필요한 경우를 위해 입력해 주세요 (선택)
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
                   <select
@@ -622,10 +622,21 @@ export default function ScheduleDetail() {
                 <button
                   className="btn btn-primary"
                   style={{ width: '100%' }}
-                  disabled={!refundBank || !refundAccount || !refundHolder}
                   onClick={() => setReserveStep('confirm')}
                 >
                   다음
+                </button>
+                <button
+                  className={styles.modalClose}
+                  onClick={() => {
+                    setRefundBank('');
+                    setRefundAccount('');
+                    setRefundHolder('');
+                    setReserveStep('confirm');
+                  }}
+                  style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}
+                >
+                  건너뛰기
                 </button>
                 <button
                   className={styles.modalClose}

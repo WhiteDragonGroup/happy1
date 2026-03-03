@@ -37,6 +37,9 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
+    // === 닉네임 (카카오 닉네임 등) ===
+    private String nickname;
+
     // === 일반 컬럼 ===
     private String phone;
 

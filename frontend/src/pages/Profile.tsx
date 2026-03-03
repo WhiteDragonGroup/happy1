@@ -11,6 +11,7 @@ export default function Profile() {
   const { user, isLoggedIn, setUser } = useApp();
   const [form, setForm] = useState({
     name: user?.name || '',
+    nickname: user?.nickname || '',
     phone: user?.phone || '',
     email: user?.email || '',
   });
@@ -87,15 +88,27 @@ export default function Profile() {
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>프로필 사진 변경</p>
         </div>
 
-        {/* 이름 */}
+        {/* 본명 (입금자명) */}
         <div className={styles.section}>
-          <label className={styles.label}>이름</label>
+          <label className={styles.label}>본명 (입금자명)</label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="이름을 입력하세요"
+            placeholder="본명을 입력하세요"
           />
+        </div>
+
+        {/* 닉네임 */}
+        <div className={styles.section}>
+          <label className={styles.label}>닉네임</label>
+          <input
+            type="text"
+            value={form.nickname}
+            onChange={(e) => setForm({ ...form, nickname: e.target.value })}
+            placeholder="닉네임을 입력하세요"
+          />
+          <p className={styles.hint}>카카오 로그인 시 자동 설정됩니다</p>
         </div>
 
         {/* 이메일 (변경 불가) */}

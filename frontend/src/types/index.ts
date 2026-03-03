@@ -6,6 +6,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
+  nickname?: string;
   phone?: string;
   profileImage?: string;
   role: UserRole;
@@ -83,6 +84,7 @@ export interface Reservation {
   user?: User;
   userId?: number;
   userName?: string;
+  userNickname?: string;
   userPhone?: string;
   userEmail?: string;
   timeSlot?: TimeSlot;
