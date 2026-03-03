@@ -278,80 +278,56 @@
   color: var(--neon-blue);
 }
 
+.dayCellTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
 .dayNumber {
   font-family: var(--font-glitch);
   font-size: 1rem;
   font-weight: 400;
   color: var(--text-primary);
-  margin-bottom: 4px;
 }
 
-.scheduleList {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
-}
-
-.scheduleItem {
-  background: linear-gradient(90deg, rgba(255, 26, 92, 0.2), rgba(168, 85, 247, 0.2));
-  border-radius: 2px;
-  border-left: 2px solid var(--neon-pink);
-  padding: 2px 4px;
+.scheduleCount {
   font-size: 0.5625rem;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  max-width: 100%;
-}
-
-.scheduleItem:hover {
-  background: linear-gradient(90deg, rgba(255, 26, 92, 0.4), rgba(168, 85, 247, 0.4));
-  box-shadow: 0 0 8px var(--neon-pink-glow);
-}
-
-.scheduleTitle {
-  font-weight: 500;
-}
-
-.moreCount {
-  font-size: 0.625rem;
-  color: var(--text-muted);
-  padding: 2px 0;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.12);
+  border-radius: var(--radius-full);
+  line-height: 1;
 }
 
 .dotIndicator {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
+  padding-bottom: 2px;
 }
 
 .dot {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--neon-cyan);
   box-shadow: 0 0 4px var(--neon-cyan-glow);
+  transition: all var(--transition-fast);
 }
 
-.favoriteIndicator {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 0.625rem;
-  color: var(--neon-pink);
+.dotFav {
+  width: 6px;
+  height: 6px;
 }
+
 
 .favoriteTeams {
   margin-top: 24px;
@@ -416,11 +392,6 @@
     font-size: 1rem;
   }
 
-  .scheduleItem {
-    font-size: 0.6875rem;
-    padding: 3px 6px;
-  }
-
   .monthTitle {
     font-size: 1.75rem;
   }
@@ -436,7 +407,4 @@
     padding: 10px;
   }
 
-  .scheduleItem {
-    font-size: 0.75rem;
-  }
 }

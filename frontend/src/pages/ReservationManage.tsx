@@ -364,6 +364,16 @@ export default function ReservationManage() {
               >
                 <div className={styles.reservationInfo}>
                   <div className={styles.reservationName}>
+                    {reservation.entryNumber != null && (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        minWidth: '22px', height: '22px', borderRadius: '50%',
+                        background: 'rgba(0, 240, 255, 0.15)', color: 'var(--neon-cyan)',
+                        fontSize: '0.6875rem', fontWeight: 700, marginRight: '6px'
+                      }}>
+                        {reservation.entryNumber}
+                      </span>
+                    )}
                     {reservation.userName || '이름 없음'}
                     {reservation.userNickname && reservation.userNickname !== reservation.userName && (
                       <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.8125rem' }}>

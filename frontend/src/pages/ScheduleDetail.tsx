@@ -57,13 +57,14 @@ export default function ScheduleDetail() {
 
   const schedule = schedules.find(s => String(s.id) === id);
 
-  // 파생 데이터
-  const existingReservation = schedule
-    ? reservations.find(r => {
+  // 파생 데이터: 이 일정에 대한 내 예약 수 (취소 제외)
+  const myReservations = schedule
+    ? reservations.filter(r => {
         const rScheduleId = r.scheduleId || r.schedule?.id;
         return rScheduleId === schedule.id && r.reservationStatus !== 'CANCELLED';
       })
-    : null;
+    : [];
+  const myReservationCount = myReservations.length;
   const isManagerOrAdmin = user && schedule
     ? (schedule.managerId === user.id || user.role === 'ADMIN')
     : false;
@@ -111,9 +112,12 @@ export default function ScheduleDetail() {
     }
   };
 
-  // 팀 이름 목록 추출 (중복 제거)
+  // 팀 이름 목록 추출 (중복 제거, 팬미팅 슬롯 제외)
   const teamNames = schedule.timeSlots
-    ? [...new Set(schedule.timeSlots.map(s => s.teamName).filter(Boolean) as string[])]
+    ? [...new Set(schedule.timeSlots
+        .filter(s => s.slotType !== 'FANMEETING')
+        .map(s => s.teamName)
+        .filter(Boolean) as string[])]
     : [];
 
   const hasTicketPrice = !!(schedule.priceA || schedule.priceS || schedule.priceR);
@@ -211,23 +215,50 @@ export default function ScheduleDetail() {
         animate={{ opacity: 1 }}
         className={styles.container}
       >
-        {/* 포스터 */}
-        <div className={styles.posterSection}>
-          {schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? (
+        {/* 포스터 or 타임테이블 */}
+        {schedule.imageUrl && !schedule.imageUrl.startsWith('blob:') ? (
+          <div className={styles.posterSection}>
             <img
               src={schedule.imageUrl}
               alt={schedule.title}
               className={styles.poster}
             />
-          ) : (
-            <div className={styles.poster} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'var(--bg-card)', color: 'var(--text-muted)', fontSize: '0.875rem'
-            }}>
-              포스터 없음
-            </div>
-          )}
-        </div>
+          </div>
+        ) : schedule.timeSlots && schedule.timeSlots.length > 0 ? (
+          <div className={styles.inlineTimetable}>
+            {schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING').map((slot, idx) => (
+              <div key={slot.id || idx} className={styles.inlineSlot}>
+                <Clock size={14} />
+                <span className={styles.inlineSlotTime}>
+                  {slot.startTime?.slice(0, 5)}
+                  {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                </span>
+                {slot.teamName && (
+                  <span
+                    className={styles.inlineSlotTeam}
+                    onClick={() => setSelectedArtist(slot.teamName || null)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {slot.teamName}
+                  </span>
+                )}
+              </div>
+            ))}
+            {schedule.timeSlots.filter(s => s.slotType === 'FANMEETING').map((slot, idx) => (
+              <div key={`fan-${slot.id || idx}`} className={styles.inlineSlot} style={{ borderLeftColor: 'var(--neon-purple)' }}>
+                <Clock size={14} style={{ color: 'var(--neon-purple)' }} />
+                <span className={styles.inlineSlotTime}>
+                  {slot.startTime?.slice(0, 5)}
+                  {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                </span>
+                {slot.teamName && (
+                  <span className={styles.inlineSlotTeam}>{slot.teamName}</span>
+                )}
+                <span style={{ fontSize: '0.625rem', color: 'var(--neon-purple)' }}>팬미팅</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         {/* 정보 */}
         <div className={styles.infoSection}>
@@ -422,10 +453,10 @@ export default function ScheduleDetail() {
               <Users size={18} />
               예약자 관리
             </button>
-          ) : existingReservation ? (
+          ) : myReservationCount >= 2 ? (
             <button className="btn btn-secondary" style={{ width: '100%' }} disabled>
               <CheckCircle2 size={18} />
-              예약완료
+              예약완료 ({myReservationCount}/2)
             </button>
           ) : schedule.date < new Date().toISOString().split('T')[0] ? (
             <button className="btn btn-secondary" style={{ width: '100%' }} disabled>
@@ -446,7 +477,7 @@ export default function ScheduleDetail() {
               onClick={openReserveModal}
             >
               <Ticket size={18} />
-              예약 신청
+              {myReservationCount === 1 ? '추가 예약 (1/2)' : '예약 신청'}
             </button>
           )}
         </div>
@@ -786,6 +817,20 @@ export default function ScheduleDetail() {
                   {' '}예약 신청 완료
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                  {completedReservation.entryNumber && (
+                    <div style={{
+                      padding: '16px 24px',
+                      background: 'rgba(0, 240, 255, 0.1)',
+                      border: '1px solid var(--neon-cyan)',
+                      borderRadius: 'var(--radius-md)',
+                      textAlign: 'center'
+                    }}>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>입장번호</p>
+                      <p style={{ color: 'var(--neon-cyan)', fontSize: '2rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
+                        {completedReservation.entryNumber}
+                      </p>
+                    </div>
+                  )}
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', textAlign: 'center' }}>
                     예약 신청이 접수되었습니다
                   </p>

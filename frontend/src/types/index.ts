@@ -99,6 +99,7 @@ export interface Reservation {
   refundAccount?: string;
   refundHolder?: string;
   qrCode?: string;
+  entryNumber?: number;
   isEntered: boolean;
   enteredAt?: string;
   createdAt: string;

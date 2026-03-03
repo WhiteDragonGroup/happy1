@@ -8,7 +8,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { scheduleAPI } from '../api';
+import { scheduleAPI, imageAPI } from '../api';
 import styles from './CreateSchedule.module.css';
 
 interface TimeSlotInput {
@@ -217,6 +217,20 @@ export default function EditSchedule() {
         }
       }
 
+      // 새 이미지가 선택된 경우 S3에 업로드
+      let imageUrl = form.posterPreview || null;
+      if (form.posterImage) {
+        try {
+          const uploadRes = await imageAPI.upload(form.posterImage);
+          imageUrl = uploadRes.data.url;
+        } catch (uploadErr) {
+          console.error('이미지 업로드 실패:', uploadErr);
+          alert('이미지 업로드에 실패했습니다.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const scheduleData = {
         title: form.title,
         organizer: form.organizer || '',
@@ -238,7 +252,7 @@ export default function EditSchedule() {
         bankName: form.paymentCollectionType === 'BANK' ? form.bankName : null,
         bankAccount: form.paymentCollectionType === 'BANK' ? form.bankAccount : null,
         bankHolder: form.paymentCollectionType === 'BANK' ? form.bankHolder : null,
-        imageUrl: form.posterPreview || null,
+        imageUrl,
         isPublished: true,
         timeSlots: form.timeSlots
           .filter(slot => slot.startTime && slot.endTime && slot.teamName)

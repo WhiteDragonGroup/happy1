@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart, Search, Calendar, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Calendar, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import styles from './Home.module.css';
 
@@ -66,13 +66,6 @@ export default function Home() {
       // 공개일시가 설정되어 있고 아직 도래하지 않았으면 숨김
       if (s.publicDateTime && new Date(s.publicDateTime) > now) return false;
       return true;
-    });
-  };
-
-  const getFavoriteSchedulesForDay = (day: number) => {
-    return getSchedulesForDay(day).filter(s => {
-      const teamId = s.team?.id || s.teamId;
-      return teamId && favoriteTeamIds.has(teamId);
     });
   };
 
@@ -316,7 +309,6 @@ export default function Home() {
                 }
 
                 const daySchedules = getSchedulesForDay(day);
-                const favoriteSchedules = getFavoriteSchedulesForDay(day);
                 const isToday =
                   new Date().getFullYear() === year &&
                   new Date().getMonth() === month &&
@@ -331,108 +323,42 @@ export default function Home() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => daySchedules.length > 0 && navigate(`/day/${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
                   >
-                    <span className={styles.dayNumber}>{day}</span>
-
-                    {daySchedules.length > 0 && (
-                      <div className={styles.scheduleList}>
-                        {daySchedules.slice(0, 2).map((schedule) => {
-                          // 이 일정에 포함된 찜한 팀 ID들 찾기
-                          const matchedTeamIds: number[] = [];
-                          const directTeamId = schedule.team?.id || schedule.teamId;
-                          if (directTeamId && favoriteTeamIds.has(directTeamId)) {
-                            matchedTeamIds.push(directTeamId);
-                          }
-                          if (schedule.timeSlots) {
-                            for (const slot of schedule.timeSlots) {
-                              if (slot.teamName) {
-                                const matchedTeam = favoriteTeams.find(t => t.name === slot.teamName);
-                                if (matchedTeam && !matchedTeamIds.includes(matchedTeam.id)) {
-                                  matchedTeamIds.push(matchedTeam.id);
-                                }
-                              }
-                            }
-                          }
-
-                          // 선택된 팀이 이 일정에 있으면 그 팀 컬러, 아니면 첫번째 매칭 팀 컬러
-                          let favColor: string | undefined;
-                          if (selectedFavTeamId && matchedTeamIds.includes(selectedFavTeamId)) {
-                            favColor = getFavoriteColor(String(selectedFavTeamId));
-                          } else if (!selectedFavTeamId && matchedTeamIds.length > 0) {
-                            favColor = getFavoriteColor(String(matchedTeamIds[0]));
-                          }
-
-                          // 선택된 팀이 있는데 이 일정에 없으면 흐리게
-                          const isDimmed = selectedFavTeamId && !matchedTeamIds.includes(selectedFavTeamId);
-
-                          return (
-                            <div
-                              key={schedule.id}
-                              className={styles.scheduleItem}
-                              style={{
-                                ...(favColor ? {
-                                  borderLeftColor: favColor,
-                                  background: `linear-gradient(90deg, ${favColor}33, ${favColor}1a)`
-                                } : {}),
-                                ...(isDimmed ? { opacity: 0.3 } : {})
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/schedule/${schedule.id}`);
-                              }}
-                            >
-                              <span className={styles.scheduleTitle}>
-                                {schedule.title}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {daySchedules.length > 2 && (
-                          <span className={styles.moreCount}>+{daySchedules.length - 2}</span>
-                        )}
-                      </div>
-                    )}
+                    <div className={styles.dayCellTop}>
+                      <span className={styles.dayNumber}>{day}</span>
+                      {daySchedules.length > 0 && (
+                        <span className={styles.scheduleCount}>{daySchedules.length}</span>
+                      )}
+                    </div>
 
                     {daySchedules.length > 0 && (
                       <div className={styles.dotIndicator}>
-                        {daySchedules.slice(0, 3).map((s) => {
+                        {daySchedules.slice(0, 5).map((s) => {
+                          let dotColor: string | undefined;
                           const sTeamId = s.team?.id || s.teamId;
-                          const matchedFavTeam = sTeamId && favoriteTeamIds.has(sTeamId);
-                          let slotMatchColor: string | undefined;
-                          if (!matchedFavTeam && s.timeSlots) {
+                          if (sTeamId && favoriteTeamIds.has(sTeamId)) {
+                            dotColor = getFavoriteColor(String(sTeamId)) || 'var(--neon-pink)';
+                          }
+                          if (!dotColor && s.timeSlots) {
                             for (const slot of s.timeSlots) {
                               if (slot.teamName) {
                                 const matched = favoriteTeams.find(t => t.name === slot.teamName);
                                 if (matched) {
-                                  slotMatchColor = getFavoriteColor(String(matched.id));
+                                  dotColor = getFavoriteColor(String(matched.id));
                                   break;
                                 }
                               }
                             }
                           }
-                          const dotColor = matchedFavTeam
-                            ? (getFavoriteColor(String(sTeamId)) || 'var(--neon-pink)')
-                            : (slotMatchColor || undefined);
                           return (
                             <span
                               key={s.id}
-                              className={styles.dot}
-                              style={dotColor ? { background: dotColor, boxShadow: `0 0 4px ${dotColor}` } : undefined}
+                              className={`${styles.dot} ${dotColor ? styles.dotFav : ''}`}
+                              style={dotColor ? { background: dotColor, boxShadow: `0 0 6px ${dotColor}` } : undefined}
                             />
                           );
                         })}
                       </div>
                     )}
-
-                    {favoriteSchedules.length > 0 && (() => {
-                      const favTeamId = String(favoriteSchedules[0].team?.id || favoriteSchedules[0].teamId || '');
-                      const indicatorColor = getFavoriteColor(favTeamId);
-                      return (
-                        <div className={styles.favoriteIndicator} style={indicatorColor ? { color: indicatorColor } : undefined}>
-                          <Heart size={10} fill={indicatorColor || 'var(--neon-pink)'} />
-                          <span>{favoriteSchedules.length}</span>
-                        </div>
-                      );
-                    })()}
                   </motion.div>
                 );
               })}

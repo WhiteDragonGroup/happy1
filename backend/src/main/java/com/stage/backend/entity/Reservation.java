@@ -123,6 +123,9 @@ public class Reservation {
     private String refundAccount;
     private String refundHolder;
 
+    // === 입장번호 ===
+    private Integer entryNumber;
+
     // === 금액 ===
     private BigDecimal amount;
 

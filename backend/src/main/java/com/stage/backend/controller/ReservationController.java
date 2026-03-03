@@ -55,9 +55,11 @@ public class ReservationController {
                         return ResponseEntity.badRequest().body("공연이 종료되어 예약할 수 없습니다.");
                     }
 
-                    // 중복 예약 체크
-                    if (reservationRepository.existsByUserAndSchedule(user, schedule)) {
-                        return ResponseEntity.badRequest().body("이미 예약한 일정입니다.");
+                    // 1인당 최대 2개 예약 체크 (취소 제외)
+                    long userReservationCount = reservationRepository.countByUserAndScheduleAndReservationStatusNot(
+                            user, schedule, Reservation.ReservationStatus.CANCELLED);
+                    if (userReservationCount >= 2) {
+                        return ResponseEntity.badRequest().body("최대 2개까지 예약 가능합니다.");
                     }
 
                     // capacity 초과 체크
@@ -101,6 +103,12 @@ public class ReservationController {
                     String refundHolder = body.get("refundHolder") != null
                             ? (String) body.get("refundHolder") : null;
 
+                    // 입장번호 부여 (예약순일 때)
+                    Integer entryNumber = null;
+                    if ("RESERVATION_ORDER".equals(schedule.getEntryNumberType())) {
+                        entryNumber = (int) currentCount + 1;
+                    }
+
                     // 모든 예약은 PENDING 상태로 생성 (공연등록자가 입금 확인 후 확정)
                     Reservation reservation = Reservation.builder()
                             .user(user)
@@ -115,6 +123,7 @@ public class ReservationController {
                             .refundBank(refundBank)
                             .refundAccount(refundAccount)
                             .refundHolder(refundHolder)
+                            .entryNumber(entryNumber)
                             .isEntered(false)
                             .build();
 

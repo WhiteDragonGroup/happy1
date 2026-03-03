@@ -102,6 +102,40 @@
   box-shadow: var(--shadow-lg);
 }
 
+.inlineTimetable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: rgba(16, 16, 24, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.inlineSlot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(5, 5, 8, 0.6);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--neon-cyan);
+  color: var(--text-secondary);
+}
+
+.inlineSlotTime {
+  font-family: var(--font-glitch);
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.inlineSlotTeam {
+  font-size: 0.8125rem;
+  color: var(--neon-pink);
+  font-weight: 500;
+}
+
 .poster {
   width: 100%;
   max-width: 280px;
