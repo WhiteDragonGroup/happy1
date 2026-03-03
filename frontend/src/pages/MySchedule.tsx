@@ -16,6 +16,8 @@ export default function MySchedule() {
   const [activeTab, setActiveTab] = useState<TabType>('reserved');
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelConfirmText, setCancelConfirmText] = useState('');
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -23,7 +25,8 @@ export default function MySchedule() {
   // 내 예약 목록
   const myReservations = useMemo(() => {
     if (!user) return [];
-    return reservations.filter(r => r.userId === user.id && r.reservationStatus !== 'CANCELLED');
+    return reservations.filter(r => r.userId === user.id && r.reservationStatus !== 'CANCELLED')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [reservations, user]);
 
   // 찜한 팀의 일정 (아직 예약 안한 것)
@@ -66,6 +69,8 @@ export default function MySchedule() {
         return <span className="badge badge-green">예약확정</span>;
       case 'PENDING':
         return <span className="badge badge-orange">예약대기</span>;
+      case 'CANCEL_REQUESTED':
+        return <span className="badge badge-red" style={{ background: 'rgba(255,26,92,0.15)', color: 'var(--neon-pink)' }}>취소요청</span>;
       case 'USED':
         return <span className="badge badge-blue">사용완료</span>;
       default:
@@ -270,6 +275,20 @@ export default function MySchedule() {
               </button>
             </div>
 
+            {/* 입장번호 */}
+            {selectedReservation.entryNumber != null && (
+              <div style={{
+                padding: '12px', textAlign: 'center',
+                background: 'rgba(0, 240, 255, 0.1)', border: '1px solid var(--neon-cyan)',
+                borderRadius: 'var(--radius-md)', marginBottom: '12px'
+              }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.6875rem', marginBottom: '2px' }}>입장번호</p>
+                <p style={{ color: 'var(--neon-cyan)', fontSize: '1.75rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
+                  {selectedReservation.entryNumber}
+                </p>
+              </div>
+            )}
+
             {/* 확정된 예약만 QR코드 표시 */}
             {(selectedReservation.reservationStatus === 'CONFIRMED' || selectedReservation.reservationStatus === 'USED') ? (
               <div className={styles.qrSection}>
@@ -282,6 +301,20 @@ export default function MySchedule() {
                   <QRCodeSVG value={selectedReservation.qrCode || ''} size={180} />
                 </div>
                 <p className={styles.qrHint}>입장 시 이 QR코드를 보여주세요</p>
+              </div>
+            ) : selectedReservation.reservationStatus === 'CANCEL_REQUESTED' ? (
+              <div className={styles.qrSection}>
+                <p style={{
+                  color: 'var(--neon-pink)',
+                  fontSize: '0.875rem',
+                  textAlign: 'center',
+                  padding: '20px 16px',
+                  background: 'rgba(255,26,92,0.1)',
+                  borderRadius: 'var(--radius-lg)',
+                  width: '100%'
+                }}>
+                  취소 요청이 접수되었습니다<br />관리자 확인 후 처리됩니다
+                </p>
               </div>
             ) : (
               <div className={styles.qrSection}>
@@ -321,6 +354,14 @@ export default function MySchedule() {
                   {selectedReservation.timeSlot?.teamName && ` / ${selectedReservation.timeSlot.teamName}`}
                 </p>
               )}
+              {selectedReservation.createdAt && (
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                  예약일시: {new Date(selectedReservation.createdAt).toLocaleString('ko-KR', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                  })}
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
                 {getStatusBadge(selectedReservation.reservationStatus)}
                 {getPaymentBadge(selectedReservation.paymentStatus)}
@@ -346,7 +387,7 @@ export default function MySchedule() {
                 닫기
               </button>
             </div>
-            {selectedReservation.paymentStatus === 'PENDING' && selectedReservation.reservationStatus === 'PENDING' && (
+            {selectedReservation.reservationStatus !== 'CANCELLED' && selectedReservation.reservationStatus !== 'CANCEL_REQUESTED' && selectedReservation.reservationStatus !== 'USED' && (
               <button
                 style={{
                   width: '100%',
@@ -356,25 +397,86 @@ export default function MySchedule() {
                   border: 'none',
                   color: 'var(--text-muted)',
                   fontSize: '0.8125rem',
-                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                 }}
-                disabled={cancelling}
+                onClick={() => {
+                  setShowCancelModal(true);
+                  setCancelConfirmText('');
+                }}
+              >
+                예약취소 신청
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 취소 확인 모달 */}
+      {showCancelModal && selectedReservation && (
+        <div className={styles.modalOverlay} onClick={() => setShowCancelModal(false)} style={{ zIndex: 1100 }}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()} style={{ maxWidth: '320px' }}>
+            <h3 className={styles.modalTitle} style={{ color: 'var(--neon-pink)', marginBottom: '12px' }}>
+              예약 취소 신청
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center', marginBottom: '8px' }}>
+              <strong>{selectedReservation.schedule?.title}</strong>
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center', marginBottom: '20px' }}>
+              해당 공연을 정말 취소하시겠습니까?
+            </p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center', marginBottom: '8px' }}>
+              확인을 위해 아래에 <strong style={{ color: 'var(--neon-pink)' }}>예약취소</strong>를 입력해주세요
+            </p>
+            <input
+              type="text"
+              value={cancelConfirmText}
+              onChange={e => setCancelConfirmText(e.target.value)}
+              placeholder="예약취소"
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                fontSize: '1rem',
+                textAlign: 'center',
+                marginBottom: '16px'
+              }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setShowCancelModal(false)}
+              >
+                돌아가기
+              </button>
+              <button
+                className="btn btn-primary"
+                style={{
+                  flex: 1,
+                  background: cancelConfirmText === '예약취소' ? 'var(--neon-pink)' : 'var(--text-muted)',
+                  opacity: cancelConfirmText === '예약취소' ? 1 : 0.5
+                }}
+                disabled={cancelConfirmText !== '예약취소' || cancelling}
                 onClick={async () => {
-                  if (!confirm('예약을 취소하시겠습니까?')) return;
                   setCancelling(true);
                   try {
-                    await reservationAPI.cancel(selectedReservation.id);
+                    await reservationAPI.cancelRequest(selectedReservation.id);
                     await refreshData();
+                    setShowCancelModal(false);
                     setSelectedReservation(null);
                   } catch (err: any) {
-                    alert(err.response?.data || '예약 취소에 실패했습니다.');
+                    alert(err.response?.data || '취소 요청에 실패했습니다.');
                   }
                   setCancelling(false);
                 }}
               >
-                {cancelling ? '취소 중...' : '예약 취소'}
+                {cancelling ? '처리 중...' : '확인'}
               </button>
-            )}
+            </div>
           </div>
         </div>
       )}

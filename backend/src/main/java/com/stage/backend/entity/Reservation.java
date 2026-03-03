@@ -85,7 +85,7 @@ public class Reservation {
     }
 
     public enum ReservationStatus {
-        PENDING, CONFIRMED, CANCELLED, USED
+        PENDING, CONFIRMED, CANCEL_REQUESTED, CANCELLED, USED
     }
 
     public enum PaymentMethod {

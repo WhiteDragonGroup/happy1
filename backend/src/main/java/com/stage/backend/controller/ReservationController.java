@@ -219,7 +219,28 @@ public class ReservationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 8. 유저 예약 취소 (입금 전만 가능)
+    // 8-1. 유저 예약 취소 요청 (모든 상태에서 가능)
+    @PostMapping("/{id}/cancel-request")
+    public ResponseEntity<?> cancelRequest(@PathVariable Long id,
+                                           @AuthenticationPrincipal User user) {
+        return reservationRepository.findById(id)
+                .map(reservation -> {
+                    if (!reservation.getUser().getId().equals(user.getId())) {
+                        return ResponseEntity.status(403).body("본인의 예약만 취소 요청할 수 있습니다.");
+                    }
+                    if (reservation.getReservationStatus() == Reservation.ReservationStatus.CANCELLED) {
+                        return ResponseEntity.badRequest().body("이미 취소된 예약입니다.");
+                    }
+                    if (reservation.getReservationStatus() == Reservation.ReservationStatus.CANCEL_REQUESTED) {
+                        return ResponseEntity.badRequest().body("이미 취소 요청이 접수된 예약입니다.");
+                    }
+                    reservation.setReservationStatus(Reservation.ReservationStatus.CANCEL_REQUESTED);
+                    return ResponseEntity.ok(reservationRepository.save(reservation));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 8-2. 유저 예약 취소 (입금 전만 가능)
     @PostMapping("/{id}/cancel")
     public ResponseEntity<?> cancel(@PathVariable Long id,
                                     @AuthenticationPrincipal User user) {

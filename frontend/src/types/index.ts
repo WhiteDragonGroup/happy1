@@ -74,7 +74,7 @@ export interface Schedule {
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'REFUNDED' | 'CANCELLED';
 
 // 예약 상태
-export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'USED';
+export type ReservationStatus = 'PENDING' | 'CONFIRMED' | 'CANCEL_REQUESTED' | 'CANCELLED' | 'USED';
 
 // 예약
 export interface Reservation {

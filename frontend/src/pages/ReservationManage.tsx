@@ -26,6 +26,7 @@ export default function ReservationManage() {
   const [reservationList, setReservationList] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [entryToast, setEntryToast] = useState<string | null>(null);
@@ -97,7 +98,8 @@ export default function ReservationManage() {
               );
 
               const name = enteredReservation.userName || '예약자';
-              setScanResult({ type: 'success', message: `${name} 입장 처리 완료` });
+              const entryNum = enteredReservation.entryNumber ? ` (입장번호: ${enteredReservation.entryNumber})` : '';
+              setScanResult({ type: 'success', message: `${name}${entryNum} 입장 처리 완료` });
 
               // 큰 토스트 알림
               setEntryToast(`${name} 입장되었습니다`);
@@ -215,9 +217,25 @@ export default function ReservationManage() {
     }
   };
 
-  // 검색 필터
+  // 상태별 카운트 (취소 제외한 실예약 수)
+  const activeReservations = reservationList.filter(r => r.reservationStatus !== 'CANCELLED');
+  const cancelRequestCount = reservationList.filter(r => r.reservationStatus === 'CANCEL_REQUESTED').length;
+  const enteredCount = reservationList.filter(r => r.isEntered).length;
+  const cancelledCount = reservationList.filter(r => r.reservationStatus === 'CANCELLED').length;
+
+  // 검색 + 상태 필터
   const filteredReservations = useMemo(() => {
     let list = [...reservationList];
+
+    // 상태 필터
+    if (statusFilter === 'CANCEL_REQUESTED') {
+      list = list.filter(r => r.reservationStatus === 'CANCEL_REQUESTED');
+    } else if (statusFilter === 'CANCELLED') {
+      list = list.filter(r => r.reservationStatus === 'CANCELLED');
+    } else if (statusFilter === 'ACTIVE') {
+      list = list.filter(r => r.reservationStatus !== 'CANCELLED' && r.reservationStatus !== 'CANCEL_REQUESTED');
+    }
+    // ALL = no filter
 
     // 검색 필터
     if (searchQuery.trim()) {
@@ -230,17 +248,19 @@ export default function ReservationManage() {
       );
     }
 
-    // 정렬: 미입장 → 입장완료
+    // 정렬: 취소요청 → 미입장 → 입장완료 → 취소
     list.sort((a, b) => {
-      if (a.isEntered && !b.isEntered) return 1;
-      if (!a.isEntered && b.isEntered) return -1;
-      return 0;
+      const order = (r: Reservation) => {
+        if (r.reservationStatus === 'CANCEL_REQUESTED') return 0;
+        if (r.reservationStatus === 'CANCELLED') return 3;
+        if (r.isEntered) return 2;
+        return 1;
+      };
+      return order(a) - order(b);
     });
 
     return list;
-  }, [reservationList, searchQuery]);
-
-  const enteredCount = reservationList.filter(r => r.isEntered).length;
+  }, [reservationList, searchQuery, statusFilter]);
 
   // 권한 체크
   if (!loading && !isManagerOrAdmin) {
@@ -302,17 +322,23 @@ export default function ReservationManage() {
             </div>
             <div className={styles.stats}>
               <div className={styles.stat}>
-                <div className={styles.statLabel}>총 예약</div>
-                <div className={styles.statValue}>{reservationList.length}</div>
+                <div className={styles.statLabel}>예약</div>
+                <div className={styles.statValue}>{activeReservations.length}</div>
               </div>
               <div className={styles.stat}>
-                <div className={styles.statLabel}>입장 완료</div>
+                <div className={styles.statLabel}>입장</div>
                 <div className={`${styles.statValue} ${styles.entered}`}>{enteredCount}</div>
               </div>
               <div className={styles.stat}>
                 <div className={styles.statLabel}>정원</div>
                 <div className={styles.statValue}>{schedule.capacity}</div>
               </div>
+              {cancelRequestCount > 0 && (
+                <div className={styles.stat} onClick={() => setStatusFilter('CANCEL_REQUESTED')} style={{ cursor: 'pointer' }}>
+                  <div className={styles.statLabel} style={{ color: 'var(--neon-pink)' }}>취소요청</div>
+                  <div className={styles.statValue} style={{ color: 'var(--neon-pink)' }}>{cancelRequestCount}</div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -345,6 +371,32 @@ export default function ReservationManage() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
+        </div>
+
+        {/* 상태 필터 */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          {[
+            { key: 'ALL', label: '전체', count: reservationList.length },
+            { key: 'ACTIVE', label: '활성', count: activeReservations.length - cancelRequestCount },
+            ...(cancelRequestCount > 0 ? [{ key: 'CANCEL_REQUESTED', label: '취소요청', count: cancelRequestCount }] : []),
+            ...(cancelledCount > 0 ? [{ key: 'CANCELLED', label: '취소됨', count: cancelledCount }] : []),
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-sm)',
+                border: statusFilter === f.key ? '1px solid var(--neon-cyan)' : '1px solid var(--border-color)',
+                background: statusFilter === f.key ? 'rgba(0,240,255,0.1)' : 'transparent',
+                color: f.key === 'CANCEL_REQUESTED' ? 'var(--neon-pink)' : statusFilter === f.key ? 'var(--neon-cyan)' : 'var(--text-secondary)',
+                fontSize: '0.75rem',
+                cursor: 'pointer'
+              }}
+            >
+              {f.label} ({f.count})
+            </button>
+          ))}
         </div>
 
         {/* 예약자 리스트 */}
@@ -419,6 +471,9 @@ export default function ReservationManage() {
                     {reservation.reservationStatus === 'USED' && (
                       <span className={`${styles.badge} ${styles.purple}`}>입장완료</span>
                     )}
+                    {reservation.reservationStatus === 'CANCEL_REQUESTED' && (
+                      <span className={`${styles.badge} ${styles.red}`}>취소요청</span>
+                    )}
                     {reservation.reservationStatus === 'CANCELLED' && (
                       <span className={`${styles.badge} ${styles.red}`}>취소</span>
                     )}
@@ -427,6 +482,13 @@ export default function ReservationManage() {
                       {reservation.paymentMethod === 'CARD' ? '카드' : '계좌이체'}
                     </span>
                   </div>
+                  {reservation.createdAt && (
+                    <div className={styles.reservationContact} style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                      예약: {new Date(reservation.createdAt).toLocaleString('ko-KR', {
+                        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </div>
+                  )}
                   {reservation.isEntered && reservation.enteredAt && (
                     <div className={styles.enteredTime}>
                       입장: {new Date(reservation.enteredAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
