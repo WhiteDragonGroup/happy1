@@ -285,7 +285,7 @@ export default function Explore() {
                   <p className={styles.venueName}>{schedule.venue}</p>
                 )}
                 <p className={styles.artists}>
-                  {schedule.timeSlots?.map(s => s.teamName).filter(Boolean).join(', ') || schedule.team?.name || ''}
+                  {[...new Set(schedule.timeSlots?.map(s => s.teamName).filter(Boolean))].join(', ') || schedule.team?.name || ''}
                 </p>
               </div>
             </motion.div>
