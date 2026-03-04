@@ -275,23 +275,21 @@ export default function MySchedule() {
               </button>
             </div>
 
-            {/* 입장번호 */}
-            {selectedReservation.entryNumber != null && (
-              <div style={{
-                padding: '12px', textAlign: 'center',
-                background: 'rgba(0, 240, 255, 0.1)', border: '1px solid var(--neon-cyan)',
-                borderRadius: 'var(--radius-md)', marginBottom: '12px'
-              }}>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.6875rem', marginBottom: '2px' }}>입장번호</p>
-                <p style={{ color: 'var(--neon-cyan)', fontSize: '1.75rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
-                  {selectedReservation.entryNumber}
-                </p>
-              </div>
-            )}
-
-            {/* 확정된 예약만 QR코드 표시 */}
+            {/* 확정된 예약만 QR코드 + 입장번호 표시 */}
             {(selectedReservation.reservationStatus === 'CONFIRMED' || selectedReservation.reservationStatus === 'USED') ? (
               <div className={styles.qrSection}>
+                {selectedReservation.entryNumber != null && (
+                  <div style={{
+                    padding: '8px 16px', textAlign: 'center',
+                    background: 'rgba(0, 240, 255, 0.1)', border: '1px solid var(--neon-cyan)',
+                    borderRadius: 'var(--radius-md)', marginBottom: '12px', width: '100%'
+                  }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.6875rem', marginBottom: '2px' }}>입장번호</p>
+                    <p style={{ color: 'var(--neon-cyan)', fontSize: '1.75rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
+                      {selectedReservation.entryNumber}
+                    </p>
+                  </div>
+                )}
                 <div style={{
                   padding: '16px',
                   background: 'white',
@@ -469,7 +467,8 @@ export default function MySchedule() {
                     setShowCancelModal(false);
                     setSelectedReservation(null);
                   } catch (err: any) {
-                    alert(err.response?.data || '취소 요청에 실패했습니다.');
+                    const msg = err.response?.data;
+                    alert(typeof msg === 'string' ? msg : '취소 요청에 실패했습니다.');
                   }
                   setCancelling(false);
                 }}

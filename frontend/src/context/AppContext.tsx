@@ -225,8 +225,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const getFavoriteColor = (teamId: string): string | undefined => {
-    const fav = favorites.find(f => String(f.team?.id) === teamId || String(f.teamId) === teamId);
-    return fav?.color || undefined;
+    const favIndex = favorites.findIndex(f => String(f.team?.id) === teamId || String(f.teamId) === teamId);
+    if (favIndex === -1) return undefined;
+    const fav = favorites[favIndex];
+    return fav?.color || FAVORITE_COLORS[favIndex % FAVORITE_COLORS.length];
   };
 
   const updateFavoriteColor = async (teamId: string, color: string) => {

@@ -341,7 +341,7 @@ export default function Home() {
                           if (!dotColor && s.timeSlots) {
                             for (const slot of s.timeSlots) {
                               if (slot.teamName) {
-                                const matched = favoriteTeams.find(t => t.name === slot.teamName);
+                                const matched = favoriteTeams.find(t => t.name === slot.teamName || t.koreanName === slot.teamName);
                                 if (matched) {
                                   dotColor = getFavoriteColor(String(matched.id));
                                   break;

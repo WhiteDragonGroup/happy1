@@ -77,7 +77,7 @@ export default function Explore() {
           const slotTeamNames = s.timeSlots.map(ts => ts.teamName).filter(Boolean);
           const favTeamNames = favoriteTeams
             .filter(t => selectedTeamFilters.has(t.id))
-            .map(t => t.name);
+            .flatMap(t => [t.name, t.koreanName].filter(Boolean));
           return slotTeamNames.some(name => favTeamNames.includes(name!));
         }
         return false;

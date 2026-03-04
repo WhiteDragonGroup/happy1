@@ -103,10 +103,10 @@ public class ReservationController {
                     String refundHolder = body.get("refundHolder") != null
                             ? (String) body.get("refundHolder") : null;
 
-                    // 입장번호 부여 (예약순일 때)
+                    // 입장번호 부여 (예약순일 때) - 최대번호 + 1로 중복 방지
                     Integer entryNumber = null;
                     if ("RESERVATION_ORDER".equals(schedule.getEntryNumberType())) {
-                        entryNumber = (int) currentCount + 1;
+                        entryNumber = reservationRepository.findMaxEntryNumberBySchedule(schedule) + 1;
                     }
 
                     // 모든 예약은 PENDING 상태로 생성 (공연등록자가 입금 확인 후 확정)

@@ -11,7 +11,7 @@ export default function DaySchedules() {
   const navigate = useNavigate();
   const { schedules, isFavorite, getFavoriteTeams, getFavoriteColor, teams } = useApp();
   const favoriteTeams = getFavoriteTeams();
-  const favoriteTeamNames = new Set(favoriteTeams.map(t => t.name.toLowerCase()));
+  const favoriteTeamNames = new Set(favoriteTeams.flatMap(t => [t.name.toLowerCase(), t.koreanName?.toLowerCase()].filter(Boolean)));
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
 
   if (!date) {

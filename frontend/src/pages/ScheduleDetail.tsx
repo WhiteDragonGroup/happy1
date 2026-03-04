@@ -244,19 +244,7 @@ export default function ScheduleDetail() {
                 )}
               </div>
             ))}
-            {schedule.timeSlots.filter(s => s.slotType === 'FANMEETING').map((slot, idx) => (
-              <div key={`fan-${slot.id || idx}`} className={styles.inlineSlot} style={{ borderLeftColor: 'var(--neon-purple)' }}>
-                <Clock size={14} style={{ color: 'var(--neon-purple)' }} />
-                <span className={styles.inlineSlotTime}>
-                  {slot.startTime?.slice(0, 5)}
-                  {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
-                </span>
-                {slot.teamName && (
-                  <span className={styles.inlineSlotTeam}>{slot.teamName}</span>
-                )}
-                <span style={{ fontSize: '0.625rem', color: 'var(--neon-purple)' }}>팬미팅</span>
-              </div>
-            ))}
+            {/* 팬미팅 슬롯은 비표시 */}
           </div>
         ) : null}
 
@@ -368,7 +356,6 @@ export default function ScheduleDetail() {
           {/* 타임테이블 */}
           {schedule.timeSlots && schedule.timeSlots.length > 0 && (() => {
             const perfSlots = schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING');
-            const fanSlots = schedule.timeSlots.filter(s => s.slotType === 'FANMEETING');
             return (
               <>
                 {perfSlots.length > 0 && (
@@ -399,34 +386,7 @@ export default function ScheduleDetail() {
                     </div>
                   </div>
                 )}
-                {fanSlots.length > 0 && (
-                  <div className={styles.timeSlotsSection}>
-                    <h3 className={styles.sectionLabel}>팬미팅</h3>
-                    <div className={styles.timeSlots}>
-                      {fanSlots.map((slot, idx) => (
-                        <div key={slot.id || idx} className={styles.timeSlot} style={{ borderLeftColor: 'var(--neon-purple)' }}>
-                          <Clock size={16} style={{ color: 'var(--neon-purple)' }} />
-                          <span className={styles.slotTime}>
-                            {slot.startTime?.slice(0, 5)}
-                            {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
-                          </span>
-                          {slot.teamName && (
-                            <span
-                              className={styles.slotTeam}
-                              onClick={() => setSelectedArtist(slot.teamName || null)}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {slot.teamName}
-                            </span>
-                          )}
-                          {slot.description && (
-                            <span className={styles.slotDesc}>{slot.description}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* 팬미팅 슬롯은 비표시 */}
               </>
             );
           })()}

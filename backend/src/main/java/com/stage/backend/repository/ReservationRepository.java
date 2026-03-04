@@ -4,6 +4,7 @@ import com.stage.backend.entity.Reservation;
 import com.stage.backend.entity.Schedule;
 import com.stage.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     long countByScheduleAndReservationStatusNot(Schedule schedule, Reservation.ReservationStatus status);
 
     long countBySchedule_Id(Long scheduleId);
+
+    @Query("SELECT COALESCE(MAX(r.entryNumber), 0) FROM Reservation r WHERE r.schedule = :schedule")
+    int findMaxEntryNumberBySchedule(Schedule schedule);
 
     // 미입금 예약 자동 취소용: PENDING 상태이고 생성일이 특정 시간 이전인 예약들
     List<Reservation> findByPaymentStatusAndReservationStatusAndCreatedAtBefore(
