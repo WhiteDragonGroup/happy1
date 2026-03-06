@@ -175,7 +175,7 @@ export default function Home() {
             </div>
             {searchedTeams.length > 0 && (
               <div className={styles.searchResults}>
-                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>아티스트</div>
+                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-color)' }}>아티스트</div>
                 {searchedTeams.map(team => (
                   <div
                     key={`team-${team.id}`}
@@ -203,7 +203,7 @@ export default function Home() {
             )}
             {searchResults.length > 0 && (
               <div className={styles.searchResults}>
-                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>일정</div>
+                <div style={{ padding: '8px 16px', fontSize: '0.75rem', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-color)' }}>일정</div>
                 {searchResults.map(schedule => (
                   <div
                     key={schedule.id}

@@ -344,7 +344,7 @@ export default function ScheduleDetail() {
               </div>
               <div id="copy-toast" style={{
                 position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                background: 'rgba(0,0,0,0.8)', color: '#fff', padding: '8px 16px',
+                background: 'var(--text-primary)', color: 'var(--bg-primary)', padding: '8px 16px',
                 borderRadius: 'var(--radius-md)', fontSize: '0.8125rem',
                 opacity: 0, transition: 'opacity 0.3s', pointerEvents: 'none'
               }}>
@@ -725,7 +725,7 @@ export default function ScheduleDetail() {
               <div style={{
                 position: 'absolute',
                 top: 0, left: 0, right: 0, bottom: 0,
-                background: 'rgba(0,0,0,0.7)',
+                background: 'rgba(0,0,0,0.5)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

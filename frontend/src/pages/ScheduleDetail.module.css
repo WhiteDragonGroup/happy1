@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   height: var(--header-height);
-  background: rgba(10, 10, 15, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   display: grid;
@@ -107,10 +107,11 @@
   flex-direction: column;
   gap: 6px;
   padding: 16px;
-  background: rgba(16, 16, 24, 0.8);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .inlineSlot {
@@ -118,7 +119,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(5, 5, 8, 0.6);
+  background: var(--bg-secondary);
   border-radius: var(--radius-sm);
   border-left: 3px solid var(--neon-cyan);
   color: var(--text-secondary);
@@ -245,7 +246,7 @@
 }
 
 .slotTeam:hover {
-  background: rgba(0, 240, 255, 0.15);
+  background: rgba(0, 153, 170, 0.1);
   transform: scale(1.02);
 }
 
@@ -261,7 +262,7 @@
 
 .timeSlot.selected {
   border-color: var(--neon-pink);
-  background: rgba(255, 45, 106, 0.1);
+  background: rgba(232, 23, 80, 0.08);
 }
 
 .timeSlot.selected svg {
@@ -359,7 +360,7 @@
   left: 0;
   right: 0;
   padding: 16px;
-  background: rgba(10, 10, 15, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--border-color);
 }

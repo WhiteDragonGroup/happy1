@@ -56,9 +56,10 @@
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: rgba(16, 16, 24, 0.8);
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 26, 92, 0.2);
+  border: 1px solid rgba(232, 23, 80, 0.15);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 24px;
   backdrop-filter: blur(8px);
 }
@@ -109,23 +110,21 @@
 }
 
 .roleBadge.member {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .roleBadge.manager {
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 153, 170, 0.1);
   color: var(--neon-cyan);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  box-shadow: 0 0 8px var(--neon-cyan-glow);
+  border: 1px solid rgba(0, 153, 170, 0.3);
 }
 
 .roleBadge.admin {
-  background: rgba(255, 26, 92, 0.1);
+  background: rgba(232, 23, 80, 0.1);
   color: var(--neon-pink);
-  border: 1px solid rgba(255, 26, 92, 0.3);
-  box-shadow: 0 0 8px var(--neon-pink-glow);
+  border: 1px solid rgba(232, 23, 80, 0.3);
 }
 
 .profileEmail {
@@ -153,9 +152,9 @@
 .menuList {
   display: flex;
   flex-direction: column;
-  background: rgba(16, 16, 24, 0.6);
+  background: var(--bg-card);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   overflow: hidden;
   backdrop-filter: blur(4px);
 }
@@ -165,7 +164,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   transition: all var(--transition-fast);
   text-align: left;
   width: 100%;
@@ -176,7 +175,7 @@
 }
 
 .menuItem:hover {
-  background: rgba(255, 26, 92, 0.05);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .menuItem:hover .menuIcon {
@@ -190,7 +189,7 @@
   height: 40px;
   border-radius: var(--radius-sm);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,7 +247,7 @@
   width: 100%;
   padding: 16px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-md);
   font-size: 0.9375rem;
   font-weight: 500;
@@ -257,7 +256,7 @@
 }
 
 .logoutBtn:hover {
-  background: rgba(255, 26, 92, 0.1);
+  background: rgba(232, 23, 80, 0.06);
   color: var(--neon-pink);
   border-color: var(--neon-pink);
   box-shadow: 0 0 12px var(--neon-pink-glow);

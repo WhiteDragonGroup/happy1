@@ -36,7 +36,7 @@
 }
 
 .closeBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   color: var(--text-primary);
 }
 
@@ -94,7 +94,7 @@
 .genre {
   display: inline-block;
   padding: 2px 10px;
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(139, 63, 207, 0.1);
   color: var(--neon-purple);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
@@ -103,7 +103,7 @@
 .unregistered {
   display: inline-block;
   padding: 2px 10px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--text-muted);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
@@ -122,7 +122,7 @@
 }
 
 .favoriteBtn:hover {
-  background: rgba(255, 26, 92, 0.1);
+  background: rgba(232, 23, 80, 0.06);
   color: var(--neon-pink);
 }
 
@@ -149,7 +149,7 @@
   gap: 12px;
   margin-bottom: 20px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: var(--radius-md);
 }
 
@@ -176,7 +176,7 @@
   justify-content: center;
   width: 44px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 0.875rem;
@@ -185,7 +185,7 @@
 }
 
 .xBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 

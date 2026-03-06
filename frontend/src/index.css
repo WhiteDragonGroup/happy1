@@ -1,44 +1,44 @@
 :root {
-  /* UNDERPASS - 지하아이돌 컬러 팔레트 */
-  --bg-primary: #050508;
-  --bg-secondary: #0a0a10;
-  --bg-card: #101018;
-  --bg-elevated: #18181f;
+  /* 클린 화이트 테마 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0f0f2;
 
-  --text-primary: #f0f0f5;
-  --text-secondary: #8888a0;
-  --text-muted: #505068;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-muted: #999999;
 
-  --neon-pink: #ff1a5c;
-  --neon-pink-glow: rgba(255, 26, 92, 0.5);
-  --neon-cyan: #00f0ff;
-  --neon-cyan-glow: rgba(0, 240, 255, 0.5);
-  --neon-purple: #a855f7;
-  --neon-purple-glow: rgba(168, 85, 247, 0.5);
-  --neon-yellow: #facc15;
-  --neon-yellow-glow: rgba(250, 204, 21, 0.5);
-  --neon-green: #22ff66;
-  --neon-green-glow: rgba(34, 255, 102, 0.4);
+  --neon-pink: #e81750;
+  --neon-pink-glow: rgba(232, 23, 80, 0.15);
+  --neon-cyan: #0099aa;
+  --neon-cyan-glow: rgba(0, 153, 170, 0.15);
+  --neon-purple: #8b3fcf;
+  --neon-purple-glow: rgba(139, 63, 207, 0.15);
+  --neon-yellow: #d4a900;
+  --neon-yellow-glow: rgba(212, 169, 0, 0.15);
+  --neon-green: #0fa34f;
+  --neon-green-glow: rgba(15, 163, 79, 0.15);
 
   /* 레거시 호환 */
   --neon-blue: var(--neon-cyan);
   --neon-blue-glow: var(--neon-cyan-glow);
-  --neon-orange: #ff6b00;
-  --neon-orange-glow: rgba(255, 107, 0, 0.4);
+  --neon-orange: #e05500;
+  --neon-orange-glow: rgba(224, 85, 0, 0.15);
 
   --gradient-primary: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
   --gradient-secondary: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
   --gradient-glitch: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-purple));
-  --gradient-bg: radial-gradient(ellipse at top, #0f0f1a 0%, #050508 60%);
+  --gradient-bg: linear-gradient(180deg, #f5f5f7 0%, #ffffff 60%);
 
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-glow: rgba(255, 255, 255, 0.12);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-glow: rgba(0, 0, 0, 0.12);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
-  --shadow-neon-pink: 0 0 20px var(--neon-pink-glow), 0 0 60px var(--neon-pink-glow);
-  --shadow-neon-cyan: 0 0 20px var(--neon-cyan-glow), 0 0 60px var(--neon-cyan-glow);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-neon-pink: 0 2px 8px var(--neon-pink-glow);
+  --shadow-neon-cyan: 0 2px 8px var(--neon-cyan-glow);
   --shadow-neon-blue: var(--shadow-neon-cyan);
 
   --radius-sm: 4px;
@@ -73,9 +73,6 @@ html {
 body {
   font-family: var(--font-body);
   background: var(--bg-primary);
-  background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(255, 26, 92, 0.06) 0%, transparent 50%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -172,7 +169,7 @@ img {
   left: 0;
   right: 0;
   height: var(--header-height);
-  background: rgba(10, 10, 15, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   display: flex;

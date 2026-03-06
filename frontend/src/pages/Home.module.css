@@ -2,8 +2,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(180deg, rgba(5, 5, 8, 0.95) 0%, rgba(5, 5, 8, 0.85) 100%);
-  border-bottom: 1px solid rgba(255, 26, 92, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .logo {
@@ -30,7 +30,7 @@
   justify-content: center;
   border-radius: var(--radius-sm);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
   color: var(--text-secondary);
   transition: all var(--transition-fast);
 }
@@ -49,8 +49,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(16, 16, 24, 0.8);
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-md);
   padding: 12px 16px;
   color: var(--text-muted);
@@ -79,8 +79,8 @@
 
 .searchResults {
   margin-top: 8px;
-  background: rgba(16, 16, 24, 0.95);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -88,12 +88,12 @@
 .searchResultItem {
   padding: 12px 16px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   transition: background var(--transition-fast);
 }
 
 .searchResultItem:hover {
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .searchResultItem:last-child {
@@ -121,8 +121,8 @@
 .datePicker {
   margin-bottom: 16px;
   padding: 12px;
-  background: rgba(16, 16, 24, 0.8);
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-md);
 }
 
@@ -135,8 +135,8 @@
 .dateSelect {
   flex: 1;
   padding: 10px 12px;
-  background: rgba(5, 5, 8, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.9375rem;
@@ -194,8 +194,8 @@
 }
 
 .navBtn:hover {
-  background: rgba(0, 240, 255, 0.1);
-  box-shadow: 0 0 16px var(--neon-cyan-glow);
+  background: rgba(0, 153, 170, 0.08);
+  box-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
 .monthTitle {
@@ -246,9 +246,9 @@
 
 .dayCell {
   height: 70px;
-  background: rgba(16, 16, 24, 0.6);
+  background: var(--bg-card);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -260,14 +260,14 @@
 }
 
 .dayCell:hover {
-  border-color: rgba(0, 240, 255, 0.3);
-  background: rgba(0, 240, 255, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .dayCell.today {
   border-color: var(--neon-pink);
   box-shadow: 0 0 20px var(--neon-pink-glow);
-  background: rgba(255, 26, 92, 0.08);
+  background: rgba(232, 23, 80, 0.06);
 }
 
 .dayCell.sunday .dayNumber {
@@ -300,7 +300,7 @@
   align-items: center;
   justify-content: center;
   color: var(--neon-cyan);
-  background: rgba(0, 240, 255, 0.12);
+  background: rgba(0, 153, 170, 0.12);
   border-radius: var(--radius-full);
   line-height: 1;
 }
@@ -332,9 +332,9 @@
 .favoriteTeams {
   margin-top: 24px;
   padding: 16px;
-  background: rgba(16, 16, 24, 0.8);
+  background: var(--bg-secondary);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 26, 92, 0.2);
+  border: 1px solid rgba(232, 23, 80, 0.15);
   backdrop-filter: blur(8px);
 }
 
@@ -370,7 +370,7 @@
 }
 
 .teamChip:hover {
-  background: rgba(255, 26, 92, 0.15);
+  background: rgba(232, 23, 80, 0.1);
   box-shadow: 0 0 16px var(--neon-pink-glow);
 }
 

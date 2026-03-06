@@ -129,7 +129,7 @@ export default function DaySchedules() {
                         position: 'absolute',
                         top: 4,
                         right: 4,
-                        background: 'rgba(0,0,0,0.6)',
+                        background: 'rgba(255,255,255,0.8)',
                         borderRadius: '50%',
                         padding: 4
                       }}>
@@ -185,7 +185,7 @@ export default function DaySchedules() {
                                     fontSize: '0.75rem',
                                     padding: '2px 8px',
                                     borderRadius: 'var(--radius-sm)',
-                                    background: isFav ? 'rgba(255, 26, 92, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                                    background: isFav ? 'rgba(232, 23, 80, 0.1)' : 'var(--bg-secondary)',
                                     color: isFav ? 'var(--neon-pink)' : 'var(--text-secondary)',
                                     border: isFav ? '1px solid var(--neon-pink)' : '1px solid transparent',
                                     display: 'inline-flex',

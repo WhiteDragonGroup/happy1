@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px;
-  background: rgba(10, 10, 15, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   z-index: 100;
@@ -106,7 +106,7 @@
 }
 
 .card:hover {
-  border-color: rgba(0, 240, 255, 0.3);
+  border-color: rgba(0, 153, 170, 0.2);
 }
 
 .cardHeader {
@@ -150,32 +150,32 @@
 }
 
 .badgePending {
-  background: rgba(255, 193, 7, 0.15);
-  color: #ffc107;
+  background: rgba(180, 140, 0, 0.1);
+  color: #b48c00;
 }
 
 .badgeApproved {
-  background: rgba(0, 255, 136, 0.15);
+  background: rgba(15, 163, 79, 0.1);
   color: var(--neon-green);
 }
 
 .badgeRejected {
-  background: rgba(255, 26, 92, 0.15);
+  background: rgba(232, 23, 80, 0.1);
   color: var(--neon-pink);
 }
 
 .badgeAdmin {
-  background: rgba(255, 26, 92, 0.15);
+  background: rgba(232, 23, 80, 0.1);
   color: var(--neon-pink);
 }
 
 .badgeManager {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(139, 63, 207, 0.1);
   color: var(--neon-purple);
 }
 
 .badgeUser {
-  background: rgba(0, 240, 255, 0.15);
+  background: rgba(0, 153, 170, 0.1);
   color: var(--neon-cyan);
 }
 
@@ -219,7 +219,7 @@
 }
 
 .iconBtnDanger:hover {
-  background: rgba(255, 26, 92, 0.1);
+  background: rgba(232, 23, 80, 0.06);
   color: var(--neon-pink);
 }
 
@@ -288,7 +288,7 @@
 }
 
 .filterBtn.active {
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 153, 170, 0.08);
   border-color: var(--neon-cyan);
   color: var(--neon-cyan);
 }
@@ -326,7 +326,7 @@
 }
 
 .headerBtn:hover {
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(0, 153, 170, 0.08);
 }
 
 /* 모달 */

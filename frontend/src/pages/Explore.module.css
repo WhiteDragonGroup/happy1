@@ -1,6 +1,6 @@
 .header {
-  background: linear-gradient(180deg, rgba(5, 5, 8, 0.95) 0%, rgba(5, 5, 8, 0.85) 100%);
-  border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .pageTitle {
@@ -17,7 +17,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(10, 10, 15, 0.97);
+  background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   padding: 10px 16px 0;
@@ -131,7 +131,7 @@
   gap: 6px;
   padding: 8px 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-sm);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -145,10 +145,10 @@
 }
 
 .filterBtn.active {
-  background: rgba(255, 26, 92, 0.1);
+  background: rgba(232, 23, 80, 0.08);
   border-color: var(--neon-pink);
   color: var(--neon-pink);
-  box-shadow: 0 0 12px var(--neon-pink-glow);
+  box-shadow: 0 0 6px var(--neon-pink-glow);
 }
 
 .filterTags {
@@ -157,8 +157,8 @@
   gap: 8px;
   margin-bottom: 20px;
   padding: 12px;
-  background: rgba(16, 16, 24, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   border-radius: var(--radius-md);
   backdrop-filter: blur(4px);
 }
@@ -168,7 +168,7 @@
   align-items: center;
   padding: 5px 10px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 500;
@@ -183,10 +183,10 @@
 }
 
 .filterTagActive {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(139, 63, 207, 0.1);
   border-color: var(--neon-purple);
   color: var(--neon-purple);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 8px rgba(139, 63, 207, 0.15);
 }
 
 .clearFilter {
@@ -225,9 +225,10 @@
 }
 
 .scheduleCard {
-  background: rgba(16, 16, 24, 0.8);
+  background: var(--bg-card);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -239,7 +240,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 26, 92, 0.03) 0%, rgba(168, 85, 247, 0.03) 100%);
+  background: linear-gradient(135deg, rgba(232, 23, 80, 0.02) 0%, rgba(139, 63, 207, 0.02) 100%);
   opacity: 0;
   transition: opacity var(--transition-normal);
   pointer-events: none;
@@ -251,10 +252,10 @@
 
 .scheduleCard:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 26, 92, 0.3);
+  border-color: rgba(232, 23, 80, 0.2);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px var(--neon-pink-glow);
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 0 10px var(--neon-pink-glow);
 }
 
 .posterWrap {
@@ -288,7 +289,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 26, 92, 0.3);
+  border: 1px solid rgba(232, 23, 80, 0.2);
 }
 
 .freeBadge {
@@ -308,7 +309,7 @@
 
 .cardContent {
   padding: 8px;
-  background: linear-gradient(180deg, transparent 0%, rgba(5, 5, 8, 0.4) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
 }
 
 .scheduleTitle {
