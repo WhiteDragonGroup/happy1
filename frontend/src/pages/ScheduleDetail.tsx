@@ -102,7 +102,7 @@ export default function ScheduleDetail() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `티켓스테이지 - ${schedule.title}`,
+          title: `TICKET STAGE - ${schedule.title}`,
           text: `${schedule.organizer || ''} ${schedule.title}`.trim(),
           url: window.location.href
         });

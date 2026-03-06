@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, MessageSquare, Plus, Send } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, MessageSquare, Plus, Send, ChevronDown } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { inquiryAPI } from '../api';
 import styles from './common.module.css';
@@ -28,6 +28,7 @@ export default function Inquiries() {
   const [submitting, setSubmitting] = useState(false);
   const [answerText, setAnswerText] = useState<{ [key: number]: string }>({});
   const [answeringId, setAnsweringId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -160,57 +161,103 @@ export default function Inquiries() {
             </button>
           </div>
         ) : (
-          <div className={styles.cardList}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {inquiries.map((inquiry, idx) => (
               <motion.div
                 key={inquiry.id}
-                className={styles.card}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
+                transition={{ delay: idx * 0.03 }}
               >
-                <div className={styles.cardHeader}>
-                  <div>
-                    <span className={styles.cardTitle}>{inquiry.title}</span>
-                    {isAdmin && inquiry.userName && (
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                        {inquiry.userName} ({inquiry.userEmail})
-                      </p>
-                    )}
-                  </div>
-                  <span className={`${styles.badge} ${inquiry.status === 'ANSWERED' ? styles.badgeApproved : styles.badgePending}`}>
-                    {inquiry.status === 'ANSWERED' ? '답변완료' : '대기중'}
+                {/* 아코디언 헤더 */}
+                <div
+                  onClick={() => setExpandedId(expandedId === inquiry.id ? null : inquiry.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '12px 14px', cursor: 'pointer',
+                    background: expandedId === inquiry.id ? 'var(--bg-secondary)' : 'var(--bg-card)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-color)',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <span className={`${styles.badge} ${inquiry.status === 'ANSWERED' ? styles.badgeApproved : styles.badgePending}`}
+                    style={{ fontSize: '0.625rem', padding: '2px 6px', flexShrink: 0 }}>
+                    {inquiry.status === 'ANSWERED' ? '완료' : '대기'}
                   </span>
+                  <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--text-primary)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {inquiry.title}
+                  </span>
+                  {isAdmin && inquiry.userName && (
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', flexShrink: 0 }}>
+                      {inquiry.userName}
+                    </span>
+                  )}
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', flexShrink: 0 }}>
+                    {new Date(inquiry.createdAt).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })}
+                  </span>
+                  <ChevronDown size={14} style={{
+                    color: 'var(--text-muted)', flexShrink: 0,
+                    transform: expandedId === inquiry.id ? 'rotate(180deg)' : 'rotate(0)',
+                    transition: 'transform 0.2s'
+                  }} />
                 </div>
-                <p className={styles.cardContent}>{inquiry.content}</p>
-                {inquiry.answer && (
-                  <div style={{ marginTop: 12, padding: 12, background: 'rgba(0, 240, 255, 0.05)', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--neon-cyan)' }}>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--neon-cyan)', marginBottom: 4 }}>답변</p>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{inquiry.answer}</p>
-                  </div>
-                )}
-                {isAdmin && inquiry.status === 'PENDING' && (
-                  <div style={{ marginTop: 12 }}>
-                    <textarea
-                      value={answerText[inquiry.id] || ''}
-                      onChange={(e) => setAnswerText({ ...answerText, [inquiry.id]: e.target.value })}
-                      placeholder="답변을 입력하세요"
-                      style={{ marginBottom: 8, width: '100%', minHeight: 80 }}
-                    />
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleAnswer(inquiry.id)}
-                      disabled={answeringId === inquiry.id}
-                      style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+
+                {/* 아코디언 본문 */}
+                <AnimatePresence>
+                  {expandedId === inquiry.id && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ overflow: 'hidden' }}
                     >
-                      <Send size={14} />
-                      {answeringId === inquiry.id ? '등록 중...' : '답변 등록'}
-                    </button>
-                  </div>
-                )}
-                <span className={styles.cardMeta}>
-                  {new Date(inquiry.createdAt).toLocaleDateString('ko-KR')}
-                </span>
+                      <div style={{
+                        padding: '14px',
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '0 0 var(--radius-md) var(--radius-md)',
+                        marginTop: '-1px',
+                        border: '1px solid var(--border-color)',
+                        borderTop: 'none',
+                      }}>
+                        {isAdmin && inquiry.userName && (
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 8 }}>
+                            {inquiry.userName} ({inquiry.userEmail})
+                          </p>
+                        )}
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 12, whiteSpace: 'pre-wrap' }}>
+                          {inquiry.content}
+                        </p>
+                        {inquiry.answer && (
+                          <div style={{ padding: 12, background: 'rgba(0, 153, 170, 0.06)', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--neon-cyan)', marginBottom: 12 }}>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--neon-cyan)', marginBottom: 4 }}>답변</p>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>{inquiry.answer}</p>
+                          </div>
+                        )}
+                        {isAdmin && inquiry.status === 'PENDING' && (
+                          <div>
+                            <textarea
+                              value={answerText[inquiry.id] || ''}
+                              onChange={(e) => setAnswerText({ ...answerText, [inquiry.id]: e.target.value })}
+                              placeholder="답변을 입력하세요"
+                              style={{ marginBottom: 8, width: '100%', minHeight: 80 }}
+                            />
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleAnswer(inquiry.id)}
+                              disabled={answeringId === inquiry.id}
+                              style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+                            >
+                              <Send size={14} />
+                              {answeringId === inquiry.id ? '등록 중...' : '답변 등록'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             ))}
           </div>

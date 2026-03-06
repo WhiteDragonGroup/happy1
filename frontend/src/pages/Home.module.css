@@ -28,17 +28,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: none;
   color: var(--text-secondary);
   transition: all var(--transition-fast);
 }
 
 .iconBtn:hover {
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: 0 0 8px var(--neon-cyan-glow);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
 }
 
 .searchContainer {
@@ -185,17 +184,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   background: transparent;
-  border: 1px solid var(--neon-cyan);
-  color: var(--neon-cyan);
+  border: none;
+  color: var(--text-secondary);
   transition: all var(--transition-fast);
-  box-shadow: 0 0 8px var(--neon-cyan-glow);
 }
 
 .navBtn:hover {
-  background: rgba(0, 153, 170, 0.08);
-  box-shadow: 0 0 8px var(--neon-cyan-glow);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
 }
 
 .monthTitle {

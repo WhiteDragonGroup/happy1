@@ -47,9 +47,9 @@
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'Noto Sans KR', sans-serif;
-  --font-glitch: 'VT323', monospace;
+  --font-display: 'Gmarket Sans', 'Noto Sans KR', sans-serif;
+  --font-body: 'Pretendard', 'Noto Sans KR', sans-serif;
+  --font-glitch: 'Gmarket Sans', sans-serif;
 
   --nav-height: 72px;
   --header-height: 56px;

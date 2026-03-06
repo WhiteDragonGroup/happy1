@@ -138,7 +138,7 @@ export default function Home() {
   return (
     <div className="page">
       <header className={`page-header ${styles.header}`}>
-        <h1 className={styles.logo}>티켓스테이지</h1>
+        <h1 className={styles.logo}>TICKET STAGE</h1>
         <div className={styles.headerActions}>
           <button onClick={() => setShowSearch(!showSearch)} className={styles.iconBtn}>
             <Search size={20} />
