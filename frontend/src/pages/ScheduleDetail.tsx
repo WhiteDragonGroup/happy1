@@ -112,7 +112,7 @@ export default function ScheduleDetail() {
     }
   };
 
-  // 팀 이름 목록 추출 (중복 제거, 팬미팅 슬롯 제외)
+  // 예약용 팀 이름 목록 (팬미팅 제외)
   const teamNames = schedule.timeSlots
     ? [...new Set(schedule.timeSlots
         .filter(s => s.slotType !== 'FANMEETING')
@@ -226,7 +226,7 @@ export default function ScheduleDetail() {
           </div>
         ) : schedule.timeSlots && schedule.timeSlots.length > 0 ? (
           <div className={styles.inlineTimetable}>
-            {schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING').map((slot, idx) => (
+            {schedule.timeSlots.map((slot, idx) => (
               <div key={slot.id || idx} className={styles.inlineSlot}>
                 <Clock size={14} />
                 <span className={styles.inlineSlotTime}>
@@ -242,9 +242,11 @@ export default function ScheduleDetail() {
                     {slot.teamName}
                   </span>
                 )}
+                {slot.slotType === 'FANMEETING' && (
+                  <span style={{ fontSize: '0.7rem', color: 'var(--neon-purple)', marginLeft: 4 }}>팬미팅</span>
+                )}
               </div>
             ))}
-            {/* 팬미팅 슬롯은 비표시 */}
           </div>
         ) : null}
 
@@ -355,38 +357,37 @@ export default function ScheduleDetail() {
 
           {/* 타임테이블 */}
           {schedule.timeSlots && schedule.timeSlots.length > 0 && (() => {
-            const perfSlots = schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING');
             return (
               <>
-                {perfSlots.length > 0 && (
-                  <div className={styles.timeSlotsSection}>
-                    <h3 className={styles.sectionLabel}>타임테이블</h3>
-                    <div className={styles.timeSlots}>
-                      {perfSlots.map((slot, idx) => (
-                        <div key={slot.id || idx} className={styles.timeSlot}>
-                          <Clock size={16} />
-                          <span className={styles.slotTime}>
-                            {slot.startTime?.slice(0, 5)}
-                            {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                <div className={styles.timeSlotsSection}>
+                  <h3 className={styles.sectionLabel}>타임테이블</h3>
+                  <div className={styles.timeSlots}>
+                    {schedule.timeSlots.map((slot, idx) => (
+                      <div key={slot.id || idx} className={styles.timeSlot}>
+                        <Clock size={16} />
+                        <span className={styles.slotTime}>
+                          {slot.startTime?.slice(0, 5)}
+                          {slot.endTime && ` - ${slot.endTime.slice(0, 5)}`}
+                        </span>
+                        {slot.teamName && (
+                          <span
+                            className={styles.slotTeam}
+                            onClick={() => setSelectedArtist(slot.teamName || null)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {slot.teamName}
                           </span>
-                          {slot.teamName && (
-                            <span
-                              className={styles.slotTeam}
-                              onClick={() => setSelectedArtist(slot.teamName || null)}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {slot.teamName}
-                            </span>
-                          )}
-                          {slot.description && (
-                            <span className={styles.slotDesc}>{slot.description}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                        )}
+                        {slot.slotType === 'FANMEETING' && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--neon-purple)' }}>팬미팅</span>
+                        )}
+                        {slot.description && (
+                          <span className={styles.slotDesc}>{slot.description}</span>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                )}
-                {/* 팬미팅 슬롯은 비표시 */}
+                </div>
               </>
             );
           })()}
@@ -720,7 +721,7 @@ export default function ScheduleDetail() {
               </>
             )}
 
-            {/* 30분 입금 확인 팝업 */}
+            {/* 입금 확인 팝업 */}
             {showFinalConfirm && (
               <div style={{
                 position: 'absolute',
@@ -745,7 +746,7 @@ export default function ScheduleDetail() {
                     입금 안내
                   </p>
                   <p style={{ color: 'var(--neon-orange)', fontSize: '0.875rem', marginBottom: '20px', lineHeight: 1.5 }}>
-                    예약 신청 후 30분 내로 입금해야 합니다.<br />예약을 진행하시겠습니까?
+                    예약 신청 후 30분 내로<br />입금해야 합니다.<br />예약을 진행하시겠습니까?
                   </p>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
@@ -777,20 +778,6 @@ export default function ScheduleDetail() {
                   {' '}예약 신청 완료
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                  {completedReservation.entryNumber && (
-                    <div style={{
-                      padding: '16px 24px',
-                      background: 'rgba(0, 240, 255, 0.1)',
-                      border: '1px solid var(--neon-cyan)',
-                      borderRadius: 'var(--radius-md)',
-                      textAlign: 'center'
-                    }}>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '4px' }}>입장번호</p>
-                      <p style={{ color: 'var(--neon-cyan)', fontSize: '2rem', fontWeight: 700, fontFamily: 'var(--font-display)' }}>
-                        {completedReservation.entryNumber}
-                      </p>
-                    </div>
-                  )}
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', textAlign: 'center' }}>
                     예약 신청이 접수되었습니다
                   </p>
