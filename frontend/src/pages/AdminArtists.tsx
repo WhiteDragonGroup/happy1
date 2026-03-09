@@ -178,26 +178,21 @@ export default function AdminArtists() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.03 }}
               >
-                <div className={styles.cardHeader} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   {artist.imageUrl && (
                     <img
                       src={artist.imageUrl}
                       alt={artist.name}
-                      style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border-color)' }}
+                      style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border-color)', flexShrink: 0 }}
                     />
                   )}
-                  <div>
-                    <span className={styles.cardTitle}>{artist.name}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-primary)' }}>{artist.name}</div>
                     {artist.genre && (
-                      <span className={styles.badge} style={{ marginLeft: 8 }}>
-                        {artist.genre}
-                      </span>
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 2 }}>{artist.genre}</div>
                     )}
                   </div>
                 </div>
-                {artist.description && (
-                  <p className={styles.cardMeta}>{artist.description}</p>
-                )}
                 <div className={styles.cardActions}>
                   <button
                     className="btn btn-secondary btn-sm"
