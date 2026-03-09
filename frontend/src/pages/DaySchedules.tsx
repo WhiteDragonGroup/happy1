@@ -160,19 +160,21 @@ export default function DaySchedules() {
                       {schedule.title}
                     </h3>
 
-                    {schedule.timeSlots && schedule.timeSlots.length > 0 && (
+                    {schedule.timeSlots && schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING').length > 0 && (() => {
+                      const perfSlots = schedule.timeSlots.filter(s => s.slotType !== 'FANMEETING');
+                      return (
                       <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                           <Clock size={14} color="var(--text-muted)" />
                           <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                            {schedule.timeSlots[0].startTime?.slice(0, 5)}
-                            {schedule.timeSlots.length > 1 && ` ~ ${schedule.timeSlots[schedule.timeSlots.length - 1].endTime?.slice(0, 5)}`}
+                            {perfSlots[0].startTime?.slice(0, 5)}
+                            {perfSlots.length > 1 && ` ~ ${perfSlots[perfSlots.length - 1].endTime?.slice(0, 5)}`}
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
                           <Users size={14} color="var(--text-muted)" style={{ marginTop: 2, flexShrink: 0 }} />
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                            {schedule.timeSlots.map((slot, i) => {
+                            {perfSlots.map((slot, i) => {
                               const isFav = slot.teamName && favoriteTeamNames.has(slot.teamName.toLowerCase());
                               return slot.teamName ? (
                                 <span
@@ -209,7 +211,8 @@ export default function DaySchedules() {
                           </div>
                         </div>
                       </>
-                    )}
+                      );
+                    })()}
 
                     {schedule.venue && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

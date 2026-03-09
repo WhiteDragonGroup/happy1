@@ -192,11 +192,10 @@ export default function ScheduleDetail() {
     <div className="page">
       {/* 헤더 */}
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="page-title">일정</h1>
-        <div className={styles.headerRight}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button className={styles.backBtn} onClick={() => navigate(-1)}>
+            <ArrowLeft size={24} />
+          </button>
           <button className={styles.iconBtn} onClick={handleToggleFavorite}>
             <Heart
               size={22}
@@ -204,6 +203,9 @@ export default function ScheduleDetail() {
               color={isFavorite(String(schedule.team?.id || schedule.teamId || '')) ? 'var(--neon-pink)' : 'currentColor'}
             />
           </button>
+        </div>
+        <h1 className="page-title">일정</h1>
+        <div className={styles.headerRight}>
           <button className={styles.iconBtn} onClick={handleShare}>
             <Share2 size={22} />
           </button>

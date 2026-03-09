@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter, Heart, X } from 'lucide-react';
@@ -7,21 +7,19 @@ import styles from './Explore.module.css';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-function getWeekDates(baseDate: Date): Date[] {
-  const day = baseDate.getDay(); // 0=일 ~ 6=토
-  const monday = new Date(baseDate);
-  monday.setDate(baseDate.getDate() - ((day + 6) % 7)); // 월요일 기준
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function getDatesAround(centerDate: Date, count: number): Date[] {
+  const half = Math.floor(count / 2);
   const dates: Date[] = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
+  for (let i = -half; i <= half; i++) {
+    const d = new Date(centerDate);
+    d.setDate(centerDate.getDate() + i);
     dates.push(d);
   }
   return dates;
-}
-
-function isSameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 export default function Explore() {
@@ -30,8 +28,8 @@ export default function Explore() {
   const [showFilter, setShowFilter] = useState(false);
   const [filterFavorites, setFilterFavorites] = useState(false);
   const [selectedTeamFilters, setSelectedTeamFilters] = useState<Set<number>>(new Set());
-  const [selectedWeekBase, setSelectedWeekBase] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const stripRef = useRef<HTMLDivElement>(null);
 
   const favoriteTeams = getFavoriteTeams();
   const favoriteTeamIds = new Set(favoriteTeams.map(t => t.id));
@@ -98,28 +96,21 @@ export default function Explore() {
   };
 
   const today = new Date();
-  const weekDates = useMemo(() => getWeekDates(selectedWeekBase), [selectedWeekBase]);
+  const stripDates = useMemo(() => getDatesAround(selectedDate, 13), [selectedDate]);
 
-  const shiftWeek = (dir: number) => {
-    setSelectedWeekBase(prev => {
-      const d = new Date(prev);
-      d.setDate(d.getDate() + dir * 7);
-      return d;
-    });
+  const shiftDate = useCallback((dir: number) => {
     setSelectedDate(prev => {
       const d = new Date(prev);
-      d.setDate(d.getDate() + dir * 7);
+      d.setDate(d.getDate() + dir);
       return d;
     });
-  };
+  }, []);
 
   const goToday = () => {
-    const now = new Date();
-    setSelectedWeekBase(now);
-    setSelectedDate(now);
+    setSelectedDate(new Date());
   };
 
-  // 스와이프
+  // 스와이프 for schedule grid
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -130,57 +121,59 @@ export default function Explore() {
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-      // 날짜 1일씩 이동
-      setSelectedDate(prev => {
-        const d = new Date(prev);
-        d.setDate(d.getDate() + (dx > 0 ? -1 : 1));
-        return d;
-      });
-      setSelectedWeekBase(prev => {
-        const d = new Date(prev);
-        d.setDate(d.getDate() + (dx > 0 ? -1 : 1));
-        return d;
-      });
+      shiftDate(dx > 0 ? -1 : 1);
     }
   };
 
-  // 현재 주에 표시할 월
-  const displayMonth = weekDates[3]; // 주 중간 기준
+  // 선택된 날짜가 바뀌면 스트립 중앙으로 스크롤
+  useEffect(() => {
+    if (stripRef.current) {
+      const selected = stripRef.current.querySelector('[data-selected="true"]') as HTMLElement;
+      if (selected) {
+        selected.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [selectedDate]);
 
   return (
     <div className="page">
-      {/* 월 네비게이션 */}
+      {/* 날짜 네비게이션 */}
       <header className={styles.calHeader}>
         <div className={styles.monthNav}>
-          <button className={styles.navBtn} onClick={() => shiftWeek(-1)}>
-            <ChevronLeft size={20} />
-          </button>
           <span className={styles.monthLabel}>
-            {displayMonth.getFullYear().toString().slice(2)}년 {displayMonth.getMonth() + 1}월
+            {selectedDate.getFullYear().toString().slice(2)}년 {selectedDate.getMonth() + 1}월
           </span>
-          <button className={styles.navBtn} onClick={() => shiftWeek(1)}>
-            <ChevronRight size={20} />
-          </button>
           <button className={styles.todayBtn} onClick={goToday}>오늘</button>
         </div>
-        <div className={styles.weekStrip}>
-          {weekDates.map((d, i) => {
-            const isToday = isSameDay(d, today);
-            const isSelected = isSameDay(d, selectedDate);
-            const dayLabel = WEEKDAYS[d.getDay()];
-            return (
-              <div
-                key={i}
-                className={styles.weekDay}
-                onClick={() => setSelectedDate(new Date(d))}
-              >
-                <span className={styles.weekDayLabel}>{isToday ? '오늘' : dayLabel}</span>
-                <span className={`${styles.weekDate} ${isSelected ? styles.weekDateSelected : ''} ${isToday && !isSelected ? styles.weekDateToday : ''}`}>
-                  {d.getDate()}
-                </span>
-              </div>
-            );
-          })}
+        <div className={styles.dateStripWrap}>
+          <button className={styles.stripArrow} onClick={() => shiftDate(-1)}>
+            <ChevronLeft size={18} />
+          </button>
+          <div className={styles.dateStrip} ref={stripRef}>
+            {stripDates.map((d, i) => {
+              const isToday = isSameDay(d, today);
+              const isSelected = isSameDay(d, selectedDate);
+              const dayLabel = WEEKDAYS[d.getDay()];
+              const isSun = d.getDay() === 0;
+              const isSat = d.getDay() === 6;
+              return (
+                <div
+                  key={i}
+                  data-selected={isSelected}
+                  className={`${styles.dateChip} ${isSelected ? styles.dateChipSelected : ''} ${isToday && !isSelected ? styles.dateChipToday : ''}`}
+                  onClick={() => setSelectedDate(new Date(d))}
+                >
+                  <span className={styles.dateChipDay} style={isSun ? { color: 'var(--neon-pink)' } : isSat ? { color: 'var(--neon-cyan)' } : undefined}>
+                    {dayLabel}
+                  </span>
+                  <span className={styles.dateChipNum}>{d.getDate()}</span>
+                </div>
+              );
+            })}
+          </div>
+          <button className={styles.stripArrow} onClick={() => shiftDate(1)}>
+            <ChevronRight size={18} />
+          </button>
         </div>
       </header>
 
@@ -285,7 +278,7 @@ export default function Explore() {
                   <p className={styles.venueName}>{schedule.venue}</p>
                 )}
                 <p className={styles.artists}>
-                  {[...new Set(schedule.timeSlots?.map(s => s.teamName).filter(Boolean))].join(', ') || schedule.team?.name || ''}
+                  {[...new Set(schedule.timeSlots?.filter(s => s.slotType !== 'FANMEETING').map(s => s.teamName).filter(Boolean))].join(', ') || schedule.team?.name || ''}
                 </p>
               </div>
             </motion.div>
