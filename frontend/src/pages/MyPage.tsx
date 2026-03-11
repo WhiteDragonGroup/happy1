@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   MessageSquare,
@@ -15,6 +16,7 @@ import {
   Music
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { userAPI } from '../api';
 import styles from './MyPage.module.css';
 
 interface MenuItem {
@@ -77,9 +79,25 @@ export default function MyPage() {
   const isManager = user?.role === 'MANAGER' || user?.role === 'ADMIN';
   const isAdmin = user?.role === 'ADMIN';
 
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawText, setWithdrawText] = useState('');
+  const [withdrawing, setWithdrawing] = useState(false);
+
   const handleLogout = () => {
     logout();
-    navigate('/');
+    window.location.href = '/';
+  };
+
+  const handleWithdraw = async () => {
+    setWithdrawing(true);
+    try {
+      await userAPI.deleteMe();
+      logout();
+      window.location.href = '/';
+    } catch {
+      alert('회원탈퇴에 실패했습니다.');
+    }
+    setWithdrawing(false);
   };
 
   const getRoleBadge = () => {
@@ -170,10 +188,64 @@ export default function MyPage() {
         </section>
 
         {/* 회원탈퇴 */}
-        <button className={styles.withdrawBtn}>
+        <button className={styles.withdrawBtn} onClick={() => { setShowWithdrawModal(true); setWithdrawText(''); }}>
           회원탈퇴
         </button>
       </div>
+
+      {/* 회원탈퇴 모달 */}
+      <AnimatePresence>
+        {showWithdrawModal && (
+          <div className={styles.modalOverlay} onClick={() => setShowWithdrawModal(false)}>
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 style={{ color: 'var(--neon-pink)', fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>
+                회원탈퇴
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center', marginBottom: 8, lineHeight: 1.6 }}>
+                탈퇴하시면 모든 예약 내역과 찜 목록이<br />삭제되며 복구할 수 없습니다.
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textAlign: 'center', marginBottom: 8 }}>
+                확인을 위해 <strong style={{ color: 'var(--neon-pink)' }}>회원탈퇴</strong>를 입력해주세요
+              </p>
+              <input
+                type="text"
+                value={withdrawText}
+                onChange={e => setWithdrawText(e.target.value)}
+                placeholder="회원탈퇴"
+                style={{
+                  width: '100%', padding: '12px', borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-color)', background: 'var(--bg-card)',
+                  color: 'var(--text-primary)', fontSize: '1rem', textAlign: 'center', marginBottom: 16
+                }}
+                autoFocus
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowWithdrawModal(false)}>
+                  취소
+                </button>
+                <button
+                  className="btn btn-primary"
+                  style={{
+                    flex: 1,
+                    background: withdrawText === '회원탈퇴' ? 'var(--neon-pink)' : 'var(--text-muted)',
+                    opacity: withdrawText === '회원탈퇴' ? 1 : 0.5
+                  }}
+                  disabled={withdrawText !== '회원탈퇴' || withdrawing}
+                  onClick={handleWithdraw}
+                >
+                  {withdrawing ? '처리 중...' : '탈퇴하기'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

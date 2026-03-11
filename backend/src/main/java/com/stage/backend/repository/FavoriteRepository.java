@@ -13,4 +13,5 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     boolean existsByUserAndTeam(User user, Team team);
     void deleteByUserAndTeam(User user, Team team);
     void deleteByTeam(Team team);
+    void deleteByUser(User user);
 }

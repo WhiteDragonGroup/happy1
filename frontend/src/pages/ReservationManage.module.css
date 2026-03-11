@@ -372,6 +372,7 @@
   align-items: center;
   gap: 16px;
   padding: 40px 48px;
+  /* for X button positioning */
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid var(--neon-green);
   border-radius: var(--radius-xl);
@@ -385,6 +386,27 @@
 
 .entryToast svg {
   color: var(--neon-green);
+}
+
+/* 현장 발권 모달 */
+.walkInOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.walkInModal {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
 }
 
 @media (min-width: 640px) {

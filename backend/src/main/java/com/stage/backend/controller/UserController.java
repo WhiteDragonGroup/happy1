@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.stage.backend.repository.FavoriteRepository;
+import com.stage.backend.repository.ReservationRepository;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +23,8 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final ReservationRepository reservationRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers(@AuthenticationPrincipal User currentUser) {
@@ -81,5 +86,17 @@ public class UserController {
 
         userRepository.save(currentUser);
         return ResponseEntity.ok(userService.toResponse(currentUser));
+    }
+
+    @DeleteMapping("/me")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteMe(@AuthenticationPrincipal User currentUser) {
+        // 찜 목록 삭제
+        favoriteRepository.deleteByUser(currentUser);
+        // 예약 내역 삭제
+        reservationRepository.deleteByUser(currentUser);
+        // 회원 삭제
+        userRepository.delete(currentUser);
+        return ResponseEntity.ok().body("회원탈퇴가 완료되었습니다.");
     }
 }

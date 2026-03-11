@@ -288,7 +288,49 @@ public class ReservationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 10. 매니저 예약 취소 (MANAGER/ADMIN)
+    // 10. 현장 발권 (MANAGER/ADMIN)
+    @PostMapping("/walk-in")
+    public ResponseEntity<?> walkIn(@RequestBody Map<String, Object> body,
+                                     @AuthenticationPrincipal User user) {
+        Long scheduleId = ((Number) body.get("scheduleId")).longValue();
+        String walkInName = (String) body.get("walkInName");
+        String selectedTeamName = body.get("selectedTeamName") != null
+                ? (String) body.get("selectedTeamName") : null;
+
+        if (walkInName == null || walkInName.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("이름을 입력해주세요.");
+        }
+
+        return scheduleRepository.findById(scheduleId)
+                .map(schedule -> {
+                    if (!schedule.getManager().getId().equals(user.getId()) &&
+                            user.getRole() != User.Role.ADMIN) {
+                        return ResponseEntity.status(403).body("권한이 없습니다.");
+                    }
+
+                    // 입장번호: MAX + 1
+                    int entryNumber = reservationRepository.findMaxEntryNumberBySchedule(schedule) + 1;
+
+                    Reservation reservation = Reservation.builder()
+                            .schedule(schedule)
+                            .walkInName(walkInName.trim())
+                            .selectedTeamName(selectedTeamName)
+                            .paymentMethod(Reservation.PaymentMethod.BANK)
+                            .paymentStatus(Reservation.PaymentStatus.COMPLETED)
+                            .reservationStatus(Reservation.ReservationStatus.CONFIRMED)
+                            .amount(java.math.BigDecimal.ZERO)
+                            .entryNumber(entryNumber)
+                            .isEntered(true)
+                            .enteredAt(LocalDateTime.now())
+                            .build();
+
+                    Reservation saved = reservationRepository.save(reservation);
+                    return ResponseEntity.ok(saved);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 11. 매니저 예약 취소 (MANAGER/ADMIN)
     @PostMapping("/{id}/manager-cancel")
     public ResponseEntity<?> managerCancel(@PathVariable Long id,
                                            @AuthenticationPrincipal User user) {

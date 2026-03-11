@@ -71,7 +71,7 @@ export default function ScheduleDetail() {
 
   if (!schedule) {
     return (
-      <div className="page">
+      <div className="page" style={{ paddingTop: 0 }}>
         <header className={styles.header}>
           <button className={styles.backBtn} onClick={() => navigate(-1)}>
             <ArrowLeft size={24} />
@@ -189,7 +189,7 @@ export default function ScheduleDetail() {
   };
 
   return (
-    <div className="page">
+    <div className="page" style={{ paddingTop: 0 }}>
       {/* 헤더 */}
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

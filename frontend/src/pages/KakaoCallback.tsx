@@ -50,11 +50,15 @@ export default function KakaoCallback() {
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      height: '100vh'
+      height: '100vh',
+      gap: '24px',
+      background: 'var(--bg-primary)'
     }}>
-      <p>로그인 처리 중...</p>
+      <img src="/logo.png" alt="TICKET STAGE" style={{ width: '200px', height: 'auto' }} />
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>로그인 처리 중...</p>
     </div>
   );
 }

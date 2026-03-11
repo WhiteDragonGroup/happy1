@@ -60,6 +60,7 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className={styles.logoSection}>
+          <img src="/logo.png" alt="TICKET STAGE" className={styles.logoImage} />
           <h1 className={styles.logo}>TICKET STAGE</h1>
           <p className={styles.subtitle}>공연 예약 플랫폼</p>
         </div>

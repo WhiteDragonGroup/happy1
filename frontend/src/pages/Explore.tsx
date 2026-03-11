@@ -11,13 +11,13 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-function getDatesAround(centerDate: Date, count: number): Date[] {
-  const half = Math.floor(count / 2);
+function getMonthDates(date: Date): Date[] {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const lastDay = new Date(year, month + 1, 0).getDate();
   const dates: Date[] = [];
-  for (let i = -half; i <= half; i++) {
-    const d = new Date(centerDate);
-    d.setDate(centerDate.getDate() + i);
-    dates.push(d);
+  for (let i = 1; i <= lastDay; i++) {
+    dates.push(new Date(year, month, i));
   }
   return dates;
 }
@@ -96,12 +96,19 @@ export default function Explore() {
   };
 
   const today = new Date();
-  const stripDates = useMemo(() => getDatesAround(selectedDate, 13), [selectedDate]);
+  const monthDates = useMemo(() => getMonthDates(selectedDate), [selectedDate]);
 
-  const shiftDate = useCallback((dir: number) => {
+  const shiftPage = useCallback((dir: number) => {
+    if (stripRef.current) {
+      const scrollAmount = stripRef.current.clientWidth * 0.8;
+      stripRef.current.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+    }
+  }, []);
+
+  const shiftMonth = useCallback((dir: number) => {
     setSelectedDate(prev => {
       const d = new Date(prev);
-      d.setDate(d.getDate() + dir);
+      d.setMonth(d.getMonth() + dir, 1);
       return d;
     });
   }, []);
@@ -110,7 +117,7 @@ export default function Explore() {
     setSelectedDate(new Date());
   };
 
-  // 스와이프 for schedule grid
+  // 스와이프 for content area - 날짜 1일씩 이동
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -121,11 +128,15 @@ export default function Explore() {
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-      shiftDate(dx > 0 ? -1 : 1);
+      setSelectedDate(prev => {
+        const d = new Date(prev);
+        d.setDate(d.getDate() + (dx > 0 ? -1 : 1));
+        return d;
+      });
     }
   };
 
-  // 선택된 날짜가 바뀌면 스트립 중앙으로 스크롤
+  // 선택된 날짜가 바뀌면 스트립에서 해당 날짜로 스크롤
   useEffect(() => {
     if (stripRef.current) {
       const selected = stripRef.current.querySelector('[data-selected="true"]') as HTMLElement;
@@ -140,17 +151,23 @@ export default function Explore() {
       {/* 날짜 네비게이션 */}
       <header className={styles.calHeader}>
         <div className={styles.monthNav}>
+          <button className={styles.navBtn} onClick={() => shiftMonth(-1)}>
+            <ChevronLeft size={20} />
+          </button>
           <span className={styles.monthLabel}>
-            {selectedDate.getFullYear().toString().slice(2)}년 {selectedDate.getMonth() + 1}월
+            {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
           </span>
+          <button className={styles.navBtn} onClick={() => shiftMonth(1)}>
+            <ChevronRight size={20} />
+          </button>
           <button className={styles.todayBtn} onClick={goToday}>오늘</button>
         </div>
         <div className={styles.dateStripWrap}>
-          <button className={styles.stripArrow} onClick={() => shiftDate(-1)}>
+          <button className={styles.stripArrow} onClick={() => shiftPage(-1)}>
             <ChevronLeft size={18} />
           </button>
           <div className={styles.dateStrip} ref={stripRef}>
-            {stripDates.map((d, i) => {
+            {monthDates.map((d, i) => {
               const isToday = isSameDay(d, today);
               const isSelected = isSameDay(d, selectedDate);
               const dayLabel = WEEKDAYS[d.getDay()];
@@ -163,7 +180,7 @@ export default function Explore() {
                   className={`${styles.dateChip} ${isSelected ? styles.dateChipSelected : ''} ${isToday && !isSelected ? styles.dateChipToday : ''}`}
                   onClick={() => setSelectedDate(new Date(d))}
                 >
-                  <span className={styles.dateChipDay} style={isSun ? { color: 'var(--neon-pink)' } : isSat ? { color: 'var(--neon-cyan)' } : undefined}>
+                  <span className={styles.dateChipDay} style={isSelected ? undefined : isSun ? { color: 'var(--neon-pink)' } : isSat ? { color: 'var(--neon-cyan)' } : undefined}>
                     {dayLabel}
                   </span>
                   <span className={styles.dateChipNum}>{d.getDate()}</span>
@@ -171,13 +188,13 @@ export default function Explore() {
               );
             })}
           </div>
-          <button className={styles.stripArrow} onClick={() => shiftDate(1)}>
+          <button className={styles.stripArrow} onClick={() => shiftPage(1)}>
             <ChevronRight size={18} />
           </button>
         </div>
       </header>
 
-      <div className={styles.container}>
+      <div className={styles.container} onTouchStart={handleTouchStart} onTouchEnd={handleSwipeEnd}>
         {/* 필터 버튼 */}
         <div className={styles.filterBar}>
           <button
@@ -243,7 +260,7 @@ export default function Explore() {
         )}
 
         {/* 일정 그리드 */}
-        <div className={styles.scheduleGrid} onTouchStart={handleTouchStart} onTouchEnd={handleSwipeEnd}>
+        <div className={styles.scheduleGrid}>
           {filteredSchedules.map((schedule, idx) => {
             const teamId = getTeamId(schedule);
             const favColor = isFavorite(teamId) ? getFavoriteColor(teamId) : undefined;

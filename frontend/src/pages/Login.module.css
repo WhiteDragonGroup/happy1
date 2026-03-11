@@ -80,6 +80,12 @@
   margin-bottom: 16px;
 }
 
+.logoImage {
+  width: 120px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
 @keyframes logoFlicker {
   0%, 100% { opacity: 1; }
   41% { opacity: 1; }

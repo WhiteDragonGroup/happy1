@@ -22,9 +22,9 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // === FK: User ===
+    // === FK: User (nullable for walk-in) ===
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
@@ -70,6 +70,9 @@ public class Reservation {
             this.userNickname = user.getNickname();
             this.userPhone = user.getPhone();
             this.userEmail = user.getEmail();
+        } else if (walkInName != null) {
+            // 현장 발권 예약
+            this.userName = walkInName;
         }
         if (schedule != null) {
             this.scheduleId = schedule.getId();
@@ -122,6 +125,9 @@ public class Reservation {
     private String refundBank;
     private String refundAccount;
     private String refundHolder;
+
+    // === 현장 발권 이름 ===
+    private String walkInName;
 
     // === 입장번호 ===
     private Integer entryNumber;

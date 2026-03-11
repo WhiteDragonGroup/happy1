@@ -101,6 +101,7 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   flex: 1;
+  justify-content: center;
 }
 
 .dateStrip::-webkit-scrollbar {

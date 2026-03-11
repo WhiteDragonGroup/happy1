@@ -11,7 +11,9 @@ import {
   Users,
   LogIn,
   Clock,
-  CheckCircle
+  CheckCircle,
+  X,
+  Ticket
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { reservationAPI } from '../api';
@@ -30,6 +32,11 @@ export default function ReservationManage() {
   const [showScanner, setShowScanner] = useState(false);
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [entryToast, setEntryToast] = useState<string | null>(null);
+  const [showWalkIn, setShowWalkIn] = useState(false);
+  const [walkInStep, setWalkInStep] = useState<'team' | 'name'>('team');
+  const [walkInTeam, setWalkInTeam] = useState('');
+  const [walkInName, setWalkInName] = useState('');
+  const [walkInSubmitting, setWalkInSubmitting] = useState(false);
   const scannerRef = useRef<any>(null);
   const processingRef = useRef(false);
   const scannerElementId = 'qr-reader';
@@ -38,6 +45,40 @@ export default function ReservationManage() {
   const isManagerOrAdmin = user && schedule
     ? (schedule.managerId === user.id || user.role === 'ADMIN')
     : false;
+
+  // 팀 이름 목록 (팬미팅 제외)
+  const teamNames = schedule?.timeSlots
+    ? [...new Set(schedule.timeSlots
+        .filter(s => s.slotType !== 'FANMEETING')
+        .map(s => s.teamName)
+        .filter(Boolean) as string[])]
+    : [];
+
+  // 현장 발권 처리
+  const handleWalkIn = async () => {
+    if (!walkInName.trim() || !scheduleId) return;
+    setWalkInSubmitting(true);
+    try {
+      const res = await reservationAPI.walkIn({
+        scheduleId: Number(scheduleId),
+        walkInName: walkInName.trim(),
+        selectedTeamName: walkInTeam || undefined,
+      });
+      const newReservation = res.data as Reservation;
+      setReservationList(prev => [...prev, newReservation]);
+      setShowWalkIn(false);
+      setWalkInName('');
+      setWalkInTeam('');
+      setWalkInStep('team');
+      // 입장 토스트
+      const teamLabel = walkInTeam ? ` [${walkInTeam}]` : '';
+      setEntryToast(`${walkInName.trim()}${teamLabel} 현장 발권 완료`);
+      setTimeout(() => setEntryToast(null), 5000);
+    } catch (err: any) {
+      alert(err.response?.data || '현장 발권에 실패했습니다.');
+    }
+    setWalkInSubmitting(false);
+  };
 
   // 예약자 목록 불러오기
   useEffect(() => {
@@ -98,12 +139,13 @@ export default function ReservationManage() {
               );
 
               const name = enteredReservation.userName || '예약자';
+              const teamLabel = enteredReservation.selectedTeamName ? ` [${enteredReservation.selectedTeamName}]` : '';
               const entryNum = enteredReservation.entryNumber ? ` (입장번호: ${enteredReservation.entryNumber})` : '';
-              setScanResult({ type: 'success', message: `${name}${entryNum} 입장 처리 완료` });
+              setScanResult({ type: 'success', message: `${name}${teamLabel}${entryNum} 입장 처리 완료` });
 
               // 큰 토스트 알림
-              setEntryToast(`${name} 입장되었습니다`);
-              setTimeout(() => setEntryToast(null), 3000);
+              setEntryToast(`${name}${teamLabel} 입장되었습니다`);
+              setTimeout(() => setEntryToast(null), 5000);
             } catch (err: any) {
               const msg = err.response?.data || 'QR코드 처리 실패';
               setScanResult({ type: 'error', message: typeof msg === 'string' ? msg : 'QR코드 처리 실패' });
@@ -146,6 +188,12 @@ export default function ReservationManage() {
             : r
         )
       );
+      // 입장 토스트
+      const reservation = reservationList.find(r => r.id === reservationId);
+      const name = reservation?.userName || enteredReservation.userName || '예약자';
+      const teamLabel = reservation?.selectedTeamName ? ` [${reservation.selectedTeamName}]` : '';
+      setEntryToast(`${name}${teamLabel} 입장되었습니다`);
+      setTimeout(() => setEntryToast(null), 5000);
     } catch (err: any) {
       alert(err.response?.data || '입장 처리에 실패했습니다.');
     }
@@ -292,6 +340,18 @@ export default function ReservationManage() {
         </button>
         <h1 className="page-title">예약자 관리</h1>
         <div className={styles.headerRight}>
+          <button
+            className={styles.iconBtn}
+            onClick={() => {
+              setShowWalkIn(true);
+              setWalkInStep(teamNames.length > 0 ? 'team' : 'name');
+              setWalkInTeam('');
+              setWalkInName('');
+            }}
+            title="현장 발권"
+          >
+            <Ticket size={22} />
+          </button>
           <button
             className={`${styles.iconBtn} ${showScanner ? styles.active : ''}`}
             onClick={() => setShowScanner(!showScanner)}
@@ -535,7 +595,11 @@ export default function ReservationManage() {
                       <button
                         className={styles.cancelBtn}
                         onClick={() => handleManagerCancel(reservation.id)}
-                        style={{ fontSize: '0.75rem', padding: '6px 12px' }}
+                        style={{
+                          fontSize: '0.75rem', padding: '6px 12px',
+                          ...(reservation.isEntered ? { opacity: 0.3, pointerEvents: 'none' as const } : {})
+                        }}
+                        disabled={reservation.isEntered}
                       >
                         예약취소
                       </button>
@@ -561,9 +625,137 @@ export default function ReservationManage() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 50 }}
         >
+          <button
+            onClick={() => setEntryToast(null)}
+            style={{
+              position: 'absolute', top: 8, right: 8,
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text-muted)', padding: 4
+            }}
+          >
+            <X size={18} />
+          </button>
           <CheckCircle size={40} />
           <span>{entryToast}</span>
         </motion.div>
+      )}
+
+      {/* 현장 발권 모달 */}
+      {showWalkIn && (
+        <div className={styles.walkInOverlay} onClick={() => !walkInSubmitting && setShowWalkIn(false)}>
+          <motion.div
+            className={styles.walkInModal}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={e => e.stopPropagation()}
+          >
+            {walkInStep === 'team' && teamNames.length > 0 ? (
+              <>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, textAlign: 'center', marginBottom: 16 }}>
+                  보러 온 팀 선택
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                  {teamNames.map(name => (
+                    <button
+                      key={name}
+                      onClick={() => setWalkInTeam(name)}
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        border: walkInTeam === name
+                          ? '2px solid var(--neon-pink)'
+                          : '1px solid var(--border-color)',
+                        background: walkInTeam === name
+                          ? 'rgba(255,0,128,0.08)'
+                          : 'var(--bg-card)',
+                        cursor: 'pointer',
+                        fontWeight: walkInTeam === name ? 600 : 400,
+                        color: 'var(--text-primary)',
+                        textAlign: 'center',
+                        fontSize: '0.9375rem'
+                      }}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={!walkInTeam}
+                  onClick={() => setWalkInStep('name')}
+                >
+                  다음
+                </button>
+                <button
+                  style={{
+                    width: '100%', marginTop: 8, padding: 12,
+                    background: 'transparent', border: 'none',
+                    color: 'var(--text-muted)', fontSize: '0.875rem', cursor: 'pointer'
+                  }}
+                  onClick={() => setShowWalkIn(false)}
+                >
+                  취소
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, textAlign: 'center', marginBottom: 16 }}>
+                  현장 발권
+                </h3>
+                {walkInTeam && (
+                  <p style={{ textAlign: 'center', color: 'var(--neon-pink)', fontSize: '0.875rem', marginBottom: 12 }}>
+                    팀: {walkInTeam}
+                  </p>
+                )}
+                <input
+                  type="text"
+                  placeholder="이름 또는 닉네임 입력"
+                  value={walkInName}
+                  onChange={e => setWalkInName(e.target.value)}
+                  autoFocus
+                  style={{
+                    width: '100%', padding: '14px 16px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-primary)',
+                    fontSize: '1rem',
+                    marginBottom: 16
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && walkInName.trim()) handleWalkIn();
+                  }}
+                />
+                <button
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={!walkInName.trim() || walkInSubmitting}
+                  onClick={handleWalkIn}
+                >
+                  {walkInSubmitting ? '처리 중...' : '발권 완료'}
+                </button>
+                <button
+                  style={{
+                    width: '100%', marginTop: 8, padding: 12,
+                    background: 'transparent', border: 'none',
+                    color: 'var(--text-muted)', fontSize: '0.875rem', cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (teamNames.length > 0 && walkInStep === 'name') {
+                      setWalkInStep('team');
+                    } else {
+                      setShowWalkIn(false);
+                    }
+                  }}
+                  disabled={walkInSubmitting}
+                >
+                  {teamNames.length > 0 && walkInStep === 'name' ? '이전' : '취소'}
+                </button>
+              </>
+            )}
+          </motion.div>
+        </div>
       )}
     </div>
   );

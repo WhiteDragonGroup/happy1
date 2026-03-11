@@ -97,6 +97,8 @@ export const reservationAPI = {
   cancel: (id: number) => api.post(`/reservations/${id}/cancel`),
   cancelRequest: (id: number) => api.post(`/reservations/${id}/cancel-request`),
   managerCancel: (id: number) => api.post(`/reservations/${id}/manager-cancel`),
+  walkIn: (data: { scheduleId: number; walkInName: string; selectedTeamName?: string }) =>
+    api.post('/reservations/walk-in', data),
 };
 
 // User API
@@ -106,6 +108,7 @@ export const userAPI = {
   getMe: () => api.get('/users/me'),
   updateMe: (data: { name?: string; phone?: string; email?: string }) =>
     api.patch('/users/me', data),
+  deleteMe: () => api.delete('/users/me'),
 };
 
 // Inquiry API

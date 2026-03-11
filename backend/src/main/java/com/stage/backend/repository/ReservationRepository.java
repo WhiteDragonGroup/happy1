@@ -29,6 +29,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT COALESCE(MAX(r.entryNumber), 0) FROM Reservation r WHERE r.schedule = :schedule")
     int findMaxEntryNumberBySchedule(Schedule schedule);
 
+    void deleteByUser(User user);
+
     // 미입금 예약 자동 취소용: PENDING 상태이고 생성일이 특정 시간 이전인 예약들
     List<Reservation> findByPaymentStatusAndReservationStatusAndCreatedAtBefore(
             Reservation.PaymentStatus paymentStatus,
